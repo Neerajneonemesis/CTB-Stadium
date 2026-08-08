@@ -1,4 +1,4 @@
-# CTB Stadium: Anime Battle Sim
+# CTB Stadium: Anime Battle Sim (WIP)
 
 > **⚠️ DISCLAIMER:** *CTB Stadium is a free, non-profit fan project. It is strictly not affiliated with, endorsed, or sponsored by Nintendo, Game Freak, or The Pokémon Company. All related characters, names, and assets are property of their respective owners.*
 
