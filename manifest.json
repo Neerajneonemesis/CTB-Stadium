@@ -1,0 +1,24 @@
+{
+  "name": "CTB Stadium: Anime Battle Sim",
+  "short_name": "CTB Stadium",
+  "description": "An anime style Pokémon battle simulator. Battle your friends online or on the same device.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#202020",
+  "theme_color": "#28639c",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "ctbsicon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "ctbsicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

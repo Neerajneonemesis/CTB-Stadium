@@ -1,0 +1,2981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CTB Stadium: Anime Battle Sim</title>
+    <!-- PWA Manifest & Theme -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#28639c">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="ctbs.jpg">
+
+    <!-- Service Worker Registration Script -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((reg) => console.log('PWA Service Worker registered:', reg.scope))
+                    .catch((err) => console.error('PWA Registration failed:', err));
+            });
+        }
+    </script>
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png">
+        <!-- SOCIAL MEDIA SHARE PREVIEWS (Open Graph) -->
+    <meta property="og:title" content="CTB Stadium: Anime Battle Sim">
+    <meta property="og:description" content="An anime style pokemon battle simulator. Battle your friends online or on the same device.">
+    
+    <!-- IMPORTANT: This must be a FULL link (starting with https://), not just a file name! -->
+    <meta property="og:image" content="https://static.wikia.nocookie.net/pokemon/images/4/4d/Ash_Gengar.png/revision/latest?cb=20210612050948">
+    <meta property="og:url" content="https://ctbstadium.gamer.free">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter / Discord Large Card Format -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="CTB Stadium">
+    <meta name="twitter:description" content="An anime style pokemon battle simulator. Battle your friends online or on the same device.">
+    <meta name="twitter:image" content="https://ctbstadium.gamer.free/ctbs.jpg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        /* Classic RPG Typography and Layout */
+        body { 
+            background-color: #000; 
+            color: #111; 
+            touch-action: manipulation; 
+            overscroll-behavior-y: none; 
+            font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Chunky Retro Scrollbar instead of hiding it */
+.custom-scrollbar::-webkit-scrollbar { 
+    width: 14px; 
+    height: 14px;
+}
+.custom-scrollbar::-webkit-scrollbar-track { 
+    background-color: #f8f8f8; 
+    border-left: 2px solid #222;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb { 
+    background-color: #94a3b8; 
+    border: 2px solid #222; 
+    box-shadow: inset -2px -2px 0 rgba(0,0,0,0.3);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { 
+    background-color: #64748b; 
+}
+
+        /* Classic Thick Borders & Shadows */
+        .pkmn-panel {
+            background-color: #f8f8f8;
+            border: 3px solid #222;
+            border-radius: 8px;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.8);
+        }
+        .pkmn-panel-dark {
+            background-color: #2a3b4c;
+            border: 3px solid #111;
+            border-radius: 8px;
+            box-shadow: 4px 4px 0px rgba(0,0,0,1);
+            color: #fff;
+        }
+        
+        /* Angled HP Box Style (Gen 5 style) */
+        .hp-box {
+            background: linear-gradient(180deg, #fefefe 0%, #e0e0e0 100%);
+            border: 2px solid #222;
+            border-radius: 8px 0px 8px 0px;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+            padding: 4px 6px;
+        }
+        .hp-bar-container {
+            border: 2px solid #222;
+            background-color: #444;
+            border-radius: 4px;
+            height: 10px;
+            width: 100%;
+            overflow: hidden;
+            box-shadow: inset 1px 1px 2px rgba(0,0,0,0.8);
+        }
+        
+        /* Tactile Buttons */
+        .pkmn-btn {
+            border: 3px solid #222;
+            border-radius: 6px;
+            box-shadow: 0 4px 0 #222, inset 0 2px 0 rgba(255,255,255,0.4);
+            transition: all 0.1s;
+            cursor: pointer;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+        }
+        .pkmn-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #222, inset 0 2px 0 rgba(255,255,255,0.4);
+        }
+        .pkmn-btn:disabled {
+            opacity: 0.5;
+            filter: grayscale(100%);
+            cursor: not-allowed;
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #222;
+        }
+
+                        /* Environments */
+        .bg-battle-arena {
+            background-color: #22c55e;
+            background-image: 
+                /* 1. Inner Arena Glow / Vignette */
+                radial-gradient(ellipse at 50% 60%, transparent 40%, rgba(0, 0, 0, 0.3) 100%),
+                /* 2. Player 1 Battle Platform (Foreground) */
+                radial-gradient(ellipse 60% 25% at 30% 85%, rgba(0,0,0,0.12) 0%, transparent 60%),
+                /* 3. Player 2 Battle Platform (Background) */
+                radial-gradient(ellipse 50% 20% at 75% 45%, rgba(0,0,0,0.12) 0%, transparent 60%),
+                /* 4. Horizon Mist (Blends the hard line at the 25% mark) */
+                linear-gradient(to bottom, transparent 20%, rgba(255,255,255,0.8) 25%, rgba(255,255,255,0.3) 28%, transparent 40%),
+                /* 5. Sky Backdrop */
+                linear-gradient(to bottom, #0ea5e9 0%, #e0f2fe 100%),
+                /* 6. Mowed Grass Stripes (Stadium feel) */
+                repeating-linear-gradient(to bottom, transparent, transparent 24px, rgba(0,0,0,0.04) 24px, rgba(0,0,0,0.04) 48px),
+                /* 7. Base Grass Gradient */
+                linear-gradient(to bottom, #a3e635 0%, #22c55e 50%, #14532d 100%);
+            background-size: 
+                100% 100%, /* Vignette */
+                100% 100%, /* P1 Platform */
+                100% 100%, /* P2 Platform */
+                100% 100%, /* Mist */
+                100% 25%,  /* Sky locks to top 25% */
+                100% 75%,  /* Stripes lock to bottom 75% */
+                100% 75%;  /* Grass locks to bottom 75% */
+            background-position: 
+                top left, top left, top left, top left, 
+                top left,    /* Sky */
+                bottom left, /* Stripes */
+                bottom left; /* Grass */
+            background-repeat: no-repeat;
+        }
+                .battle-shadow {
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            transform: scaleY(0.25);
+            filter: blur(1px);
+        }
+
+        /* Animations */
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
+            40%, 60% { transform: translate3d(8px, 0, 0); }
+        }
+        /* Protect Forcefield Effect */
+        .protect-bubble {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 50%;
+            border: 4px solid rgba(96, 165, 250, 0.9);
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(96,165,250,0.4) 100%);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.6);
+            z-index: 30;
+            animation: shield-pulse 1s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes shield-pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            100% { transform: scale(1.05); opacity: 1; }
+        }
+        .attack-p1 { animation: attackP1 0.4s cubic-bezier(.36,.07,.19,.97) forwards; }
+        @keyframes attackP1 { 0%, 100% { transform: translateX(0px); } 40% { transform: translateX(40px) scale(1.1); } }
+        
+        .attack-p2 { animation: attackP2 0.4s cubic-bezier(.36,.07,.19,.97) forwards; }
+        @keyframes attackP2 { 0%, 100% { transform: translateX(0px); } 40% { transform: translateX(-40px) scale(1.1); } }
+
+        .damage-text {
+            position: absolute;
+            animation: floatUp 1.2s ease-out forwards;
+            pointer-events: none;
+            font-weight: 900;
+            font-family: 'Courier New', Courier, monospace;
+            text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
+            z-index: 100;
+            text-align: center;
+        }
+        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-50px) scale(1.2); opacity: 0; } }
+                /* DUAL-STATE HUD & ARENA EXPANSION */
+        #battle-screen.menu-collapsed .simple-hud { display: none !important; }
+        #battle-screen:not(.menu-collapsed) .detailed-hud { display: none !important; }
+
+        /* Spread the arena wide open when the menu collapses */
+        #battle-screen.menu-collapsed #arena-wrapper {
+            justify-content: space-between;
+            padding-top: 2rem;
+            padding-bottom: 3rem;
+        }
+                /* --- RETRO VFX & AURAS --- */
+        
+        /* The classic Gen 4 Damage Flicker */
+        .sprite-flash-hit { animation: sprite-flicker 0.4s steps(2, end) forwards; }
+        @keyframes sprite-flicker {
+            0%, 50%, 100% { opacity: 1; filter: brightness(1); }
+            25%, 75% { opacity: 0; filter: brightness(2) contrast(2); }
+        }
+
+        /* Attacker Casting Auras */
+                /* Attacker Casting Auras (All 18 Types) */
+        .aura-normal { filter: drop-shadow(0 0 12px #cbd5e1) brightness(1.3) !important; }
+        .aura-fire { filter: drop-shadow(0 0 12px #ef4444) brightness(1.3) !important; }
+        .aura-water { filter: drop-shadow(0 0 12px #3b82f6) brightness(1.3) !important; }
+        .aura-electric { filter: drop-shadow(0 0 12px #fbbf24) brightness(1.3) !important; }
+        .aura-grass { filter: drop-shadow(0 0 12px #22c55e) brightness(1.3) !important; }
+        .aura-ice { filter: drop-shadow(0 0 12px #67e8f9) brightness(1.3) !important; }
+        .aura-fighting { filter: drop-shadow(0 0 12px #b91c1c) brightness(1.3) !important; }
+        .aura-poison { filter: drop-shadow(0 0 12px #a855f7) brightness(1.3) !important; }
+        .aura-ground { filter: drop-shadow(0 0 12px #d97706) brightness(1.3) !important; }
+        .aura-flying { filter: drop-shadow(0 0 12px #93c5fd) brightness(1.3) !important; }
+        .aura-psychic { filter: drop-shadow(0 0 12px #ec4899) brightness(1.3) !important; }
+        .aura-bug { filter: drop-shadow(0 0 12px #84cc16) brightness(1.3) !important; }
+        .aura-rock { filter: drop-shadow(0 0 12px #78350f) brightness(1.3) !important; }
+        .aura-ghost { filter: drop-shadow(0 0 12px #4c1d95) brightness(1.3) !important; }
+        .aura-dragon { filter: drop-shadow(0 0 12px #6366f1) brightness(1.3) !important; }
+        .aura-dark { filter: drop-shadow(0 0 12px #9333ea) brightness(1.3) !important; }
+        .aura-steel { filter: drop-shadow(0 0 12px #94a3b8) brightness(1.3) !important; }
+        .aura-fairy { filter: drop-shadow(0 0 12px #f472b6) brightness(1.3) !important; }
+
+        /* Impact Animations */
+        .vfx-pop { animation: vfx-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes vfx-pop { 0% { transform: scale(0) rotate(-20deg); opacity: 0; } 50% { transform: scale(1.5) rotate(10deg); opacity: 1; } 100% { transform: scale(1) rotate(0deg); opacity: 0; } }
+
+        .vfx-slash { animation: vfx-slash 0.25s ease-out forwards; }
+        @keyframes vfx-slash { 0% { transform: scale(2) translate(20px, -20px); opacity: 0; } 30% { opacity: 1; } 100% { transform: scale(1) translate(-20px, 20px); opacity: 0; } }
+
+        .vfx-zap { animation: vfx-zap 0.4s steps(3, end) forwards; }
+        @keyframes vfx-zap { 0% { transform: translateY(-40px) scale(1.5); opacity: 1; } 50% { transform: translateY(0px) scale(2) scaleX(-1); opacity: 1; } 100% { transform: translateY(20px) scale(1.5); opacity: 0; } }
+
+        .vfx-burn { animation: vfx-burn 0.5s ease-in forwards; }
+        @keyframes vfx-burn { 0% { transform: translateY(20px) scale(0.5); opacity: 1; } 100% { transform: translateY(-40px) scale(2); opacity: 0; } }
+        
+                /* --- PURE CSS 16-BIT HIT SPARK --- */
+        .pixel-spark {
+            width: 12px;
+            height: 12px;
+            background-color: white;
+            /* Draws chunky pixels around the center square */
+            box-shadow: 
+                -12px 0 0 white, 12px 0 0 white, 
+                0 -12px 0 white, 0 12px 0 white,
+                -12px -12px 0 var(--elem-color), 12px -12px 0 var(--elem-color),
+                -12px 12px 0 var(--elem-color), 12px 12px 0 var(--elem-color),
+                -24px 0 0 var(--elem-color), 24px 0 0 var(--elem-color),
+                0 -24px 0 var(--elem-color), 0 24px 0 var(--elem-color);
+        }
+
+        .pixel-slash {
+            width: 8px;
+            height: 24px;
+            background-color: white;
+            transform: rotate(45deg);
+            box-shadow: 
+                -8px 0 0 var(--elem-color), 8px 0 0 var(--elem-color),
+                0 -8px 0 var(--elem-color), 0 8px 0 var(--elem-color);
+        }
+
+
+        
+        /* Weather Overlays */
+        .weather-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 25; opacity: 0; transition: opacity 1s ease-in-out; }
+        .weather-overlay.active { opacity: 1; }
+        .sandstorm-bg { background-color: rgba(194, 160, 99, 0.3); animation: sandDrift 2s linear infinite; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.05) 10px, rgba(0,0,0,0.05) 20px); }
+        .rain-bg { background-color: rgba(59, 130, 246, 0.2); animation: rainFall 0.5s linear infinite; background-image: repeating-linear-gradient(105deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px); }
+        .sun-bg { background-color: rgba(251, 146, 60, 0.2); }
+        @keyframes sandDrift { 0% { background-position: 0px 0px; } 100% { background-position: -100px 100px; } }
+        @keyframes rainFall { 0% { background-position: 0px 0px; } 100% { background-position: -50px 100px; } }
+
+        /* Energy Pips */
+        .energy-pip { border: 2px solid #222; border-radius: 50%; width: 12px; height: 12px; }
+        .energy-filled { background-color: #fbbf24; box-shadow: inset -2px -2px 0 rgba(0,0,0,0.3); }
+        .energy-empty { background-color: #64748b; box-shadow: inset 2px 2px 0 rgba(0,0,0,0.5); }
+
+        /* UI Tabs & Collapsible Menu */
+.menu-tab-active { background-color: #e2e8f0; border-bottom: none; color: #111; z-index: 10; margin-bottom: -2px; padding-bottom: 6px; }
+.menu-tab-inactive { background-color: #94a3b8; border-bottom: 2px solid #222; color: #444; margin-top: 4px; }
+
+/* Clean, guaranteed collapse rules */
+#action-menu-container.collapsed #menu-content { display: none !important; }
+#action-menu-container.collapsed #menu-tabs { display: none !important; }
+#action-menu-container.collapsed #btn-collapse { transform: rotate(180deg); }
+
+#menu-tabs button {
+    min-height: 40px; 
+    flex: 1; 
+    text-align: center;
+}
+        /* Hard Coded Type Colors */
+        .type-Normal { background-color: #A8A878; color: #fff; }
+        .type-Fire { background-color: #F08030; color: #fff; }
+        .type-Water { background-color: #6890F0; color: #fff; }
+        .type-Electric { background-color: #F8D030; color: #222; }
+        .type-Grass { background-color: #78C850; color: #fff; }
+        .type-Ice { background-color: #98D8D8; color: #222; }
+        .type-Fighting { background-color: #C03028; color: #fff; }
+        .type-Poison { background-color: #A040A0; color: #fff; }
+        .type-Ground { background-color: #E0C068; color: #222; }
+        .type-Flying { background-color: #A890F0; color: #fff; }
+        .type-Psychic { background-color: #F85888; color: #fff; }
+        .type-Bug { background-color: #A8B820; color: #fff; }
+        .type-Rock { background-color: #B8A038; color: #fff; }
+        .type-Ghost { background-color: #705898; color: #fff; }
+        .type-Dragon { background-color: #7038F8; color: #fff; }
+        .type-Dark { background-color: #705848; color: #fff; }
+        .type-Steel { background-color: #B8B8D0; color: #222; }
+        .type-Fairy { background-color: #EE99AC; color: #222; }
+
+        /* Snappy Retro Toast */
+#toast { 
+    transform: translateY(-20px) translateX(-50%); 
+    opacity: 0; 
+    pointer-events: none;
+    /* Removed the smooth transition */
+}
+#toast.show { 
+    transform: translateY(0) translateX(-50%); 
+    opacity: 1; 
+    pointer-events: auto; 
+    /* Add a jagged bounce animation instead */
+    animation: toast-pop 0.2s steps(3, end) forwards;
+}
+
+@keyframes toast-pop {
+    0% { transform: translateY(-20px) translateX(-50%); opacity: 0; }
+    50% { transform: translateY(4px) translateX(-50%); opacity: 1; }
+    100% { transform: translateY(0) translateX(-50%); opacity: 1; }
+}
+        img.fallback { background-color: #cbd5e1; border-radius: 50%; padding: 4px; border: 2px solid #222; }
+        
+        .active-turn-p1 .hp-box { border-color: #3b82f6; box-shadow: 0 0 0 2px #3b82f6, 4px 4px 0px rgba(0,0,0,0.5); }
+        .active-turn-p2 .hp-box { border-color: #ef4444; box-shadow: 0 0 0 2px #ef4444, 4px 4px 0px rgba(0,0,0,0.5); }
+                /* Faint Animation */
+        .sprite-faint { animation: faint-sink 0.8s ease-in forwards !important; }
+        @keyframes faint-sink {
+            0% { transform: translateY(0) scale(1); filter: grayscale(0%); opacity: 1; }
+            100% { transform: translateY(60px) scale(0.8); filter: grayscale(100%); opacity: 0; }
+        }
+
+    </style>
+</head>
+<body class="w-full min-h-screen flex items-center justify-center bg-[#111] overflow-x-hidden overflow-y-auto select-none text-white">
+
+  <!-- THE MAIN APP CONTAINER -->
+  <div id="app-container" class="w-full max-w-[1200px] h-[100dvh] md:h-[90vh] md:max-h-[900px] relative overflow-hidden bg-[#202020] shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col md:border-[6px] md:border-[#222] md:rounded-xl">
+
+    <div id="toast" class="absolute top-4 left-1/2 z-[100] pkmn-panel-dark px-6 py-3 font-bold flex items-center gap-3"></div>
+
+    <!-- Fullscreen Button -->
+    <button id="btn-fullscreen" class="absolute top-2 left-2 md:top-4 md:left-4 z-[55] pkmn-panel px-3 py-1 font-bold flex items-center gap-2 active:translate-y-1 text-black" onclick="enterFullscreen()">
+        <span class="text-lg leading-none">⛶</span> <span class="hidden md:inline">Fullscreen</span>
+    </button>
+
+    <div id="log-modal" class="hidden absolute inset-0 z-[60] bg-black/80 flex flex-col p-6 pb-24 md:p-12 transition-opacity">
+        <div class="flex justify-between items-center mb-4 max-w-3xl mx-auto w-full">
+            <h2 class="text-2xl md:text-4xl font-black text-white tracking-widest drop-shadow-md">BATTLE LOG</h2>
+            <button id="btn-close-log" class="pkmn-panel px-3 py-1 text-black font-black">&times;</button>
+        </div>
+        <div id="log-content" class="flex-1 w-full max-w-3xl mx-auto overflow-y-auto custom-scrollbar space-y-2 text-sm md:text-base font-mono pkmn-panel p-4 md:p-6 text-black"></div>
+    </div>
+
+                <!-- MAIN MENU -->
+    <div id="main-menu-screen" class="absolute inset-0 z-50 bg-[#28639c] flex flex-col items-center justify-center p-6 overflow-hidden">
+        
+        <!-- MAIN PANEL -->
+        <div class="pkmn-panel p-8 md:p-10 w-full max-w-md flex flex-col gap-5 text-center relative z-10">
+            
+            <!-- HEADER BLOCK -->
+            <div class="flex flex-col items-center mb-4 mt-2">
+                <h1 class="text-4xl md:text-5xl font-black tracking-tight text-black leading-none drop-shadow-sm">CTB STADIUM</h1>
+                <div class="mt-3 bg-red-600 text-white px-4 py-1.5 font-black text-[10px] sm:text-xs uppercase tracking-[0.3em] rounded border-2 border-[#111] shadow-[2px_2px_0_rgba(0,0,0,0.2)]">
+                    Anime Battle Sim
+                </div>
+            </div>
+            
+            <!-- BUTTONS -->
+            <button id="btn-local-play" class="pkmn-btn bg-[#78C850] text-white font-black text-xl py-4 uppercase tracking-widest">
+                Local Play
+            </button>
+            
+            <!-- DIVIDER -->
+            <div class="flex items-center gap-4 my-1">
+                <div class="h-1 bg-slate-300 flex-1 border-t border-slate-400"></div>
+                <span class="text-slate-500 font-black uppercase text-xs">OR</span>
+                <div class="h-1 bg-slate-300 flex-1 border-t border-slate-400"></div>
+            </div>
+            
+            <button id="btn-online-play" class="pkmn-btn bg-[#6890F0] text-white font-black text-xl py-4 uppercase tracking-widest">
+                Online PVP
+            </button>
+        </div>
+
+        <!-- COPYRIGHT DISCLAIMER -->
+        <div class="absolute bottom-4 left-0 right-0 px-6 text-center text-[9px] sm:text-[10px] font-bold text-white/60 tracking-wider z-0 pointer-events-none drop-shadow-md">
+            CTB Stadium is a free, non-profit fan project.<br class="sm:hidden"> Not affiliated with Nintendo, Game Freak, or The Pokémon Company.
+        </div>
+        
+    </div>
+
+    <!-- ONLINE LOBBY -->
+    <div id="lobby-screen" class="hidden absolute inset-0 z-50 bg-[#28639c] flex flex-col items-center justify-center p-6 overflow-hidden">
+        <div class="pkmn-panel p-8 md:p-10 w-full max-w-md flex flex-col gap-5 text-center">
+            
+            <!-- HEADER BLOCK -->
+            <h1 class="text-3xl md:text-4xl font-black tracking-tight text-black leading-none drop-shadow-sm mb-4 mt-3">PVP ARENA</h1>
+            
+            <!-- BUTTONS -->
+            <button id="btn-create" class="pkmn-btn bg-[#F8D030] text-black font-black text-xl py-4 uppercase tracking-widest">Host Game</button>
+            
+            <!-- DIVIDER -->
+            <div class="flex items-center gap-4 my-1">
+                <div class="h-1 bg-slate-300 flex-1 border-t border-slate-400"></div>
+                <span class="text-slate-500 font-black uppercase text-xs">OR</span>
+                <div class="h-1 bg-slate-300 flex-1 border-t border-slate-400"></div>
+            </div>
+            
+            <!-- INPUT GROUP -->
+            <div class="flex flex-col gap-4">
+                <input type="text" id="join-code" placeholder="ENTER CODE" class="bg-white text-center text-black font-black text-2xl py-3 border-2 border-black focus:outline-none focus:bg-yellow-100 uppercase tracking-[0.2em]">
+                <button id="btn-join" class="pkmn-btn bg-[#C03028] text-white font-black text-xl py-4 uppercase tracking-widest">Join Game</button>
+            </div>
+            
+            <div id="connection-status" class="text-center font-bold text-slate-600 animate-pulse hidden">Connecting...</div>
+        </div>
+        
+        <!-- CANCEL BUTTON -->
+        <button id="btn-back-main" class="mt-6 pkmn-panel px-8 py-3 text-black font-black uppercase tracking-widest active:translate-y-1">Cancel</button>
+    </div>
+
+            <!-- WAITING SCREEN -->
+    <div id="wait-screen" class="hidden absolute inset-0 z-50 bg-[#28639c] flex flex-col items-center justify-center p-6 overflow-hidden">
+        <div class="pkmn-panel p-8 text-center flex flex-col items-center w-full max-w-md">
+            <!-- Increased margin from mb-2 to mb-6 to prevent badge overlap -->
+            <h2 class="text-xl font-bold uppercase tracking-widest text-slate-600 mb-6">Room Code</h2>
+            
+            <!-- Click to Copy Button -->
+            <button id="btn-copy-code" class="relative group w-full mb-8" onclick="copyRoomCode()">
+                <div id="display-room-code" class="text-4xl md:text-5xl font-black text-black tracking-[0.2em] bg-yellow-100 px-6 py-4 border-4 border-dashed border-yellow-400 cursor-pointer group-active:translate-y-1 group-active:bg-yellow-200 transition-all">XXXXX</div>
+                <!-- ALWAYS VISIBLE BADGE WITH GENTLE PULSE -->
+                <div class="absolute -top-4 -right-2 sm:-right-4 bg-black text-white text-[10px] font-bold px-2 py-1 rotate-12 shadow-md pointer-events-none animate-pulse z-10">CLICK TO COPY</div>
+            </button>
+            
+            <!-- Retro Terminal Loader -->
+            <div class="flex items-center gap-3 bg-black text-green-400 font-mono text-sm px-4 py-2 border-2 border-slate-700 shadow-inner w-full justify-center">
+                <span class="uppercase tracking-widest">Searching for P2</span>
+                <span class="w-3 h-4 bg-green-400 animate-[pulse_0.5s_steps(2,end)_infinite]"></span>
+            </div>
+        </div>
+        <button id="btn-cancel-host" class="mt-8 pkmn-panel px-6 py-2 text-black font-bold uppercase tracking-widest active:translate-y-1">Cancel</button>
+    </div>
+
+    <!-- DRAFTING SCREEN -->
+    <div id="draft-screen" class="hidden absolute inset-0 z-40 flex flex-col overflow-hidden bg-[#e0f8d0] border-8 border-[#50a040]">
+        <div class="z-20 bg-[#f8f8f8] text-black border-b-4 border-[#222] p-2 flex flex-col items-center shadow-md shrink-0">
+            <div id="prompt-container" class="bg-yellow-100 px-4 py-1 border-2 border-yellow-400 rounded w-full max-w-md text-center">
+                <h2 id="draft-prompt" class="text-sm font-black uppercase tracking-wide">...</h2>
+            </div>
+            
+            <div class="flex gap-4 mt-2 w-full max-w-3xl justify-between px-2">
+                <div class="flex flex-col flex-1">
+                    <span class="text-[10px] font-black text-blue-600 uppercase mb-1" id="p1-tracker-label">P1 Party</span>
+                    <div id="p1-tracker" class="flex gap-1 bg-white p-1 border-2 border-blue-300 h-10 w-full shadow-inner"></div>
+                </div>
+                <div class="flex flex-col flex-1">
+                    <span class="text-[10px] font-black text-red-600 uppercase mb-1 text-right" id="p2-tracker-label">P2 Party</span>
+                    <div id="p2-tracker" class="flex gap-1 bg-white p-1 border-2 border-red-300 h-10 w-full shadow-inner justify-end"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="pokedex-grid" class="flex-1 grid grid-cols-3 md:grid-cols-6 gap-2 p-3 content-start overflow-y-auto custom-scrollbar pb-32"></div>
+
+        <div id="draft-local-ready-container" class="hidden absolute bottom-0 left-0 right-0 z-50 bg-[#f8f8f8] border-t-4 border-[#222] p-4 flex justify-center pop-up">
+            <button id="btn-local-start-battle" class="pkmn-btn bg-[#78C850] text-white font-black text-xl py-3 px-12 uppercase tracking-widest w-full max-w-sm">Start Battle</button>
+        </div>
+
+        <div id="draft-online-ready-container" class="hidden absolute bottom-0 left-0 right-0 z-50 bg-[#f8f8f8] border-t-4 border-[#222] p-4 flex flex-col items-center gap-2 pop-up">
+            <div id="ready-status-text" class="text-slate-600 font-bold uppercase text-xs">Waiting for players...</div>
+            <button id="btn-online-ready" class="pkmn-btn bg-[#78C850] text-white font-black text-xl py-3 px-12 uppercase tracking-widest w-full max-w-sm">READY</button>
+        </div>
+    </div>
+
+    <!-- BATTLE SCREEN -->
+    <div id="battle-screen" class="hidden absolute inset-0 z-30 flex flex-col md:flex-row bg-[#111] overflow-hidden">
+        
+        <!-- TIMELINE -->
+        <div class="w-full h-24 md:h-full md:w-64 bg-[#2a3b4c] border-b-4 md:border-b-0 md:border-l-4 border-[#111] flex flex-col shrink-0 order-1 md:order-2 z-30 relative shadow-[-4px_0_10px_rgba(0,0,0,0.5)]">
+            <!-- Timeline Header containing the Log Button -->
+            <div class="text-center text-xs font-black text-white uppercase py-2 bg-[#111] shrink-0 tracking-widest relative border-b-2 border-[#222]">
+                Turn Order
+                <button id="btn-toggle-log" class="absolute right-2 top-1/2 -translate-y-1/2 pkmn-panel px-2 py-0.5 text-black font-bold text-[10px] flex items-center gap-1 active:translate-y-px z-50 border-2 border-black !bg-[#f8f8f8]">
+                    <span>📜</span> Log
+                </button>
+            </div>
+            <div id="action-queue-container" class="flex-1 w-full flex flex-row md:flex-col gap-2 p-2 overflow-x-auto overflow-y-hidden md:overflow-x-hidden md:overflow-y-auto custom-scrollbar items-center md:items-start min-h-0 bg-[#3b536b] shadow-inner"></div>
+        </div>
+
+        <!-- BATTLEFIELD -->
+        <div class="flex-1 flex flex-col relative order-2 md:order-1 min-h-[400px] h-full overflow-hidden">
+            <div class="flex-1 flex flex-col w-full h-full relative justify-center items-center min-h-0 overflow-hidden bg-battle-arena">
+                <div id="weather-overlay" class="weather-overlay"></div>
+                
+                                                                  <!-- ISOMETRIC ARENA WRAPPER -->
+                <div id="arena-wrapper" class="w-full h-full relative z-20 flex flex-col justify-center gap-8 sm:gap-12 p-2 md:p-6 pb-6 max-w-5xl mx-auto transition-all duration-500">
+                    <!-- Benches detached & anchored to the absolute corners of the Arena -->
+                    <div class="absolute top-2 left-2 md:top-6 md:left-6 flex flex-col gap-2 z-10 opacity-85" id="team-p2-bench"></div>
+                    <div class="absolute bottom-2 right-2 md:bottom-6 md:right-6 flex flex-col gap-2 z-10 opacity-85 justify-end" id="team-p1-bench"></div>
+
+                    <!-- P2 Side (Opponent - Background Layer) -->
+                    <div class="flex justify-end w-full items-end z-10 relative">
+                        <div class="flex gap-2 md:gap-10 justify-end items-end z-20 relative pr-4 md:pr-12" id="team-p2-active"></div>
+                    </div>
+                    
+                    <!-- P1 Side (Player - Foreground Layer) -->
+                    <div class="flex justify-start w-full items-end z-[25] relative">
+                        <div class="flex gap-2 md:gap-10 justify-start items-end z-20 relative pl-4 md:pl-12" id="team-p1-active"></div>
+                    </div>
+                    
+                </div> 
+
+            </div>
+
+            <!-- ACTION MENU (BOTTOM) -->
+            <div id="action-menu-container" class="relative z-40 shrink-0 flex flex-col w-full border-t-4 border-[#111] pkmn-panel-dark rounded-none !box-shadow-none overflow-hidden">                
+                <div id="opponent-turn-overlay" class="hidden absolute inset-0 z-50 bg-black/70 flex flex-col items-center justify-center">
+                    <div class="pkmn-panel px-6 py-4 text-center">
+                        <div class="text-lg font-black text-black tracking-widest uppercase">Waiting for Opponent...</div>
+                    </div>
+                </div>
+
+                <!-- Menu Header & Tabs -->
+                <div class="px-2 pt-2 shrink-0 bg-[#1e293b] cursor-pointer" id="menu-header-toggle" onclick="toggleMenuCollapse(event)">
+                    <div class="flex justify-between items-end mb-2">
+                        <div class="font-black text-lg tracking-wide flex items-center gap-2 bg-[#111] px-3 py-1 rounded-full border border-slate-600" id="menu-title">...</div>
+                        <div class="flex items-center gap-2">
+                            <div class="text-xs font-mono font-bold bg-[#111] px-3 py-1 rounded-full border border-slate-600 text-yellow-400" id="menu-subtitle"></div>
+                            <button id="btn-collapse" class="w-8 h-8 flex items-center justify-center bg-[#111] border border-slate-600 rounded-full text-white font-black text-sm transition-transform duration-300">▼</button>
+                        </div>
+                    </div>
+                    <div id="menu-tabs" class="flex gap-1 px-1 overflow-x-auto">
+                        <button id="tab-builders" class="px-4 py-2 border-2 border-b-0 border-[#111] rounded-t-lg font-black uppercase text-[10px] md:text-xs transition-all menu-tab-active" onclick="switchCategory('builders')">Basic</button>
+                        <button id="tab-spenders" class="px-4 py-2 border-2 border-b-0 border-[#111] rounded-t-lg font-black uppercase text-[10px] md:text-xs transition-all menu-tab-inactive" onclick="switchCategory('spenders')">Advanced</button>
+                        <button id="tab-tactics" class="px-4 py-2 border-2 border-b-0 border-[#111] rounded-t-lg font-black uppercase text-[10px] md:text-xs transition-all menu-tab-inactive" onclick="switchCategory('tactics')">Tactics</button>
+                        <button id="tab-switch" class="px-4 py-2 border-2 border-b-0 border-[#111] rounded-t-lg font-black uppercase text-[10px] md:text-xs text-amber-500 ml-auto transition-all menu-tab-inactive" onclick="switchCategory('switch')">PKMN</button>
+                    </div>
+                </div>
+                
+                <!-- Menu Content (Grid) -->
+                <div id="menu-content" class="h-[180px] md:h-[200px] overflow-y-auto custom-scrollbar p-3 bg-[#e2e8f0] border-t-2 border-[#111] relative shadow-inner">
+                    <div id="view-moves" class="grid grid-cols-2 gap-3 h-full content-start"></div>
+                    <div id="view-targets" class="grid grid-cols-2 gap-3 hidden h-full content-start pb-8"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WIN SCREEN -->
+    <div id="win-screen" class="hidden absolute inset-0 z-[60] bg-black/95 flex flex-col items-center justify-center p-6 overflow-hidden">
+        <div class="pkmn-panel p-8 max-w-lg w-full flex flex-col items-center">
+            <h1 id="win-title" class="text-4xl md:text-5xl font-black mb-6 text-center uppercase tracking-widest text-black">WINS</h1>
+            <div id="end-log" class="w-full h-40 overflow-y-auto bg-white border-2 border-black p-3 font-mono text-xs text-black mb-6 custom-scrollbar space-y-1 shadow-inner"></div>
+            <button class="pkmn-btn bg-blue-500 text-white font-black py-3 px-8 text-lg uppercase tracking-wide w-full" onclick="location.reload()">Back to Menu</button>
+        </div>
+    </div>
+  </div>
+
+    <script>
+        const RetroSFX = {
+            ctx: null,
+            
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            },
+
+            playTone(freqStart, freqEnd, type, duration, vol = 0.1) {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = type;
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                const now = this.ctx.currentTime;
+                osc.frequency.setValueAtTime(freqStart, now);
+                if (freqEnd) {
+                    osc.frequency.exponentialRampToValueAtTime(freqEnd, now + duration);
+                }
+                
+                gain.gain.setValueAtTime(vol, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+                
+                osc.start(now);
+                osc.stop(now + duration);
+            },
+
+            playNoise(duration, vol = 0.2) {
+                if (!this.ctx) return;
+                const bufferSize = this.ctx.sampleRate * duration;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+                const gain = this.ctx.createGain();
+                const filter = this.ctx.createBiquadFilter();
+                
+                filter.type = 'lowpass';
+                filter.frequency.value = 1000;
+                
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                const now = this.ctx.currentTime;
+                gain.gain.setValueAtTime(vol, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+                
+                noise.start(now);
+            },
+
+            hitMelee() {
+                this.playNoise(0.15, 0.3);
+                this.playTone(150, 50, 'square', 0.15, 0.2);
+            },
+            
+            shootMagic() {
+                this.playTone(800, 200, 'sine', 0.3, 0.2);
+            },
+            
+            shootElectric() {
+                this.playTone(600, 100, 'sawtooth', 0.25, 0.15);
+            },
+            
+            heal() {
+                this.playTone(400, 800, 'sine', 0.2, 0.1);
+                setTimeout(() => this.playTone(600, 1200, 'sine', 0.3, 0.1), 100);
+                setTimeout(() => this.playTone(800, 1600, 'sine', 0.4, 0.1), 200);
+            },
+            
+            buff() {
+                this.playTone(300, 600, 'square', 0.3, 0.1);
+            },
+            
+            debuff() {
+                this.playTone(600, 200, 'sawtooth', 0.3, 0.1);
+            },
+            
+            protect() {
+                this.playTone(1200, 1200, 'sine', 0.1, 0.1);
+                setTimeout(() => this.playTone(1400, 1400, 'sine', 0.2, 0.1), 50);
+            },
+
+            uiClick() {
+                this.playTone(800, 1200, 'square', 0.05, 0.05); 
+            },
+            
+            errorBuzzer() {
+                this.playTone(150, 150, 'sawtooth', 0.15, 0.1); 
+            },
+
+            switchOut() {
+                this.playTone(800, 200, 'sine', 0.25, 0.1); 
+            },
+
+            switchIn() {
+                this.playTone(200, 1200, 'square', 0.2, 0.1); 
+                this.playNoise(0.15, 0.2); 
+            },
+
+            faint() {
+                this.playTone(200, 50, 'sawtooth', 0.5, 0.15); 
+            },
+
+            playMove(move) {
+                this.init(); 
+                
+                if (move.type === 'protect') {
+                    this.protect();
+                } 
+                else if (move.type === 'heal') {
+                    this.heal();
+                }
+                else if (move.type === 'buff' || (move.power === 0 && move.stat === 'speed') || move.type === 'follow_me') {
+                    this.buff();
+                }
+                else if (move.type === 'debuff' || move.type === 'status') {
+                    this.debuff();
+                }
+                else if (move.type.includes('damage')) {
+                    if (move.isPhysical) {
+                        this.hitMelee();
+                    } else {
+                        if (move.elem === 'Electric') this.shootElectric();
+                        else this.shootMagic();
+                    }
+                }
+            }
+        };
+
+        document.addEventListener('click', (e) => {
+            const isButton = e.target.closest('button');
+            const isDraftCard = e.target.closest('.cursor-pointer');
+            
+            if (isButton || isDraftCard) {
+                RetroSFX.init(); 
+                
+                if (isButton && isButton.disabled) {
+                    RetroSFX.errorBuzzer();
+                } else {
+                    RetroSFX.uiClick();
+                }
+            }
+        });
+
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(err => console.log(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`));
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { 
+                elem.msRequestFullscreen();
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            const fsBtn = document.getElementById('btn-fullscreen');
+            if (document.fullscreenElement) {
+                fsBtn.classList.add('hidden');
+            } else {
+                fsBtn.classList.remove('hidden');
+            }
+        });
+        document.addEventListener('webkitfullscreenchange', () => {
+            const fsBtn = document.getElementById('btn-fullscreen');
+            if (document.webkitFullscreenElement) fsBtn.classList.add('hidden');
+            else fsBtn.classList.remove('hidden');
+        });
+
+        const TYPE_CHART = {
+            Normal:  { Rock: 0.5, Ghost: 0, Steel: 0.5 },
+            Fire:    { Fire: 0.5, Water: 0.5, Grass: 2, Ice: 2, Bug: 2, Rock: 0.5, Dragon: 0.5, Steel: 2 },
+            Water:   { Fire: 2, Water: 0.5, Grass: 0.5, Ground: 2, Rock: 2, Dragon: 0.5 },
+            Electric:{ Water: 2, Electric: 0.5, Grass: 0.5, Ground: 0, Flying: 2, Dragon: 0.5 },
+            Grass:   { Fire: 0.5, Water: 2, Grass: 0.5, Poison: 0.5, Ground: 2, Flying: 0.5, Bug: 0.5, Rock: 2, Dragon: 0.5, Steel: 0.5 },
+            Ice:     { Fire: 0.5, Water: 0.5, Grass: 2, Ice: 0.5, Ground: 2, Flying: 2, Dragon: 2, Steel: 0.5 },
+            Fighting:{ Normal: 2, Ice: 2, Poison: 0.5, Flying: 0.5, Psychic: 0.5, Bug: 0.5, Rock: 2, Ghost: 0, Dark: 2, Steel: 2, Fairy: 0.5 },
+            Poison:  { Grass: 2, Poison: 0.5, Ground: 0.5, Rock: 0.5, Ghost: 0.5, Steel: 0, Fairy: 2 },
+            Ground:  { Fire: 2, Water: 1, Electric: 2, Grass: 0.5, Ice: 1, Poison: 2, Flying: 0, Bug: 0.5, Rock: 2, Steel: 2 },
+            Flying:  { Electric: 0.5, Grass: 2, Fighting: 2, Bug: 2, Rock: 0.5, Steel: 0.5 },
+            Psychic: { Fighting: 2, Poison: 2, Psychic: 0.5, Dark: 0, Steel: 0.5 },
+            Bug:     { Fire: 0.5, Grass: 2, Fighting: 0.5, Poison: 0.5, Flying: 0.5, Psychic: 2, Ghost: 0.5, Dark: 2, Steel: 0.5, Fairy: 0.5 },
+            Rock:    { Fire: 2, Ice: 2, Fighting: 0.5, Ground: 0.5, Flying: 2, Bug: 2, Steel: 0.5 },
+            Ghost:   { Normal: 0, Psychic: 2, Ghost: 2, Dark: 0.5 },
+            Dragon:  { Dragon: 2, Steel: 0.5, Fairy: 0 },
+            Dark:    { Fighting: 0.5, Psychic: 2, Ghost: 2, Dark: 0.5, Fairy: 0.5 },
+            Steel:   { Fire: 0.5, Water: 0.5, Electric: 0.5, Ice: 2, Rock: 2, Steel: 0.5, Fairy: 2 },
+            Fairy:   { Fire: 0.5, Fighting: 2, Poison: 0.5, Dragon: 2, Dark: 2, Steel: 0.5 }
+        };
+
+        const ABILITIES = {
+            'quick_feet': { name: 'Quick Feet', desc: 'Speed +50% when statused.' },
+            'immunity': { name: 'Immunity', desc: 'Immune to Poison.' },
+            'levitate': { name: 'Levitate', desc: 'Immune to Ground.' },
+            'serene_grace': { name: 'Serene Grace', desc: 'Double sec. effects.' },
+            'sand_rush': { name: 'Sand Rush', desc: 'Speed x2 in Sand.' },
+            'technician': { name: 'Technician', desc: 'Boost weak moves.' },
+            'natural_cure': { name: 'Natural Cure', desc: 'Heal status on switch.' },
+            'sand_stream': { name: 'Sand Stream', desc: 'Summons Sandstorm.' },
+            'drizzle': { name: 'Drizzle', desc: 'Summons Rain.' },
+            'clear_body': { name: 'Clear Body', desc: 'No stat drops.' },
+            'drought': { name: 'Drought', desc: 'Summons Sun.' },
+            'magic_guard': { name: 'Magic Guard', desc: 'Immune passive dmg.' },
+            'synchronize': { name: 'Synchronize', desc: 'Passes status back.' },
+            'guts': { name: 'Guts', desc: 'Atk +50% when statused.' },
+            'poison_touch': { name: 'Poison Touch', desc: '30% Poison on hit.' },
+            'snow_warning': { name: 'Snow Warning', desc: 'Summons Hail.' },
+            'slush_rush': { name: 'Slush Rush', desc: 'Speed x2 in Hail.' },
+            'sturdy': { name: 'Sturdy', desc: 'Survive 1-hit KO.' },
+            'inner_focus': { name: 'Inner Focus', desc: 'Prevents flinch/delay.' },
+            'blaze': { name: 'Blaze', desc: 'Boost Fire at low HP.' },
+            'water_absorb': { name: 'Water Absorb', desc: 'Heal from Water.' },
+            'pickpocket': { name: 'Pickpocket', desc: 'Steal Energy.' },
+            'rough_skin': { name: 'Rough Skin', desc: 'Recoil on contact.' },
+            'thick_fat': { name: 'Thick Fat', desc: 'Half Fire/Ice dmg.' },
+            'solid_rock': { name: 'Solid Rock', desc: 'Less super effective dmg.' },
+            'volt_absorb': { name: 'Volt Absorb', desc: 'Heal from Electric.' },
+            'iron_fist': { name: 'Iron Fist', desc: 'Boost punch moves.' },
+            'swift_swim': { name: 'Swift Swim', desc: 'Speed x2 in Rain.' },
+            'gluttony': { name: 'Gluttony', desc: 'Doubles Energy generated by attacks.' },
+            'chlorophyll': { name: 'Chlorophyll', desc: 'Speed x2 in Sun.' }
+        };
+
+        const BASE_CONSTANT = 600;
+
+        const MOVES = {
+            // BUILDERS (0 EN Cost)
+            'quick_attack': { name: 'Quick Atk', elem: 'Normal', isPhysical: true, cat: 'builders', power: 25, delay: 300, isPriority: true, cost: 0, gen: 0, target: 'enemy', type: 'damage' },
+            'bullet_punch': { name: 'Bullet Punch', elem: 'Steel', isPhysical: true, cat: 'builders', power: 25, delay: 300, isPriority: true, cost: 0, gen: 0, target: 'enemy', type: 'damage' },
+            'mach_punch': { name: 'Mach Punch', elem: 'Fighting', isPhysical: true, cat: 'builders', power: 25, delay: 300, isPriority: true, cost: 0, gen: 0, target: 'enemy', type: 'damage' },
+            'ice_shard': { name: 'Ice Shard', elem: 'Ice', isPhysical: true, cat: 'builders', power: 25, delay: 300, isPriority: true, cost: 0, gen: 0, target: 'enemy', type: 'damage' },
+            'sucker_punch': { name: 'Sucker Punch', elem: 'Dark', isPhysical: true, cat: 'builders', power: 40, delay: 350, isPriority: true, cost: 0, gen: 0, target: 'enemy', type: 'damage' },
+            'aqua_jet': { name: 'Aqua Jet', elem: 'Water', isPhysical: true, cat: 'builders', power: 25, delay: 300, isPriority: true, cost: 0, gen: 0, target: 'enemy', type: 'damage' },
+            'peck': { name: 'Peck', elem: 'Flying', isPhysical: true, cat: 'builders', power: 30, delay: 300, cost: 0, gen: 0, target: 'enemy', type: 'damage' },
+            
+            'fairy_wind': { name: 'Fairy Wind', elem: 'Fairy', isPhysical: false, cat: 'builders', power: 30, delay: 300, cost: 0, gen: 0, target: 'enemy', type: 'damage' },
+            'sand_attack': { name: 'Sand Attack', elem: 'Ground', isPhysical: false, cat: 'builders', power: 20, delay: 300, cost: 0, gen: 0, target: 'enemy', type: 'damage' },
+            'pound': { name: 'Pound', elem: 'Normal', isPhysical: true, cat: 'builders', power: 25, delay: 300, cost: 0, gen: 0, target: 'enemy', type: 'damage' },
+            
+            // BUILDERS (+1 EN Gen)
+            'spark': { name: 'Spark', elem: 'Electric', isPhysical: true, effectType: 'paralyze', effectChance: 0.3, cat: 'builders', power: 50, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
+            'bite': { name: 'Bite', elem: 'Dark', isPhysical: true, cat: 'builders', power: 40, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage_delay', effectVal: 0.15, effectChance: 0.3 },
+            'shadow_ball': { name: 'Shadow Ball', elem: 'Ghost', isPhysical: false, cat: 'builders', power: 65, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'def', amount: 15, chance: 0.2} },
+            'air_slash': { name: 'Air Slash', elem: 'Flying', isPhysical: false, cat: 'builders', power: 55, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage_delay', effectVal: 0.20, effectChance: 0.3 },
+            'dragon_claw': { name: 'Dragon Claw', elem: 'Dragon', isPhysical: true, cat: 'builders', power: 60, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
+            'bug_bite': { name: 'Bug Bite', elem: 'Bug', isPhysical: true, cat: 'builders', power: 50, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
+            'flame_wheel': { name: 'Flame Wheel', elem: 'Fire', isPhysical: true, effectType: 'burn', effectChance: 0.2, cat: 'builders', power: 55, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
+            'surf': { name: 'Surf', elem: 'Water', isPhysical: false, cat: 'builders', power: 65, delay: 600, cost: 0, gen: 1, target: 'all_adjacent', isSpread: true, type: 'damage' },
+            'zen_headbutt': { name: 'Zen Headbutt', elem: 'Psychic', isPhysical: true, cat: 'builders', power: 60, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage_delay', effectVal: 0.20, effectChance: 0.3 },
+            'seismic_toss': { name: 'Seismic Toss', elem: 'Fighting', isPhysical: true, cat: 'builders', power: 70, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage' }, 
+            'body_slam': { name: 'Body Slam', elem: 'Normal', isPhysical: true, effectType: 'paralyze', effectChance: 0.3, cat: 'builders', power: 75, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
+            'confusion': { name: 'Confusion', elem: 'Psychic', isPhysical: false, cat: 'builders', power: 50, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
+            'cross_chop': { name: 'Cross Chop', elem: 'Fighting', isPhysical: true, cat: 'builders', power: 65, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
+            'cross_poison': { name: 'Cross Poison', elem: 'Poison', isPhysical: true, effectType: 'poison', effectChance: 0.3, cat: 'builders', power: 60, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
+            'ice_beam': { name: 'Ice Beam', elem: 'Ice', isPhysical: false, effectType: 'freeze', effectChance: 0.1, cat: 'builders', power: 65, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
+            'icy_wind': { name: 'Icy Wind', elem: 'Ice', isPhysical: false, cat: 'builders', power: 45, delay: 600, cost: 0, gen: 1, target: 'enemy', isSpread: true, type: 'damage', targetStatDrop: {stat: 'speed', amount: 8, chance: 0.3} },
+            'night_slash': { name: 'Night Slash', elem: 'Dark', isPhysical: true, cat: 'builders', power: 65, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
+            'steel_wing': { name: 'Steel Wing', elem: 'Steel', isPhysical: true, cat: 'builders', power: 60, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'def', amount: 10, chance: 0.1} },
+            'snarl': { name: 'Snarl', elem: 'Dark', isPhysical: false, cat: 'builders', power: 45, delay: 600, cost: 0, gen: 1, target: 'enemy', isSpread: true, type: 'damage', targetStatDrop: {stat: 'atk', amount: 15, chance: 0.3} },
+            'thunder_punch': { name: 'Thunder Punch', elem: 'Electric', isPhysical: true, effectType: 'paralyze', effectChance: 0.1, cat: 'builders', power: 50, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
+            'ice_punch': { name: 'Ice Punch', elem: 'Ice', isPhysical: true, effectType: 'freeze', effectChance: 0.1, cat: 'builders', power: 50, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
+            'metal_claw': { name: 'Metal Claw', elem: 'Steel', isPhysical: true, cat: 'builders', power: 50, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage', selfStatBuff: {stat: 'atk', amount: 10, chance: 0.1} },
+            'feint_attack': { name: 'Feint Attack', elem: 'Dark', isPhysical: true, cat: 'builders', power: 60, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
+            'water_pulse': { name: 'Water Pulse', elem: 'Water', isPhysical: false, cat: 'builders', power: 60, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage_delay', effectVal: 0.15, effectChance: 0.2 },
+            'magical_leaf': { name: 'Magical Leaf', elem: 'Grass', isPhysical: false, cat: 'builders', power: 60, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
+            'rock_tomb': { name: 'Rock Tomb', elem: 'Rock', isPhysical: true, cat: 'builders', power: 55, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'speed', amount: 5, chance: 0.3} },
+            'headbutt': { name: 'Headbutt', elem: 'Normal', isPhysical: true, cat: 'builders', power: 60, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage_delay', effectVal: 0.2, effectChance: 0.3 },
+            'lick': { name: 'Lick', elem: 'Ghost', isPhysical: true, cat: 'builders', power: 45, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage', effectType: 'paralyze', effectChance: 0.3 },
+            'mud_shot': { name: 'Mud Shot', elem: 'Ground', isPhysical: false, cat: 'builders', power: 55, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'speed', amount: 5, chance: 0.3} },
+            'double_kick': { name: 'Double Kick', elem: 'Fighting', isPhysical: true, cat: 'builders', power: 30, hits: 2, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
+            'psybeam': { name: 'Psybeam', elem: 'Psychic', isPhysical: false, cat: 'builders', power: 65, delay: 600, cost: 0, gen: 1, target: 'enemy', type: 'damage_delay', effectVal: 0.1, effectChance: 0.1 },
+
+            // SPENDERS
+            'thunderbolt': { name: 'Thunderbolt', elem: 'Electric', isPhysical: false, effectType: 'paralyze', effectChance: 0.1, cat: 'spenders', power: 90, delay: 800, cost: 2, gen: 0, target: 'enemy', type: 'damage' },
+            'thunder': { name: 'Thunder', elem: 'Electric', isPhysical: false, effectType: 'paralyze', effectChance: 0.3, cat: 'spenders', power: 150, delay: 1200, cost: 4, gen: 0, target: 'enemy', type: 'damage' },
+            'sludge_bomb': { name: 'Sludge Bomb', elem: 'Poison', isPhysical: false, effectType: 'poison', effectChance: 0.3, cat: 'spenders', power: 90, delay: 800, cost: 2, gen: 0, target: 'enemy', type: 'damage' },
+            'hex': { name: 'Hex', elem: 'Ghost', isPhysical: false, cat: 'spenders', power: 65, delay: 800, cost: 2, gen: 0, target: 'enemy', type: 'damage' },
+            'dazzling_gleam': { name: 'Dazzling Gleam', elem: 'Fairy', isPhysical: false, cat: 'spenders', power: 85, delay: 800, cost: 2, gen: 0, target: 'enemy', isSpread: true, type: 'damage' },
+            'sky_attack': { name: 'Sky Attack', elem: 'Flying', isPhysical: true, cat: 'spenders', power: 150, delay: 1200, cost: 4, gen: 0, target: 'enemy', type: 'damage' },
+            'earthquake': { name: 'Earthquake', elem: 'Ground', isPhysical: true, cat: 'spenders', power: 100, delay: 900, cost: 2, gen: 0, target: 'all_adjacent', isSpread: true, type: 'damage' },
+            'outrage': { name: 'Outrage', elem: 'Dragon', isPhysical: true, cat: 'spenders', power: 160, delay: 1300, cost: 4, gen: 0, target: 'enemy', type: 'damage' },
+            'iron_head': { name: 'Iron Head', elem: 'Steel', isPhysical: true, cat: 'spenders', power: 85, delay: 800, cost: 2, gen: 0, target: 'enemy', type: 'damage_delay', effectVal: 0.3, effectChance: 0.3 },
+            'close_combat': { name: 'Close Combat', elem: 'Fighting', isPhysical: true, cat: 'spenders', power: 120, delay: 1000, cost: 3, gen: 0, target: 'enemy', type: 'damage' },
+            'hydro_pump': { name: 'Hydro Pump', elem: 'Water', isPhysical: false, cat: 'spenders', power: 120, delay: 1000, cost: 3, gen: 0, target: 'enemy', type: 'damage' },
+            'meteor_mash': { name: 'Meteor Mash', elem: 'Steel', isPhysical: true, cat: 'spenders', power: 100, delay: 900, cost: 2, gen: 0, target: 'enemy', type: 'damage', selfStatBuff: {stat: 'atk', amount: 20, chance: 0.2} },
+            'crunch': { name: 'Crunch', elem: 'Dark', isPhysical: true, cat: 'spenders', power: 85, delay: 800, cost: 2, gen: 0, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'def', amount: 15, chance: 0.2} },
+            'hyper_beam': { name: 'Hyper Beam', elem: 'Normal', isPhysical: false, cat: 'spenders', power: 160, delay: 1400, cost: 4, gen: 0, target: 'enemy', type: 'damage' },
+            'psychic': { name: 'Psychic', elem: 'Psychic', isPhysical: false, cat: 'spenders', power: 95, delay: 850, cost: 2, gen: 0, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'def', amount: 15, chance: 0.1} },
+            'pin_missile': { name: 'Pin Missile', elem: 'Bug', isPhysical: true, cat: 'spenders', power: 70, delay: 750, cost: 1, gen: 0, target: 'enemy', type: 'damage' },
+            'dynamic_punch': { name: 'Dynamic Punch', elem: 'Fighting', isPhysical: true, cat: 'spenders', power: 130, delay: 1100, cost: 3, gen: 0, target: 'enemy', type: 'damage' },
+            'acrobatics': { name: 'Acrobatics', elem: 'Flying', isPhysical: true, cat: 'spenders', power: 90, delay: 800, cost: 2, gen: 0, target: 'enemy', type: 'damage' },
+            'blizzard': { name: 'Blizzard', elem: 'Ice', isPhysical: false, effectType: 'freeze', effectChance: 0.2, cat: 'spenders', power: 140, delay: 1200, cost: 4, gen: 0, target: 'enemy', isSpread: true, type: 'damage' },
+            'icicle_crash': { name: 'Icicle Crash', elem: 'Ice', isPhysical: true, cat: 'spenders', power: 90, delay: 800, cost: 2, gen: 0, target: 'enemy', type: 'damage_delay', effectVal: 0.3, effectChance: 0.3 },
+            'brave_bird': { name: 'Brave Bird', elem: 'Flying', isPhysical: true, cat: 'spenders', power: 120, delay: 1000, cost: 3, gen: 0, target: 'enemy', type: 'damage' },
+            'foul_play': { name: 'Foul Play', elem: 'Dark', isPhysical: true, cat: 'spenders', power: 95, delay: 850, cost: 2, gen: 0, target: 'enemy', type: 'damage' },
+            'flamethrower': { name: 'Flamethrower', elem: 'Fire', isPhysical: false, effectType: 'burn', effectChance: 0.1, cat: 'spenders', power: 90, delay: 800, cost: 2, gen: 0, target: 'enemy', type: 'damage' },
+            'stone_edge': { name: 'Stone Edge', elem: 'Rock', isPhysical: true, cat: 'spenders', power: 100, delay: 900, cost: 2, gen: 0, target: 'enemy', type: 'damage' },
+            'poison_jab': { name: 'Poison Jab', elem: 'Poison', isPhysical: true, cat: 'spenders', power: 80, delay: 800, cost: 2, gen: 0, target: 'enemy', type: 'damage', effectType: 'poison', effectChance: 0.3 },
+            'flare_blitz': { name: 'Flare Blitz', elem: 'Fire', isPhysical: true, cat: 'spenders', power: 120, delay: 1000, cost: 3, gen: 0, target: 'enemy', type: 'damage' },
+            'dark_pulse': { name: 'Dark Pulse', elem: 'Dark', isPhysical: false, cat: 'spenders', power: 80, delay: 800, cost: 2, gen: 0, target: 'enemy', type: 'damage_delay', effectVal: 0.2, effectChance: 0.2 },
+            'focus_blast': { name: 'Focus Blast', elem: 'Fighting', isPhysical: false, cat: 'spenders', power: 120, delay: 1100, cost: 3, gen: 0, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'def', amount: 15, chance: 0.1} },
+                        'rock_slide': { name: 'Rock Slide', elem: 'Rock', isPhysical: true, cat: 'spenders', power: 75, delay: 800, cost: 2, gen: 0, target: 'enemy', isSpread: true, type: 'damage_delay', effectVal: 0.2, effectChance: 0.3 },
+            'flash_cannon': { name: 'Flash Cannon', elem: 'Steel', isPhysical: false, cat: 'spenders', power: 80, delay: 800, cost: 2, gen: 0, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'def', amount: 15, chance: 0.1} },
+            'brick_break': { name: 'Brick Break', elem: 'Fighting', isPhysical: true, cat: 'spenders', power: 75, delay: 750, cost: 2, gen: 0, target: 'enemy', type: 'damage' },
+            'heavy_slam': { name: 'Heavy Slam', elem: 'Steel', isPhysical: true, cat: 'spenders', power: 100, delay: 900, cost: 2, gen: 0, target: 'enemy', type: 'damage' },
+            'wild_charge': { name: 'Wild Charge', elem: 'Electric', isPhysical: true, cat: 'spenders', power: 90, delay: 800, cost: 2, gen: 0, target: 'enemy', type: 'damage' },
+
+            // PIVOTS
+            'u_turn': { name: 'U-turn', elem: 'Bug', isPhysical: true, cat: 'spenders', power: 70, delay: 700, cost: 2, target: 'enemy', type: 'damage_pivot' },
+            'volt_switch': { name: 'Volt Switch', elem: 'Electric', isPhysical: false, cat: 'spenders', power: 70, delay: 700, cost: 2, target: 'enemy', type: 'damage_pivot' },
+
+            // TACTICS
+            'agility': { name: 'Agility', elem: 'Psychic', cat: 'tactics', power: 0, delay: 500, cost: 1, gen: 0, target: 'self', type: 'buff', stat: 'speed', amount: 8 },
+            'swords_dance': { name: 'Swords Dance', elem: 'Normal', cat: 'tactics', power: 0, delay: 600, cost: 2, gen: 0, target: 'self', type: 'buff', stat: 'atk', amount: 30 },
+            'iron_defense': { name: 'Iron Defense', elem: 'Steel', cat: 'tactics', power: 0, delay: 600, cost: 2, gen: 0, target: 'self', type: 'buff', stat: 'def', amount: 30 },
+            'calm_mind': { name: 'Calm Mind', elem: 'Psychic', cat: 'tactics', power: 0, delay: 600, cost: 2, gen: 0, target: 'self', type: 'buff', stat: 'atk', amount: 15 },
+            'yawn': { name: 'Yawn', elem: 'Normal', cat: 'tactics', power: 0, delay: 500, cost: 1, target: 'enemy', type: 'yawn' },
+            'roost': { name: 'Roost', elem: 'Flying', cat: 'tactics', power: 60, delay: 700, cost: 2, gen: 0, target: 'self', type: 'heal' },
+            'softboiled': { name: 'Softboiled', elem: 'Normal', cat: 'tactics', power: 150, delay: 900, cost: 3, gen: 0, target: 'self', type: 'heal' },
+            'recover': { name: 'Recover', elem: 'Normal', cat: 'tactics', power: 80, delay: 800, cost: 2, gen: 0, target: 'self', type: 'heal' },
+            'rest': { name: 'Rest', elem: 'Psychic', cat: 'tactics', power: 150, delay: 900, cost: 3, gen: 0, target: 'self', type: 'heal' },
+            'moonlight': { name: 'Moonlight', elem: 'Fairy', cat: 'tactics', power: 80, delay: 800, cost: 2, gen: 0, target: 'self', type: 'heal' },
+            'life_dew': { name: 'Life Dew', elem: 'Water', cat: 'tactics', power: 40, delay: 600, cost: 1, gen: 0, target: 'ally_active', type: 'heal' },
+            'wish': { name: 'Wish', elem: 'Normal', cat: 'tactics', power: 80, delay: 800, cost: 2, gen: 0, target: 'self', type: 'heal' },
+            'sing': { 
+    name: 'Sing', 
+    elem: 'Normal', 
+    cat: 'tactics', 
+    type: 'status', 
+    effectType: 'sleep', 
+    cost: 1, 
+    delay: 700, 
+    effectChance: 0.6, 
+    power: 0, 
+    target: 'enemy' 
+},
+            'helping_hand': { name: 'Help Hand', elem: 'Normal', cat: 'tactics', power: 0, delay: 500, isPriority: true, cost: 1, targetEnergy: 1, target: 'ally_active', type: 'advance', effectVal: 0.30 },
+            'dragon_dance': { name: 'Dragon Dance', elem: 'Dragon', cat: 'tactics', power: 0, delay: 700, cost: 2, gen: 0, target: 'self', type: 'buff', stat: 'speed', amount: 5 },
+            'teleport': { name: 'Teleport', elem: 'Psychic', cat: 'tactics', power: 0, delay: 400, isPriority: true, cost: 1, gen: 0, target: 'self', type: 'advance', effectVal: 0.40 },
+            'whirlwind': { name: 'Whirlwind', elem: 'Flying', cat: 'tactics', power: 0, delay: 700, cost: 2, gen: 0, target: 'enemy', type: 'delay', effectVal: 0.40 },
+            
+            'baton_pass': { name: 'Baton Pass', elem: 'Normal', cat: 'tactics', power: 0, delay: 400, cost: 1, target: 'self', type: 'baton_pass' },
+            'follow_me': { name: 'Follow Me', elem: 'Normal', cat: 'tactics', power: 0, delay: 500, isPriority: true, cost: 1, target: 'self', type: 'follow_me' },
+            'hypnosis': { name: 'Hypnosis', elem: 'Psychic', cat: 'tactics', type: 'status', effectType: 'sleep', cost: 1, delay: 700, effectChance: 0.6, power: 0, target: 'enemy' },
+
+            'toxic': { name: 'Toxic', elem: 'Poison', cat: 'tactics', type: 'status', effectType: 'bad_poison', cost: 2, delay: 600, effectChance: 0.9, power: 0, target: 'enemy' },
+            'thunder_wave': { name: 'Thunder Wave', elem: 'Electric', cat: 'tactics', type: 'status', effectType: 'paralyze', cost: 1, delay: 500, effectChance: 1.0, power: 0, target: 'enemy' },
+            'will_o_wisp': { name: 'Will-O-Wisp', elem: 'Fire', cat: 'tactics', type: 'status', effectType: 'burn', cost: 1, delay: 500, effectChance: 0.85, power: 0, target: 'enemy' },
+            'charm': { name: 'Charm', elem: 'Fairy', cat: 'tactics', type: 'debuff', stat: 'atk', amount: 30, cost: 1, delay: 500, power: 0, target: 'enemy' },
+            'scary_face': { name: 'Scary Face', elem: 'Normal', cat: 'tactics', type: 'debuff', stat: 'speed', amount: 8, cost: 1, delay: 500, power: 0, target: 'enemy' },
+
+                        'protect': { name: 'Protect', elem: 'Normal', cat: 'tactics', power: 0, delay: 300, fixedAV: 20, isPriority: true, cost: 1, target: 'self', type: 'protect' },
+            'stealth_rock': { name: 'Stealth Rock', elem: 'Rock', cat: 'tactics', power: 0, delay: 500, cost: 2, target: 'enemy_field', type: 'hazard', hazard: 'stealth_rock' },
+            'spikes': { name: 'Spikes', elem: 'Ground', cat: 'tactics', power: 0, delay: 500, cost: 2, target: 'enemy_field', type: 'hazard', hazard: 'spikes' },
+            'rapid_spin': { name: 'Rapid Spin', elem: 'Normal', isPhysical: true, cat: 'builders', power: 30, delay: 400, cost: 0, gen: 1, target: 'enemy', type: 'damage_clear' },
+            'rain_dance': { name: 'Rain Dance', elem: 'Water', cat: 'tactics', power: 0, delay: 600, cost: 2, target: 'self', type: 'weather', weatherType: 'rain' },
+            'sunny_day': { name: 'Sunny Day', elem: 'Fire', cat: 'tactics', power: 0, delay: 600, cost: 2, target: 'self', type: 'weather', weatherType: 'sun' }
+        };
+
+        const POKEDEX = [
+            { id: 'jolteon', name: 'Jolteon', types: ['Electric'], ability: 'quick_feet', 
+  maxHp: 115, speed: 35, atk: 140, def: 50, 
+  moves: ['quick_attack', 'spark', 'double_kick', 'bite', 'pin_missile', 'volt_switch', 'thunderbolt', 'thunder','agility', 'thunder_wave', 'baton_pass', 'protect'] },
+                        { id: 'snorlax', name: 'Snorlax', types: ['Normal'], ability: 'gluttony', maxHp: 320, speed: 10, atk: 90, def: 110, moves: ['pound', 'body_slam', 'headbutt', 'lick', 'earthquake', 'hyper_beam', 'heavy_slam', 'crunch', 'iron_defense', 'toxic', 'rest', 'protect', 'yawn'] },
+            { id: 'gengar', name: 'Gengar', types: ['Ghost', 'Poison'], ability: 'levitate', 
+  maxHp: 105, speed: 32, atk: 150, def: 55, 
+  moves: ['quick_attack', 'sucker_punch', 'shadow_ball', 'lick', 'sludge_bomb', 'hex', 'focus_blast', 'agility', 'will_o_wisp', 'thunderbolt', 'protect'] },
+            { id: 'togekiss', name: 'Togekiss', types: ['Fairy', 'Flying'], ability: 'serene_grace', maxHp: 160, speed: 22, atk: 105, def: 95, moves: ['fairy_wind', 'air_slash', 'magical_leaf', 'water_pulse', 'dazzling_gleam', 'sky_attack', 'flamethrower', 'helping_hand', 'thunder_wave', 'baton_pass', 'protect'] },
+            { 
+    id: 'garchomp', name: 'Garchomp', types: ['Dragon', 'Ground'], 
+    ability: 'rough_skin',
+    maxHp: 235, speed: 32, atk: 135, def: 95,
+    moves: [
+        'sand_attack', 'dragon_claw', 'mud_shot', 'earthquake','rock_slide', 
+        'outrage', 'stone_edge', 'poison_jab', 'crunch', 
+        'swords_dance',
+        'roost',
+        'protect'
+    ] 
+},
+            { id: 'scizor', name: 'Scizor', types: ['Bug', 'Steel'], ability: 'technician', maxHp: 150, speed: 18, atk: 135, def: 110, moves: ['quick_attack', 'bullet_punch', 'bug_bite', 'metal_claw', 'night_slash', 'u_turn', 'iron_head', 'close_combat', 'swords_dance', 'roost', 'protect'] },
+            { id: 'blissey', name: 'Blissey', types: ['Normal'], ability: 'natural_cure', maxHp: 400, speed: 15, atk: 30, def: 140, moves: ['pound', 'seismic_toss', 'dazzling_gleam', 'flamethrower', 'softboiled', 'helping_hand', 'toxic', 'thunder_wave', 'stealth_rock', 'follow_me', 'protect'] },
+            { id: 'tyranitar', name: 'Tyranitar', types: ['Rock', 'Dark'], ability: 'sand_stream', maxHp: 230, speed: 16, atk: 134, def: 120, moves: ['sand_attack', 'bite', 'rock_slide', 'ice_punch', 'crunch', 'earthquake', 'stone_edge', 'dark_pulse', 'dragon_dance', 'stealth_rock', 'thunderbolt', 'protect'] },
+            { id: 'suicune', name: 'Suicune', types: ['Water'], ability: 'inner_focus', maxHp: 235, speed: 24, atk: 95, def: 135, moves: ['fairy_wind', 'surf', 'water_pulse', 'ice_beam', 'hydro_pump', 'blizzard', 'iron_defense', 'calm_mind', 'life_dew', 'rain_dance', 'protect'] },
+            { 
+    id: 'metagross', name: 'Metagross', types: ['Steel', 'Psychic'], 
+    ability: 'clear_body', 
+    maxHp: 220, speed: 22, atk: 145, def: 140,
+    moves: [
+        'bullet_punch', 'zen_headbutt', 'metal_claw', 'confusion', 
+        'meteor_mash', 'earthquake', 
+        'rock_slide',
+        'recover',
+        'follow_me',
+        'iron_defense', 'protect'
+    ] 
+},
+            { id: 'infernape', name: 'Infernape', types: ['Fire', 'Fighting'], ability: 'blaze', 
+  maxHp: 115, speed: 33, atk: 130, def: 55, 
+  moves: ['mach_punch', 'flame_wheel', 'rock_tomb', 'close_combat', 'flare_blitz', 'acrobatics', 'u_turn', 'swords_dance', 'stealth_rock', 'sunny_day', 'will_o_wisp'] },
+            { id: 'alakazam', name: 'Alakazam', types: ['Psychic'], ability: 'magic_guard', 
+  maxHp: 100, speed: 36, atk: 160, def: 50, 
+  moves: ['confusion', 'psybeam', 'shadow_ball', 'psychic', 'focus_blast', 'dazzling_gleam', 'teleport', 'agility', 'hypnosis', 'recover', 'protect'] },
+            { id: 'umbreon', name: 'Umbreon', types: ['Dark'], ability: 'synchronize', maxHp: 190, speed: 17, atk: 60, def: 140, moves: ['quick_attack', 'bite', 'snarl', 'foul_play', 'dark_pulse', 'moonlight', 'helping_hand', 'toxic', 'charm', 'follow_me', 'protect'] },
+            { id: 'machamp', name: 'Machamp', types: ['Fighting'], ability: 'guts', maxHp: 180, speed: 14, atk: 150, def: 85, moves: ['mach_punch', 'bullet_punch', 'cross_chop', 'ice_punch', 'thunder_punch', 'rock_slide', 'dynamic_punch', 'earthquake', 'stone_edge', 'swords_dance', 'protect'] },
+            { id: 'crobat', name: 'Crobat', types: ['Poison', 'Flying'], ability: 'inner_focus', 
+  maxHp: 120, speed: 38, atk: 95, def: 55, 
+  moves: ['peck', 'cross_poison', 'air_slash', 'bite', 'rapid_spin', 'u_turn', 'acrobatics', 'sludge_bomb', 'baton_pass', 'roost', 'protect'] },
+            { 
+    id: 'lapras', name: 'Lapras', types: ['Water', 'Ice'], 
+    ability: 'water_absorb', 
+    maxHp: 240, speed: 22, atk: 115, def: 100, 
+    moves: [
+        'ice_shard', 'ice_beam', 'surf', 'water_pulse', 
+        'body_slam', 'blizzard', 'hydro_pump', 'thunderbolt', 
+        'sing',
+        'life_dew', 'follow_me', 'protect'
+    ] 
+},
+            { id: 'weavile', name: 'Weavile', types: ['Dark', 'Ice'], ability: 'pickpocket', 
+  maxHp: 110, speed: 34, atk: 140, def: 55, 
+  moves: ['quick_attack', 'ice_shard', 'sucker_punch', 'night_slash', 'feint_attack', 'ice_punch', 'icicle_crash', 'crunch', 'brick_break', 'swords_dance', 'scary_face', 'protect'] },
+            { 
+    id: 'skarmory', name: 'Skarmory', types: ['Steel', 'Flying'], 
+    ability: 'sturdy', 
+    maxHp: 160, speed: 22, atk: 115, def: 160,
+    moves: [
+        'peck', 'steel_wing', 'air_slash', 'brave_bird', 
+        'flash_cannon', 'whirlwind', 'iron_defense', 'roost', 
+        'stealth_rock', 'spikes', 'protect'
+    ] 
+}
+        ];
+
+        const DRAFT_SEQ = [
+            { t: 'P1', a: 'PICK', msg: 'P1 Pick 1st PKMN', color: 'text-blue-600', border: 'border-blue-500' },
+            { t: 'P1', a: 'BAN', msg: 'P1 Ban 1 PKMN', color: 'text-slate-600', border: 'border-slate-500' },
+            { t: 'P2', a: 'PICK', msg: 'P2 Pick 1st PKMN', color: 'text-red-600', border: 'border-red-500' },
+            { t: 'P2', a: 'PICK', msg: 'P2 Pick 2nd PKMN', color: 'text-red-600', border: 'border-red-500' },
+            { t: 'P2', a: 'BAN', msg: 'P2 Ban 1 PKMN', color: 'text-slate-600', border: 'border-slate-500' },
+            { t: 'P2', a: 'BAN', msg: 'P2 Ban 2 PKMN', color: 'text-slate-600', border: 'border-slate-500' },
+            { t: 'P1', a: 'PICK', msg: 'P1 Pick 2nd PKMN', color: 'text-blue-600', border: 'border-blue-500' },
+            { t: 'P1', a: 'BAN', msg: 'P1 Ban 2 PKMN', color: 'text-slate-600', border: 'border-slate-500' },
+            { t: 'P2', a: 'PICK', msg: 'P2 Pick 3rd PKMN', color: 'text-red-600', border: 'border-red-500' },
+            { t: 'P2', a: 'BAN', msg: 'P2 Ban 3 PKMN', color: 'text-slate-600', border: 'border-slate-500' },
+            { t: 'P1', a: 'PICK', msg: 'P1 Pick 3rd PKMN', color: 'text-blue-600', border: 'border-blue-500' },
+            { t: 'P1', a: 'PICK', msg: 'P1 Pick 4th PKMN', color: 'text-blue-600', border: 'border-blue-500' },
+            { t: 'P1', a: 'BAN', msg: 'P1 Ban 3 PKMN', color: 'text-slate-600', border: 'border-slate-500' },
+            { t: 'P1', a: 'BAN', msg: 'P1 Ban 4 PKMN', color: 'text-slate-600', border: 'border-slate-500' },
+            { t: 'P2', a: 'PICK', msg: 'P2 Pick 4th PKMN', color: 'text-red-600', border: 'border-red-500' }
+        ];
+
+        let gameMode = 'local'; 
+        let peer = null; let conn = null; let isHost = true; let myTeam = 'BOTH'; 
+        let isAnimating = false;
+        let draftLock = false;
+
+        let gameState = {
+            status: 'drafting', 
+            p1Draft: [], p2Draft: [], bannedList: [], draftStateIndex: 0,
+            p1Ready: false, p2Ready: false,
+            combatants: [], activeCombatantUid: null, pendingDeaths: [], pendingPivots: [],
+            weather: { type: null, av: 0 },
+            hazards: { P1: { stealth_rock: false, spikes: 0 }, P2: { stealth_rock: false, spikes: 0 } },
+            passedEnergy: { P1: 0, P2: 0 },
+            animEvent: null,
+            battleLog: []
+        };
+        
+        let activeCategory = 'builders'; let currentAnimEventId = null;
+        
+        const emptyImageSvg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50'><circle cx='25' cy='25' r='20' fill='%23666'/></svg>`;
+               
+                function pushLog(msg, isSubEvent = false) {
+            if (gameMode === 'online' && !isHost) return; 
+            const prefix = isSubEvent ? `<span class="text-slate-500 pl-4">- </span>` : `<span class="text-blue-600 font-bold">> </span>`;
+            gameState.battleLog.push(`${prefix}${msg}`);
+        }
+
+
+        function updateLogUI() {
+            const logContent = document.getElementById('log-content');
+            if (logContent) {
+                logContent.innerHTML = gameState.battleLog.map(l => `<div>${l}</div>`).join('');
+                logContent.scrollTop = logContent.scrollHeight;
+            }
+        }
+
+        window.toggleMenuCollapse = function(e) {
+            if (e.target.tagName.toLowerCase() === 'button' && e.target.id.startsWith('tab-')) return;
+            const container = document.getElementById('action-menu-container');
+            container.classList.toggle('collapsed');
+        };
+
+        document.getElementById('btn-toggle-log').addEventListener('click', () => {
+            const modal = document.getElementById('log-modal');
+            modal.classList.remove('hidden');
+            updateLogUI();
+        });
+        document.getElementById('btn-close-log').addEventListener('click', () => {
+            document.getElementById('log-modal').classList.add('hidden');
+        });
+        
+                window.alignShadow = function(imgEl, uid) {
+            const shadow = document.getElementById(`shadow-${uid}`);
+            if (!shadow) return;
+            const w = Math.max(40, imgEl.offsetWidth * 0.85); 
+            shadow.style.width = `${w}px`;
+            shadow.style.height = `${w * 0.4}px`; 
+            // Removed positioning math, tailwind perfectly centers it now!
+        };
+        
+                window.toggleMenuCollapse = function(e) {
+            if (e && e.target && e.target.tagName.toLowerCase() === 'button' && e.target.id.startsWith('tab-')) return;
+            const container = document.getElementById('action-menu-container');
+            const battleScreen = document.getElementById('battle-screen'); // NEW
+            container.classList.toggle('collapsed');
+            battleScreen.classList.toggle('menu-collapsed'); // NEW
+        };
+
+        window.switchCategory = function(category) {
+            if (gameState.pendingDeaths.length > 0 || gameState.pendingPivots.length > 0) return;
+            activeCategory = category;
+            
+            const tabs = ['builders', 'spenders', 'tactics', 'switch'];
+            tabs.forEach(tab => {
+                const el = document.getElementById('tab-' + tab);
+                if (el) {
+                    if (tab === category) { el.classList.add('menu-tab-active'); el.classList.remove('menu-tab-inactive'); } 
+                    else { el.classList.remove('menu-tab-active'); el.classList.add('menu-tab-inactive'); }
+                }
+            });
+
+            document.getElementById('view-targets').classList.add('hidden');
+            document.getElementById('view-moves').classList.remove('hidden');
+
+            document.getElementById('action-menu-container').classList.remove('collapsed');
+            document.getElementById('battle-screen').classList.remove('menu-collapsed'); // NEW
+
+            if (category === 'switch') renderSwitchMenu(); else renderMoveMenu();
+        };
+
+
+        window.switchCategory = function(category) {
+    if (gameState.pendingDeaths.length > 0 || gameState.pendingPivots.length > 0) return;
+    
+    activeCategory = category;
+            
+            const tabs = ['builders', 'spenders', 'tactics', 'switch'];
+            tabs.forEach(tab => {
+                const el = document.getElementById('tab-' + tab);
+                if (el) {
+                    if (tab === category) { el.classList.add('menu-tab-active'); el.classList.remove('menu-tab-inactive'); } 
+                    else { el.classList.remove('menu-tab-active'); el.classList.add('menu-tab-inactive'); }
+                }
+            });
+
+            document.getElementById('view-targets').classList.add('hidden');
+            document.getElementById('view-moves').classList.remove('hidden');
+
+            document.getElementById('action-menu-container').classList.remove('collapsed');
+
+            if (category === 'switch') renderSwitchMenu(); else renderMoveMenu();
+        };
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        function copyRoomCode() {
+            const code = document.getElementById('display-room-code').innerText;
+            if (code && code !== 'XXXXX') {
+                navigator.clipboard.writeText(code).then(() => {
+                    RetroSFX.uiClick();
+                    showToast("Code Copied to Clipboard!");
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                });
+            }
+        }
+
+        document.getElementById('btn-local-play').addEventListener('click', () => {
+        RetroSFX.init();
+            gameMode = 'local'; isHost = true; myTeam = 'BOTH';
+            document.getElementById('main-menu-screen').classList.add('hidden');
+            document.getElementById('draft-screen').classList.remove('hidden');
+            renderState();
+        });
+
+        document.getElementById('btn-online-play').addEventListener('click', () => {
+        RetroSFX.init();
+            gameMode = 'online';
+            document.getElementById('main-menu-screen').classList.add('hidden');
+            document.getElementById('lobby-screen').classList.remove('hidden');
+        });
+
+        document.getElementById('btn-back-main').addEventListener('click', () => {
+            document.getElementById('lobby-screen').classList.add('hidden');
+            document.getElementById('main-menu-screen').classList.remove('hidden');
+        });
+        document.getElementById('btn-cancel-host').addEventListener('click', () => {
+            RetroSFX.errorBuzzer();
+            if (peer) {
+                peer.destroy(); // Kills the open connection
+                peer = null;
+            }
+            document.getElementById('wait-screen').classList.add('hidden');
+            document.getElementById('main-menu-screen').classList.remove('hidden');
+        });
+
+        document.getElementById('btn-create').addEventListener('click', () => {
+            const code = Math.random().toString(36).substring(2, 7).padEnd(5, 'X').toUpperCase();
+            const fullId = 'CTB-' + code;
+            document.getElementById('connection-status').innerText = "Starting Host Server...";
+            document.getElementById('connection-status').classList.remove('hidden');
+            
+            peer = new Peer(fullId);
+            peer.on('open', (id) => {
+                isHost = true; myTeam = 'P1';
+                document.getElementById('lobby-screen').classList.add('hidden');
+                document.getElementById('wait-screen').classList.remove('hidden');
+                document.getElementById('display-room-code').innerText = code;
+                
+                gameState = {
+                    status: 'drafting', p1Draft: [], p2Draft: [], bannedList: [], draftStateIndex: 0,
+                    p1Ready: false, p2Ready: false, combatants: [], activeCombatantUid: null, pendingDeaths: [], pendingPivots: [],
+                    weather: { type: null, av: 0 }, passedEnergy: { P1: 0, P2: 0 },
+                    hazards: { P1: { stealth_rock: false, spikes: 0 }, P2: { stealth_rock: false, spikes: 0 } },
+                    animEvent: null, battleLog: []
+                };
+            });
+            peer.on('connection', (connection) => {
+                const isReconnect = (conn !== null); 
+                
+                conn = connection; 
+                setupConnection();
+                
+                conn.on('open', () => {
+                    if (!isReconnect) {
+                        document.getElementById('wait-screen').classList.add('hidden');
+                        document.getElementById('draft-screen').classList.remove('hidden');
+                    } else {
+                        showToast("Opponent Reconnected!");
+                        document.getElementById('opponent-turn-overlay').classList.add('hidden');
+                    }
+                    
+                    syncStateToClient(); 
+                    renderState();
+                });
+            });
+            peer.on('error', (err) => showToast(err.message));
+        });
+
+        document.getElementById('btn-join').addEventListener('click', () => {
+            const code = document.getElementById('join-code').value.toUpperCase();
+            if (code.length !== 5) { showToast("Invalid Code"); return; }
+            document.getElementById('connection-status').innerText = "Connecting to Host...";
+            document.getElementById('connection-status').classList.remove('hidden');
+            
+            peer = new Peer();
+            peer.on('open', () => {
+                isHost = false; myTeam = 'P2';
+                conn = peer.connect('CTB-' + code);
+                conn.on('open', () => {
+                 document.getElementById('connection-status').innerText = "Syncing game state...";
+                 setupConnection();
+                });
+            });
+            peer.on('error', (err) => { showToast("Connection failed: " + err.message); document.getElementById('connection-status').classList.add('hidden'); });
+        });
+
+        function setupConnection() {
+            conn.on('data', (data) => {
+                if (isHost && data.type === 'ACTION') handleGameAction(data.payload);
+                else if (!isHost && data.type === 'STATE_SYNC') { 
+                    gameState = data.payload; 
+                    updateLogUI();
+                    
+                    document.getElementById('lobby-screen').classList.add('hidden');
+                    document.getElementById('wait-screen').classList.add('hidden');
+                    
+                    renderState(); 
+                }
+            });
+            
+            conn.on('close', () => {
+                showToast("Connection lost!");
+                if (isHost && gameState.status === 'playing') {
+                    lockMenuUI("Opponent Disconnected. Waiting for them to rejoin...");
+                }
+            });
+        }
+
+        function syncStateToClient() { if (gameMode === 'online' && isHost && conn && conn.open) conn.send({ type: 'STATE_SYNC', payload: gameState }); }
+
+        function dispatchAction(actionObj) {
+            if (gameMode === 'local' || isHost) handleGameAction(actionObj); 
+            else if (conn && conn.open) conn.send({ type: 'ACTION', payload: actionObj });
+        }
+
+        function handleGameAction(action) {
+            if (action.actionType === 'DRAFT') {
+                const step = DRAFT_SEQ[gameState.draftStateIndex];
+                if (gameMode === 'online' && step.t !== action.team) return; 
+                
+                if (step.a === 'PICK') step.t === 'P1' ? gameState.p1Draft.push(action.mon) : gameState.p2Draft.push(action.mon);
+                else gameState.bannedList.push(action.mon);
+                
+                gameState.draftStateIndex++;
+                syncStateToClient(); renderState();
+            } 
+            else if (action.actionType === 'READY') {
+                if (action.team === 'P1') gameState.p1Ready = true;
+                if (action.team === 'P2') gameState.p2Ready = true;
+                if (gameState.p1Ready && gameState.p2Ready) initBattleStateLogic();
+                else { syncStateToClient(); renderState(); }
+            }
+            else if (action.actionType === 'START_BATTLE_LOCAL') initBattleStateLogic();
+            else if (action.actionType === 'QUEUE_MOVE') {
+                const activeCombatant = gameState.combatants.find(c => c.uid === gameState.activeCombatantUid);
+                if (gameMode === 'online' && activeCombatant.team !== action.team) return;
+                queueMoveLogic(action.moveId, action.move, action.targets);
+            }
+            else if (action.actionType === 'QUEUE_SWITCH') {
+                const activeCombatant = gameState.combatants.find(c => c.uid === gameState.activeCombatantUid);
+                if (gameMode === 'online' && activeCombatant.team !== action.team) return;
+                queueSwitchLogic(action.monUid);
+            }
+            else if (action.actionType === 'DEATH_REPLACE') {
+                const expectedTeam = gameState.pendingDeaths[0];
+                if (gameMode === 'online' && expectedTeam !== action.team) return;
+                resolveDeathSwitchLogic(action.monUid);
+            }
+            else if (action.actionType === 'PIVOT_REPLACE') {
+                const expectedTeam = gameState.pendingPivots[0];
+                if (gameMode === 'online' && expectedTeam !== action.team) return;
+                resolvePivotSwitchLogic(action.monUid);
+            }
+        }
+
+        function applyHazards(mon, team, animEvent) {
+            let hazardState = gameState.hazards[team];
+            if (!hazardState) return;
+
+            if (hazardState.stealth_rock && !mon.ability.includes('magic_guard')) {
+                let rockMod = 1.0;
+                mon.types.forEach(t => { if (TYPE_CHART['Rock'][t] !== undefined) rockMod *= TYPE_CHART['Rock'][t]; });
+                let dmg = Math.floor(mon.maxHp * 0.125 * rockMod);
+                dmg = Math.max(1, dmg);
+                mon.hp = Math.max(0, mon.hp - dmg);
+                animEvent.targets.push({ uid: mon.uid, shake: true, texts: [{ text: `SR: -${dmg}`, color: 'text-stone-300' }] });
+                pushLog(`${mon.team} ${mon.name} took ${dmg} damage from Stealth Rock.`, true);
+            }
+            if (hazardState.spikes > 0 && !mon.types.includes('Flying') && mon.ability !== 'levitate' && !mon.ability.includes('magic_guard')) {
+                let p = hazardState.spikes === 1 ? 0.125 : (hazardState.spikes === 2 ? 0.166 : 0.25);
+                let dmg = Math.floor(mon.maxHp * p);
+                dmg = Math.max(1, dmg);
+                mon.hp = Math.max(0, mon.hp - dmg);
+                animEvent.targets.push({ uid: mon.uid, shake: true, texts: [{ text: `SPIKES: -${dmg}`, color: 'text-amber-300' }] });
+                pushLog(`${mon.team} ${mon.name} took ${dmg} damage from Spikes.`, true);
+            }
+        }
+
+        function changeWeather(newType, avDuration, animEvent, attackerUid) {
+            let oldSpeeds = {};
+            gameState.combatants.forEach(c => { if(c.isActive && !c.isDead) oldSpeeds[c.uid] = getSpeed(c); });
+
+            gameState.weather = { type: newType, av: avDuration };
+
+            // RECALCULATE AV QUEUE IF WEATHER ABILITIES CHANGED SPEED
+            gameState.combatants.forEach(c => {
+                if(c.isActive && !c.isDead) {
+                    let newSpeed = getSpeed(c);
+                    if(oldSpeeds[c.uid] !== newSpeed) {
+                        c.currentAV = c.currentAV * (oldSpeeds[c.uid] / newSpeed);
+                    }
+                }
+            });
+
+            if (animEvent) {
+                animEvent.attackerTexts.push({ text: `${newType === 'sand' ? 'SAND STREAM' : newType.toUpperCase()}!`, color: newType === 'sun' ? 'text-orange-400' : (newType === 'rain' ? 'text-blue-400' : 'text-yellow-400') });
+                if(attackerUid) animEvent.attackerUid = attackerUid;
+            }
+            pushLog(newType === 'sand' ? `A sandstorm whipped up!` : `The weather changed to ${newType}!`, true);
+        }
+
+                function renderState() {
+            if (gameState.status === 'drafting') {
+                document.getElementById('battle-screen').classList.add('hidden');
+                document.getElementById('draft-screen').classList.remove('hidden');
+                renderDraftScreen();
+            }
+            else if (gameState.status === 'playing') {
+                document.getElementById('draft-screen').classList.add('hidden');
+                document.getElementById('battle-screen').classList.remove('hidden');
+                
+                // If there's a new animation, DO NOT update the UI yet! Let the animation handle the reveal.
+                if (gameState.animEvent && gameState.animEvent.id !== currentAnimEventId) {
+                    if (isAnimating) {
+                        setTimeout(renderState, 100);
+                        return; 
+                    }
+                    currentAnimEventId = gameState.animEvent.id;
+                    playAnimations(gameState.animEvent);
+                } else if (!isAnimating) {
+                    // Only render steady state if no animation is pending
+                    renderBattlefield(); 
+                    renderQueue(); 
+                    updateLogUI(); 
+                    evaluateTurnState();
+                }
+            }
+        }
+
+        function getTypeBadges(typesArray) { 
+            return typesArray.map(t => `<span class="type-${t} px-[4px] py-[2px] border border-black shadow-[1px_1px_0_#000] text-[8px] uppercase font-bold tracking-wider leading-none">${t}</span>`).join(''); 
+        }
+                function getStatusBadge(c) {
+            if (c.status) {
+                let bg = 'bg-slate-500';
+                let display = 'SLP';
+                if (c.status === 'burn') { bg = 'bg-red-500'; display = 'BRN'; }
+                else if (c.status.includes('poison')) { bg = 'bg-purple-500'; display = c.status === 'bad_poison' ? 'B-PSN' : 'PSN'; }
+                else if (c.status === 'paralyze') { bg = 'bg-yellow-500'; display = 'PAR'; }
+                return `<div class="text-[8px] font-black uppercase px-1 border border-black rounded ${bg} text-white shadow-[1px_1px_0_#000] leading-none">${display}</div>`;
+            }
+            if (c.isDrowsy) {
+                return `<div class="text-[8px] font-black uppercase px-1 border border-black rounded bg-pink-400 text-white shadow-[1px_1px_0_#000] leading-none animate-pulse">DRW</div>`;
+            }
+            return '';
+        }
+
+
+        function renderDraftScreen() {
+        draftLock = false;
+            const grid = document.getElementById('pokedex-grid'); grid.innerHTML = '';
+            
+            POKEDEX.forEach(mon => {
+                const isSelectedP1 = gameState.p1Draft.some(p => p.id === mon.id);
+                const isSelectedP2 = gameState.p2Draft.some(p => p.id === mon.id);
+                const isBanned = gameState.bannedList.some(p => p.id === mon.id);
+                const isUnavailable = isSelectedP1 || isSelectedP2 || isBanned;
+                
+                const card = document.createElement('div');
+                let borderClass = 'border-slate-300';
+                if (isSelectedP1) borderClass = 'border-blue-500 bg-blue-100';
+                else if (isSelectedP2) borderClass = 'border-red-500 bg-red-100';
+                else if (isBanned) borderClass = 'draft-banned';
+
+                card.className = `flex flex-col items-center p-2 bg-white border-[3px] shadow-[2px_2px_0_#222] ${borderClass} transition-all duration-100 ${isUnavailable ? 'draft-unavailable' : 'cursor-pointer hover:border-blue-400 hover:-translate-y-1 hover:shadow-[2px_4px_0_#222]'}`;
+                
+                card.innerHTML = `
+                    <div class="h-14 w-14 mb-2 drop-shadow-md relative flex items-center justify-center">
+                        <img src="https://play.pokemonshowdown.com/sprites/ani/${mon.id}.gif" onerror="this.onerror=null; this.className='fallback w-full h-full'; this.src='${emptyImageSvg}';" class="max-w-full max-h-full object-contain">
+                        ${isBanned ? '<div class="absolute inset-0 flex items-center justify-center text-5xl text-red-600 font-black rotate-45 opacity-80 drop-shadow-md z-10">X</div>' : ''}
+                    </div>
+                    <div class="font-black text-xs text-black mb-1 tracking-wide uppercase">${mon.name}</div>
+                    <div class="flex gap-1 mb-2">${getTypeBadges(mon.types)}</div>
+                `;
+                if (!isUnavailable) {
+                    card.onclick = () => {
+                        if (draftLock) return; 
+                        if (gameState.draftStateIndex >= DRAFT_SEQ.length) return;
+                        const step = DRAFT_SEQ[gameState.draftStateIndex];
+                        if (gameMode === 'online' && step.t !== myTeam) { showToast("It's not your turn!"); return; }
+                        
+                        draftLock = true;
+                        dispatchAction({ actionType: 'DRAFT', team: step.t, mon: mon });
+                    };
+                }
+                grid.appendChild(card);
+            });
+            
+            document.getElementById('p1-tracker').innerHTML = gameState.p1Draft.map(p => `<img src="https://play.pokemonshowdown.com/sprites/ani/${p.id}.gif" onerror="this.onerror=null; this.src='${emptyImageSvg}';" class="h-8 w-8 object-contain drop-shadow-sm">`).join('');
+            document.getElementById('p2-tracker').innerHTML = gameState.p2Draft.map(p => `<img src="https://play.pokemonshowdown.com/sprites/ani/${p.id}.gif" onerror="this.onerror=null; this.src='${emptyImageSvg}';" class="h-8 w-8 object-contain drop-shadow-sm">`).join('');
+
+            const prompt = document.getElementById('draft-prompt');
+            const promptCont = document.getElementById('prompt-container');
+            
+            if (gameState.draftStateIndex < DRAFT_SEQ.length) {
+                const step = DRAFT_SEQ[gameState.draftStateIndex];
+                if (gameMode === 'local') {
+                    prompt.innerText = step.msg;
+                    prompt.className = `text-sm font-black uppercase tracking-wide ${step.color}`;
+                } else {
+                    if (step.t === myTeam) {
+                        prompt.innerText = "YOUR TURN: " + step.a;
+                        prompt.className = `text-sm font-black uppercase tracking-wide ${myTeam === 'P1' ? 'text-blue-600' : 'text-red-600'} animate-pulse`;
+                    } else {
+                        prompt.innerText = "WAITING FOR OPPONENT...";
+                        prompt.className = `text-sm font-black uppercase tracking-wide text-slate-500`;
+                    }
+                }
+                promptCont.className = `bg-white px-6 py-2 border-[3px] shadow-[2px_2px_0_#222] transition-all duration-300 ${step.border} w-full max-w-md text-center`;
+            } else {
+                prompt.innerText = "TEAMS LOCKED!";
+                prompt.className = "text-sm font-black uppercase tracking-widest text-emerald-600";
+                promptCont.className = `bg-white px-6 py-2 border-[3px] border-emerald-500 shadow-[2px_2px_0_#222] w-full max-w-md text-center`;
+                
+                if (gameMode === 'local') {
+                    document.getElementById('draft-local-ready-container').classList.remove('hidden');
+                    document.getElementById('btn-local-start-battle').onclick = () => dispatchAction({ actionType: 'START_BATTLE_LOCAL' });
+                } else {
+                    document.getElementById('draft-online-ready-container').classList.remove('hidden');
+                    const readyText = document.getElementById('ready-status-text');
+                    const readyBtn = document.getElementById('btn-online-ready');
+                    
+                    if ((myTeam === 'P1' && gameState.p1Ready) || (myTeam === 'P2' && gameState.p2Ready)) {
+                        readyBtn.classList.add('hidden');
+                        readyText.innerText = "WAITING FOR OPPONENT...";
+                    } else {
+                        readyBtn.classList.remove('hidden');
+                        readyText.innerText = "REVIEW TEAM AND READY";
+                        readyBtn.onclick = () => { readyBtn.classList.add('hidden'); dispatchAction({ actionType: 'READY', team: myTeam }); };
+                    }
+                }
+            }
+        }
+
+        function getSpeed(mon) {
+            let spd = mon.speed;
+            if (gameState.weather.type === 'sand' && mon.ability === 'sand_rush') spd *= 2;
+            if (gameState.weather.type === 'hail' && mon.ability === 'slush_rush') spd *= 2;
+            if (gameState.weather.type === 'rain' && mon.ability === 'swift_swim') spd *= 2;
+            if (gameState.weather.type === 'sun' && mon.ability === 'chlorophyll') spd *= 2;
+            
+            if (mon.ability === 'quick_feet' && mon.status && mon.status !== 'sleep') spd = Math.floor(spd * 1.5);
+            else if (mon.status === 'paralyze') spd = Math.max(1, Math.floor(spd * 0.7));
+            return spd;
+        }
+
+        function initBattleStateLogic() {
+            let startCombatants = [];
+            gameState.p1Draft.forEach((mon, index) => {
+                let c = JSON.parse(JSON.stringify(mon));
+                c.uid = `P1_${index}`; c.team = 'P1'; c.hp = c.maxHp; c.energy = 0; c.maxEnergy = 5;
+                c.isActive = (index < 2); c.currentAV = 0;
+                c.lastMoveId = null; c.isDead = false; c.status = null; c.isProtected = false;
+                c.isFollowMe = false;c.isDrowsy = false;
+                c.state = c.isActive ? 'IDLE' : 'BENCH';
+                c.queuedAction = null;
+                startCombatants.push(c);
+            });
+            gameState.p2Draft.forEach((mon, index) => {
+                let c = JSON.parse(JSON.stringify(mon));
+                c.uid = `P2_${index}`; c.team = 'P2'; c.hp = c.maxHp; c.energy = 0; c.maxEnergy = 5;
+                c.isActive = (index < 2); c.currentAV = 0.01; 
+                c.lastMoveId = null; c.isDead = false; c.status = null; c.isProtected = false;
+                c.isFollowMe = false;
+                c.state = c.isActive ? 'IDLE' : 'BENCH';
+                c.queuedAction = null; 
+                startCombatants.push(c);
+            });
+
+            gameState.status = 'playing';
+            gameState.combatants = startCombatants;
+            gameState.pendingDeaths = [];
+            gameState.pendingPivots = [];
+            gameState.weather = { type: null, av: 0 }; 
+            gameState.hazards = { P1: { stealth_rock: false, spikes: 0 }, P2: { stealth_rock: false, spikes: 0 } };
+            gameState.passedEnergy = { P1: 0, P2: 0 };
+            gameState.battleLog = [];
+            
+            gameState.combatants.forEach(c => { 
+                if(c.isActive && c.ability === 'sand_stream') {
+                    // Start-of-game implicit weather setup
+                    gameState.weather = { type: 'sand', av: 3000 };
+                    // No recalculation needed as game starts at AV 0
+                }
+            });
+
+            gameState.activeCombatantUid = getNextTurnStateLogic(true);
+            pushLog("BATTLE START!");
+            
+            syncStateToClient(); renderState();
+        }
+
+        function getNextTurnStateLogic(advanceTime) {
+            let virtualAVs = gameState.combatants.filter(c => c.isActive && !c.isDead).map(c => ({...c}));
+            
+            virtualAVs.sort((a, b) => {
+                if (Math.abs(a.currentAV - b.currentAV) < 0.01) return getSpeed(b) - getSpeed(a);
+                return a.currentAV - b.currentAV;
+            });
+            if (virtualAVs.length === 0) return null;
+            
+            const nextAct = virtualAVs[0];
+            
+            if (advanceTime && nextAct.currentAV > 0) {
+                const timePassed = nextAct.currentAV;
+                gameState.combatants.forEach(c => { 
+                    if (c.isActive && !c.isDead) c.currentAV = Math.max(0, c.currentAV - timePassed); 
+                });
+                
+                if (gameState.weather.type) {
+    gameState.weather.av -= timePassed;
+    if (gameState.weather.av <= 0) {
+        // 1. Capture speeds before weather clears
+        let oldSpeeds = {};
+        gameState.combatants.forEach(c => { 
+            if(c.isActive && !c.isDead) oldSpeeds[c.uid] = getSpeed(c); 
+        });
+        
+        // 2. Clear weather
+        gameState.weather = { type: null, av: 0 };
+        
+        // 3. Recalculate AVs for the sudden speed drop
+        gameState.combatants.forEach(c => {
+            if(c.isActive && !c.isDead) {
+                let newSpeed = getSpeed(c);
+                if(oldSpeeds[c.uid] !== newSpeed) {
+                    c.currentAV = c.currentAV * (oldSpeeds[c.uid] / newSpeed);
+                }
+            }
+        });
+    }
+}
+            }
+            return nextAct.uid;
+        }
+
+        function queueMoveLogic(moveId, move, targetsInfo) {
+            const attacker = gameState.combatants.find(c => c.uid === gameState.activeCombatantUid);
+            // SERVER GUARD: Prevent duplicate execution from multi-clicks or latency
+            if (!attacker || attacker.state !== 'IDLE') return; 
+
+            attacker.energy = Math.max(0, attacker.energy - move.cost);
+            
+            let addedAV = (move.fixedAV !== undefined ? move.fixedAV : (move.delay / getSpeed(attacker)));
+
+            if (move.isPriority) {
+                // INSTANT EXECUTION FOR PRIORITY MOVES
+                attacker.queuedAction = { moveId, move, targetsInfo, type: 'MOVE' };
+                attacker.currentAV += addedAV;
+                performExecutionPhase(attacker);
+            } else {
+                // STANDARD EXECUTION
+                attacker.queuedAction = { moveId, move, targetsInfo, type: 'MOVE' };
+                attacker.state = 'CHARGING';
+                attacker.currentAV += addedAV;
+                
+                gameState.activeCombatantUid = getNextTurnStateLogic(true);
+                syncStateToClient(); renderState();
+            }
+        }
+
+        function queueSwitchLogic(monUid) {
+            const attacker = gameState.combatants.find(c => c.uid === gameState.activeCombatantUid);
+            if (!attacker || attacker.state !== 'IDLE') return; 
+
+            attacker.queuedAction = { monUid, type: 'SWITCH' };
+            performSwitchExecutionPhase(attacker);
+        }
+
+                        function performSwitchExecutionPhase(attacker) {
+            const benchedMonUid = attacker.queuedAction.monUid;
+            const benchedMon = gameState.combatants.find(c => c.uid === benchedMonUid);
+            
+            pushLog(`${attacker.team} withdrew ${attacker.name} and sent out ${benchedMon.name}!`);
+            RetroSFX.switchOut();
+            setTimeout(() => RetroSFX.switchIn(), 300);
+
+            benchedMon.isActive = true; 
+            attacker.isActive = false;
+            
+            // Apply the fixed 20 AV penalty to the incoming Pokémon
+            benchedMon.currentAV = 20; 
+            benchedMon.state = 'IDLE';
+            benchedMon.queuedAction = null;
+            
+            attacker.currentAV = 0;
+            attacker.state = 'BENCH';
+            attacker.queuedAction = null;
+            attacker.isFollowMe = false;
+            attacker.isDrowsy = false; // Successfully clears Drowsy on switch!
+            
+            if (attacker.ability === 'natural_cure' && attacker.status) attacker.status = null;
+            
+            // THE FIX: Proper clean animEvent for a switch (no "move" variables!)
+            let animEvent = { id: Date.now(), attackerUid: null, attackerTeam: null, type: 'switch', targets: [], attackerTexts: [] };
+            
+            applyHazards(benchedMon, benchedMon.team, animEvent);
+
+            if (benchedMon.hp > 0 && benchedMon.ability === 'sand_stream') {
+                changeWeather('sand', 150, animEvent, benchedMon.uid);
+            }
+
+            if (benchedMon.hp <= 0) {
+                benchedMon.isDead = true; benchedMon.isActive = false;
+                gameState.pendingDeaths.push(benchedMon.team);
+                pushLog(`${benchedMon.name} fainted upon entering!`, true);
+            }
+            
+            if (animEvent.targets.length > 0 || animEvent.attackerTexts.length > 0) gameState.animEvent = animEvent;
+            
+            gameState.activeCombatantUid = getNextTurnStateLogic(false); 
+            syncStateToClient(); renderState();
+        }
+                function playRetroDOMVFX(targetBox, elem, isPhysical) {
+            const wrapper = targetBox.querySelector('.relative.inline-flex');
+            if (!wrapper) return;
+
+            const vfx = document.createElement('div');
+            vfx.className = 'absolute inset-0 z-[60] flex items-center justify-center pointer-events-none overflow-visible';
+
+            // Map elements to authentic retro UI hex colors
+            let elemColor = '#cbd5e1'; // Default Normal
+            switch(elem) {
+                case 'Fire': elemColor = '#ef4444'; break;
+                case 'Water': elemColor = '#3b82f6'; break;
+                case 'Electric': elemColor = '#fbbf24'; break;
+                case 'Grass': elemColor = '#22c55e'; break;
+                case 'Ice': elemColor = '#67e8f9'; break;
+                case 'Fighting': elemColor = '#b91c1c'; break;
+                case 'Poison': elemColor = '#a855f7'; break;
+                case 'Ground': elemColor = '#d97706'; break;
+                case 'Flying': elemColor = '#93c5fd'; break;
+                case 'Psychic': elemColor = '#ec4899'; break;
+                case 'Bug': elemColor = '#84cc16'; break;
+                case 'Rock': elemColor = '#78350f'; break;
+                case 'Ghost': elemColor = '#4c1d95'; break;
+                case 'Dragon': elemColor = '#6366f1'; break;
+                case 'Dark': elemColor = '#9333ea'; break;
+                case 'Steel': elemColor = '#94a3b8'; break;
+                case 'Fairy': elemColor = '#f472b6'; break;
+            }
+
+            // Decide if it's a physical slash or a special energy pop
+            let shapeClass = 'pixel-spark';
+            let anim = 'vfx-pop';
+
+            if (isPhysical) {
+                shapeClass = 'pixel-slash';
+                anim = 'vfx-slash';
+            } else if (elem === 'Electric') {
+                anim = 'vfx-zap'; // Keep the erratic zap movement for electric
+            } else if (elem === 'Fire' || elem === 'Poison' || elem === 'Ghost') {
+                anim = 'vfx-burn'; // Float upward
+            }
+
+            // Inject the pure CSS shape and pass the color variable to it
+            vfx.innerHTML = `<div class="${shapeClass} ${anim}" style="--elem-color: ${elemColor};"></div>`;
+            wrapper.appendChild(vfx);
+
+            setTimeout(() => { if (wrapper.contains(vfx)) vfx.remove(); }, 600);
+        }
+
+                        function performExecutionPhase(attacker) {
+            const moveId = attacker.queuedAction.moveId;
+            const move = attacker.queuedAction.move;
+            const intendedTargets = attacker.queuedAction.targetsInfo;
+
+            // --- GLUTTONY MECHANIC ---
+            let energyGain = (move.gen || 0);
+            if (attacker.ability === 'gluttony' && energyGain > 0) {
+                energyGain *= 2; 
+            }
+            attacker.energy = Math.min(attacker.maxEnergy, attacker.energy + energyGain);
+            
+            let animEvent = { id: Date.now(), attackerUid: attacker.uid, attackerTeam: attacker.team, type: move.type, elem: move.elem, isPhysical: move.isPhysical, hits: move.hits || 1, targets: [], attackerTexts: [] };
+
+            if (attacker.ability === 'gluttony' && (move.gen || 0) > 0) {
+                animEvent.attackerTexts.push({ text: "GLUTTONY!", color: 'text-amber-400' });
+                pushLog(`${attacker.name}'s Gluttony doubled its Energy generation!`, true);
+            }
+
+            if (move.type === 'protect') {
+                attacker.isProtected = true;
+                animEvent.attackerTexts.push({ text: "PROTECT!", color: 'text-blue-300' });
+            } 
+            else if (move.type === 'follow_me') {
+                attacker.isFollowMe = true;
+                animEvent.attackerTexts.push({ text: "FOLLOW ME!", color: 'text-pink-300' });
+                pushLog(`${attacker.name} became the center of attention!`, true);
+            } else if (move.type === 'weather') {
+                changeWeather(move.weatherType, 200, animEvent, attacker.uid);
+            } 
+            else if (move.type === 'hazard') {
+                let enemyTeam = attacker.team === 'P1' ? 'P2' : 'P1';
+                if (move.hazard === 'stealth_rock') gameState.hazards[enemyTeam].stealth_rock = true;
+                if (move.hazard === 'spikes') gameState.hazards[enemyTeam].spikes = Math.min(3, gameState.hazards[enemyTeam].spikes + 1);
+                animEvent.attackerTexts.push({ text: `HAZARD SET!`, color: 'text-stone-300' });
+                pushLog(`Hazards were set on the enemy field!`, true);
+            }
+            else if (move.type === 'baton_pass') {
+                gameState.passedEnergy[attacker.team] = attacker.energy;
+                attacker.energy = 0; 
+                animEvent.attackerTexts.push({ text: "PASSING EN!", color: 'text-pink-400' });
+                pushLog(`${attacker.name} used Baton Pass to transfer its Energy!`, true);
+            }
+
+            let actualTargets = [];
+            
+            // 1. Initial Target Check 
+            if (intendedTargets && intendedTargets.length > 0 && move.target !== 'all_adjacent' && !move.isSpread) {
+                intendedTargets.forEach(tInfo => {
+                    let t = gameState.combatants.find(c => c.uid === tInfo.uid);
+                    if (t && t.isActive && !t.isDead) actualTargets.push(tInfo);
+                });
+            }
+
+            // 2. AUTO-RETARGETING 
+            if (actualTargets.length === 0 && !['self', 'enemy_field'].includes(move.target)) {
+                if (move.target === 'all_adjacent') {
+                    gameState.combatants.forEach(c => {
+                        if (c.isActive && !c.isDead && c.uid !== attacker.uid) actualTargets.push({uid: c.uid});
+                    });
+                } else if (move.target === 'enemy') {
+                    if (move.isSpread) {
+                        gameState.combatants.forEach(c => {
+                            if (c.team !== attacker.team && c.isActive && !c.isDead) actualTargets.push({uid: c.uid});
+                        });
+                    } else {
+                        let t = gameState.combatants.find(c => c.team !== attacker.team && c.isActive && !c.isDead);
+                        if (t) actualTargets.push({uid: t.uid});
+                    }
+                } else if (move.target === 'ally_active') {
+                    let t = gameState.combatants.find(c => c.team === attacker.team && c.isActive && !c.isDead && c.uid !== attacker.uid);
+                    if (t) actualTargets.push({uid: t.uid});
+                }
+            }
+
+            // 3. REDIRECTION (Follow Me)
+            let enemyTeam = attacker.team === 'P1' ? 'P2' : 'P1';
+            let followMeTarget = gameState.combatants.find(c => c.team === enemyTeam && c.isActive && !c.isDead && c.isFollowMe);
+            
+            if (followMeTarget && move.target === 'enemy' && !move.isSpread) {
+                actualTargets = [{uid: followMeTarget.uid}]; 
+                pushLog(`The attack was drawn to ${followMeTarget.name}!`, true);
+            }
+
+            // --- SUCKER PUNCH MECHANIC ---
+            if (moveId === 'sucker_punch') {
+                let validSuckerTargets = actualTargets.filter(tInfo => {
+                    let t = gameState.combatants.find(c => c.uid === tInfo.uid);
+                    return t && t.state === 'CHARGING' && t.queuedAction && t.queuedAction.type === 'MOVE' && MOVES[t.queuedAction.moveId].type.includes('damage');
+                });
+                
+                if (validSuckerTargets.length === 0) {
+                    animEvent.attackerTexts.push({ text: "FAILED!", color: 'text-slate-400' });
+                    pushLog(`But it failed! The target wasn't attacking.`, true);
+                    actualTargets = []; 
+                } else {
+                    actualTargets = validSuckerTargets; 
+                }
+            }
+
+            let pivotSuccessful = false; 
+
+            if (actualTargets.length === 0 && !['self', 'enemy_field', 'all_adjacent'].includes(move.target)) {
+                if(moveId !== 'sucker_punch') { 
+                    animEvent.attackerTexts.push({text: "NO TARGET!", color: "text-slate-300"});
+                    pushLog(`But there was no target!`, true);
+                }
+            } else {
+                const spreadMod = (move.isSpread && actualTargets.length > 1) ? 0.75 : 1;
+                let basePower = move.power;
+                if (attacker.ability === 'technician' && basePower > 0 && basePower <= 60) basePower = Math.floor(basePower * 1.5);
+                if (attacker.ability === 'iron_fist' && move.name.includes('Punch')) basePower = Math.floor(basePower * 1.2);
+                if (attacker.ability === 'blaze' && move.elem === 'Fire' && (attacker.hp / attacker.maxHp) <= 0.33) basePower = Math.floor(basePower * 1.5);
+                if (attacker.ability === 'guts' && attacker.status && attacker.status !== 'sleep') basePower = Math.floor(basePower * 1.5);
+                if (attacker.status === 'burn' && move.isPhysical && attacker.ability !== 'guts') basePower = Math.floor(basePower * 0.5);
+
+                actualTargets.forEach(tInfo => {
+                    const target = gameState.combatants.find(c => c.uid === tInfo.uid);
+                    let targetAnim = { uid: target.uid, shake: false, texts: [] };
+
+                    if (target.isProtected && (move.target.includes('enemy') || move.target === 'all_adjacent')) {
+                        targetAnim.texts.push({ text: "PROTECTED!", color: 'text-white' });
+                        animEvent.targets.push(targetAnim);
+                        pushLog(`${target.name} protected itself!`, true);
+                        return; 
+                    }
+
+                    if (move.type === 'damage' || move.type === 'damage_delay' || move.type.includes('damage_pivot') || move.type === 'damage_clear') {
+                        targetAnim.shake = true;
+                        let typeMod = 1.0;
+                        if (TYPE_CHART[move.elem]) { target.types.forEach(tType => { if (TYPE_CHART[move.elem][tType] !== undefined) typeMod *= TYPE_CHART[move.elem][tType]; }); }
+
+                        let isImmune = false;
+                        if (typeMod === 0) isImmune = true;
+                        if (target.ability === 'levitate' && move.elem === 'Ground') isImmune = true;
+                        
+                        if (target.ability === 'volt_absorb' && move.elem === 'Electric') {
+                            target.hp = Math.min(target.maxHp, target.hp + Math.floor(target.maxHp * 0.25));
+                            targetAnim.texts.push({ text: "ABSORBED!", color: 'text-emerald-400' });
+                            animEvent.targets.push(targetAnim); 
+                            pushLog(`${target.name} absorbed the attack!`, true);
+                            return; 
+                        }
+                        if (target.ability === 'water_absorb' && move.elem === 'Water') {
+                            target.hp = Math.min(target.maxHp, target.hp + Math.floor(target.maxHp * 0.25));
+                            targetAnim.texts.push({ text: "ABSORBED!", color: 'text-emerald-400' });
+                            animEvent.targets.push(targetAnim); 
+                            pushLog(`${target.name} absorbed the attack!`, true);
+                            return; 
+                        }
+
+                        if (isImmune) { 
+                            targetAnim.texts.push({ text: "IMMUNE!", color: 'text-slate-400' }); 
+                            pushLog(`It had no effect on ${target.name}.`, true);
+                        } 
+                        else {
+                            const startedWithFullHp = (target.hp === target.maxHp);
+                            let sturdyTriggered = false;
+                            const hitCount = move.hits || 1;
+                            let totalDamageDealt = 0;
+
+                            for (let i = 0; i < hitCount; i++) {
+                                if (target.hp <= 0) break;
+
+                                if (target.ability === 'thick_fat' && (move.elem === 'Fire' || move.elem === 'Ice')) typeMod *= 0.5;
+                                if (target.ability === 'solid_rock' && typeMod > 1) typeMod *= 0.75;
+                                let weatherMod = 1.0;
+                                if (gameState.weather.type === 'rain') { if (move.elem === 'Water') weatherMod = 1.5; if (move.elem === 'Fire') weatherMod = 0.5; } 
+                                else if (gameState.weather.type === 'sun') { if (move.elem === 'Fire') weatherMod = 1.5; if (move.elem === 'Water') weatherMod = 0.5; }
+
+                                let effectiveDef = target.def;
+                                if (gameState.weather.type === 'sand' && target.types.includes('Rock')) effectiveDef = Math.floor(effectiveDef * 1.5);
+                                if (gameState.weather.type === 'hail' && target.types.includes('Ice')) effectiveDef = Math.floor(effectiveDef * 1.5);
+
+                                let stabMod = attacker.types.includes(move.elem) ? 1.1 : 1.0;
+                                const rng = 0.85 + (Math.random() * 0.3);
+                                
+                                let finalDamage = Math.floor(((basePower * attacker.atk) / effectiveDef) * rng * spreadMod * typeMod * weatherMod * stabMod);
+                                
+                                if (target.ability === 'clear_body') finalDamage = Math.floor(finalDamage * 0.9); 
+                                if (moveId === 'hex' && target.status) finalDamage *= 2;
+                                finalDamage = Math.max(1, finalDamage);
+                                
+                                target.hp -= finalDamage;
+
+                                // --- FIRE THAW LOGIC ---
+                                if (target.status === 'freeze' && move.elem === 'Fire') {
+                                    target.status = null;
+                                    targetAnim.texts.push({ text: "THAWED!", color: 'text-orange-400' });
+                                    pushLog(`${target.name} was thawed out by the attack!`, true);
+                                }
+                                
+                                if (target.ability === 'sturdy' && startedWithFullHp && target.hp <= 0) {
+                                    target.hp = 1; 
+                                    if (!sturdyTriggered) {
+                                        targetAnim.texts.push({ text: "STURDY!", color: 'text-amber-400' });
+                                        pushLog(`${target.name} held on with Sturdy!`, true);
+                                        sturdyTriggered = true;
+                                    }
+                                } else {
+                                    target.hp = Math.max(0, target.hp);
+                                }
+                                
+                                totalDamageDealt += finalDamage;
+                            }
+
+                            pushLog(`${target.name} took ${totalDamageDealt} damage${hitCount > 1 ? ` (${hitCount} hits)` : ''}.`, true);
+                            if (move.type === 'damage_pivot') pivotSuccessful = true;
+
+                            if (target.status === 'sleep') {
+                                target.status = null;
+                                targetAnim.texts.push({ text: "WOKE UP!", color: 'text-white' });
+                                pushLog(`${target.name} woke up from the attack!`, true);
+                            }
+                            
+                            let color = 'text-white';
+                            if (typeMod > 1) { color = 'text-yellow-400'; targetAnim.texts.push({ text: "SUPER EFFECTIVE!", color }); pushLog(`It's super effective!`, true); }
+                            else if (typeMod < 1) { color = 'text-slate-300'; targetAnim.texts.push({ text: "NOT VERY EFFECTIVE...", color }); pushLog(`It's not very effective...`, true); }
+                            
+                            targetAnim.texts.unshift({ text: totalDamageDealt, color: color }); 
+                            
+                            if (move.targetStatDrop && target.hp > 0 && Math.random() <= (move.targetStatDrop.chance * (attacker.ability === 'serene_grace' ? 2 : 1))) {
+                                if (target.ability === 'clear_body') targetAnim.texts.push({ text: "CLEAR BODY!", color: 'text-slate-200' });
+                                else {
+                                    if (move.targetStatDrop.stat === 'speed') {
+                                        let oldSpeed = getSpeed(target); target.speed = Math.max(5, target.speed - move.targetStatDrop.amount);
+                                        let newSpeed = getSpeed(target); if(oldSpeed !== newSpeed) target.currentAV = target.currentAV * (oldSpeed / newSpeed);
+                                        targetAnim.texts.push({ text: "SPD DOWN", color: 'text-cyan-300' });
+                                        pushLog(`${target.name}'s SPD fell!`, true);
+                                    } else if (move.targetStatDrop.stat === 'def') { target.def = Math.max(10, target.def - move.targetStatDrop.amount); targetAnim.texts.push({ text: "DEF DOWN", color: 'text-blue-300' }); pushLog(`${target.name}'s DEF fell!`, true); } 
+                                    else if (move.targetStatDrop.stat === 'atk') { target.atk = Math.max(10, target.atk - move.targetStatDrop.amount); targetAnim.texts.push({ text: "ATK DOWN", color: 'text-orange-300' }); pushLog(`${target.name}'s ATK fell!`, true); }
+                                }
+                            }
+
+                            if (move.selfStatBuff && attacker.hp > 0 && Math.random() <= (move.selfStatBuff.chance * (attacker.ability === 'serene_grace' ? 2 : 1))) {
+                                if (move.selfStatBuff.stat === 'atk') { attacker.atk += move.selfStatBuff.amount; animEvent.attackerTexts.push({ text: "ATK UP", color: 'text-orange-400' }); pushLog(`${attacker.name}'s ATK rose!`, true); }
+                            }
+
+                            let eChance = move.effectChance || 0; if (attacker.ability === 'serene_grace') eChance *= 2;
+                            let effectToApply = move.effectType; if (attacker.ability === 'poison_touch' && move.isPhysical && !effectToApply) { effectToApply = 'poison'; eChance = 0.3; }
+
+                            if (effectToApply && target.hp > 0 && !target.status && Math.random() <= eChance) {
+                                let canApply = true;
+                                if (effectToApply.includes('poison') && (target.types.includes('Poison') || target.types.includes('Steel') || target.ability === 'immunity' || target.ability === 'magic_guard')) canApply = false;
+                                if (effectToApply === 'burn' && (target.types.includes('Fire') || target.ability === 'magic_guard')) canApply = false;
+                                if (effectToApply === 'paralyze' && (target.types.includes('Electric') || target.ability === 'magic_guard')) canApply = false;
+
+                                if (canApply) {
+                                    // --- CORRECTED FREEZE APPLICATION LOGIC ---
+                                    if (effectToApply === 'freeze') {
+                                        if (target.state === 'CHARGING') { target.state = 'IDLE'; target.queuedAction = null; }
+                                        target.status = 'freeze';
+                                        targetAnim.texts.push({ text: "FROZEN!", color: 'text-cyan-300' });
+                                        pushLog(`${target.name} was frozen solid!`, true);
+                                    } 
+                                    else if (effectToApply === 'sleep') {
+                                        if (target.state === 'CHARGING') { target.state = 'IDLE'; target.queuedAction = null; }
+                                        target.status = 'sleep';
+                                        target.currentAV += ((BASE_CONSTANT / getSpeed(target)) * 0.8);
+                                        targetAnim.texts.push({ text: "ASLEEP!", color: 'text-slate-300' });
+                                        pushLog(`${target.name} fell fast asleep!`, true);
+                                    } 
+                                    else {
+                                        let oldSpeed = getSpeed(target); target.status = effectToApply;
+                                        let newSpeed = getSpeed(target); if(oldSpeed !== newSpeed) target.currentAV = target.currentAV * (oldSpeed / newSpeed);
+                                        let sColor = effectToApply === 'burn' ? 'text-red-400' : (effectToApply.includes('poison') ? 'text-purple-400' : 'text-yellow-400');
+                                        let displayTxt = effectToApply === 'bad_poison' ? 'BAD POISON' : effectToApply.toUpperCase();
+                                        targetAnim.texts.push({ text: displayTxt, color: sColor });
+                                        pushLog(`${target.name} was afflicted with ${displayTxt}!`, true);
+
+                                        if (target.ability === 'synchronize' && !attacker.status) {
+                                            let syncApply = true;
+                                            if (effectToApply.includes('poison') && (attacker.types.includes('Poison') || attacker.types.includes('Steel') || attacker.ability === 'immunity' || attacker.ability === 'magic_guard')) syncApply = false;
+                                            if (effectToApply === 'burn' && (attacker.types.includes('Fire') || attacker.ability === 'magic_guard')) syncApply = false;
+                                            if (effectToApply === 'paralyze' && (target.types.includes('Electric') || attacker.ability === 'magic_guard')) syncApply = false;
+                                            
+                                            if (syncApply) {
+                                                let oldAtkSpeed = getSpeed(attacker); attacker.status = effectToApply;
+                                                let newAtkSpeed = getSpeed(attacker); if(oldAtkSpeed !== newAtkSpeed) attacker.currentAV = attacker.currentAV * (oldAtkSpeed / newAtkSpeed);
+                                                let sDisplayTxt = effectToApply === 'bad_poison' ? 'BAD POISON' : effectToApply.toUpperCase();
+                                                animEvent.attackerTexts.push({ text: `SYNC: ${sDisplayTxt}`, color: sColor });
+                                                pushLog(`${attacker.name}'s Synchronize passed the status!`, true);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (move.type === 'damage_delay' && target.hp > 0 && move.effectVal && Math.random() <= eChance) {
+                                if (target.ability === 'inner_focus') { targetAnim.texts.push({ text: "UNFAZED!", color: 'text-slate-200' }); } 
+                                else {
+                                    let delayVal = (BASE_CONSTANT / getSpeed(target)) * move.effectVal;
+                                    target.currentAV += delayVal; targetAnim.texts.push({ text: "FLINCHED!", color: 'text-slate-200' });
+                                    pushLog(`${target.name} flinched!`, true);
+                                    if (target.ability === 'synchronize') attacker.currentAV += delayVal; 
+                                }
+                            }
+
+                            if (attacker.ability === 'pickpocket' && target.energy > 0) {
+                                target.energy--; attacker.energy = Math.min(attacker.maxEnergy, attacker.energy + 1);
+                                targetAnim.texts.push({ text: "STOLEN EN!", color: 'text-yellow-400' });
+                                pushLog(`${attacker.name} stole Energy!`, true);
+                            }
+                            if (target.ability === 'rough_skin' && move.isPhysical && attacker.ability !== 'magic_guard') {
+                                let recoil = Math.max(1, Math.floor(attacker.maxHp * 0.1)); attacker.hp -= recoil;
+                                pushLog(`${attacker.name} took damage from Rough Skin!`, true);
+                            }
+                        }
+                    } else if (move.type === 'status') {
+                        targetAnim.shake = false;
+                        let isImmune = false;
+                        if (TYPE_CHART[move.elem] && target.types.some(t => TYPE_CHART[move.elem][t] === 0)) isImmune = true;
+                        if (target.ability === 'levitate' && move.elem === 'Ground') isImmune = true;
+                        if (target.ability === 'volt_absorb' && move.elem === 'Electric') isImmune = true;
+                        
+                        if (isImmune) {
+                            targetAnim.texts.push({ text: "IMMUNE!", color: 'text-slate-400' });
+                            pushLog(`It had no effect on ${target.name}.`, true);
+                        } else {
+                            let eChance = move.effectChance || 1;
+                            if (Math.random() <= eChance) {
+                                if (target.status) {
+                                    targetAnim.texts.push({ text: "FAIL!", color: 'text-slate-300' });
+                                    pushLog(`It failed!`, true);
+                                } else {
+                                    let effectToApply = move.effectType; let canApply = true;
+                                    if (effectToApply.includes('poison') && (target.types.includes('Poison') || target.types.includes('Steel') || target.ability === 'immunity' || target.ability === 'magic_guard')) canApply = false;
+                                    if (effectToApply === 'burn' && (target.types.includes('Fire') || target.ability === 'magic_guard')) canApply = false;
+                                    if (effectToApply === 'paralyze' && (target.types.includes('Electric') || target.ability === 'magic_guard')) canApply = false;
+
+                                    if (canApply) {
+                                        // --- CORRECTED STATUS FREEZE LOGIC ---
+                                        if (effectToApply === 'freeze') {
+                                            if (target.state === 'CHARGING') { target.state = 'IDLE'; target.queuedAction = null; }
+                                            target.status = 'freeze';
+                                            targetAnim.texts.push({ text: "FROZEN!", color: 'text-cyan-300' });
+                                            pushLog(`${target.name} was frozen solid!`, true);
+                                        } 
+                                        else if (effectToApply === 'sleep') {
+                                            if (target.state === 'CHARGING') { target.state = 'IDLE'; target.queuedAction = null; }
+                                            target.status = 'sleep';
+                                            target.currentAV += ((BASE_CONSTANT / getSpeed(target)) * 0.8);
+                                            targetAnim.texts.push({ text: "ASLEEP!", color: 'text-slate-300' });
+                                            pushLog(`${target.name} fell fast asleep!`, true);
+                                        } 
+                                        else {
+                                            let oldSpeed = getSpeed(target); target.status = effectToApply;
+                                            let newSpeed = getSpeed(target); if(oldSpeed !== newSpeed) target.currentAV = target.currentAV * (oldSpeed / newSpeed);
+                                            let sColor = effectToApply === 'burn' ? 'text-red-400' : (effectToApply.includes('poison') ? 'text-purple-400' : 'text-yellow-400');
+                                            let displayTxt = effectToApply === 'bad_poison' ? 'BAD POISON' : effectToApply.toUpperCase();
+                                            targetAnim.texts.push({ text: displayTxt, color: sColor });
+                                            pushLog(`${target.name} was afflicted with ${displayTxt}!`, true);
+                                        }
+                                    } else {
+                                        targetAnim.texts.push({ text: "IMMUNE!", color: 'text-slate-400' });
+                                        pushLog(`It had no effect.`, true);
+                                    }
+                                }
+                            } else {
+                                targetAnim.texts.push({ text: "MISSED!", color: 'text-slate-300' });
+                                pushLog(`The attack missed!`, true);
+                            }
+                        }
+                    } else if (move.type === 'debuff') {
+                        targetAnim.shake = false;
+                        if (target.ability === 'clear_body') {
+                            targetAnim.texts.push({ text: "CLEAR BODY!", color: 'text-slate-200' });
+                            pushLog(`${target.name}'s Clear Body prevented stat loss!`, true);
+                        } else {
+                            if (move.stat === 'speed') {
+                                let oldSpeed = getSpeed(target); target.speed = Math.max(5, target.speed - move.amount);
+                                let newSpeed = getSpeed(target); if(oldSpeed !== newSpeed) target.currentAV = target.currentAV * (oldSpeed / newSpeed);
+                                targetAnim.texts.push({ text: "SPD DOWN", color: 'text-cyan-300' });
+                                pushLog(`${target.name}'s SPD fell!`, true);
+                            } else if (move.stat === 'atk') { target.atk = Math.max(10, target.atk - move.amount); targetAnim.texts.push({ text: "ATK DOWN", color: 'text-orange-300' }); pushLog(`${target.name}'s ATK fell!`, true); } 
+                            else if (move.stat === 'def') { target.def = Math.max(10, target.def - move.amount); targetAnim.texts.push({ text: "DEF DOWN", color: 'text-blue-300' }); pushLog(`${target.name}'s DEF fell!`, true); }
+                        }
+                    } else if (move.type === 'yawn') {
+                        targetAnim.shake = false;
+                        if (target.status || target.isDrowsy) {
+                            targetAnim.texts.push({ text: "FAIL!", color: 'text-slate-300' });
+                            pushLog(`It failed!`, true);
+                        } else {
+                            target.isDrowsy = true;
+                            targetAnim.texts.push({ text: "DROWSY!", color: 'text-pink-300' });
+                            pushLog(`${target.name} grew drowsy!`, true);
+                        }
+                    } else if (move.type === 'heal') {                    
+                        target.hp = Math.min(target.maxHp, target.hp + Math.abs(move.power)); targetAnim.texts.push({ text: `+${Math.abs(move.power)}`, color: 'text-emerald-400' });
+                        pushLog(`${target.name} recovered HP!`, true);
+                    } else if (move.type === 'buff') {
+                        if (move.stat === 'speed') {
+                            let oldSpeed = getSpeed(target); 
+                            target.speed = Math.min(250, target.speed + move.amount); 
+                            let newSpeed = getSpeed(target);
+                            if(target.uid !== attacker.uid) target.currentAV = target.currentAV * (oldSpeed / newSpeed); 
+                            targetAnim.texts.push({ text: "SPD UP", color: 'text-yellow-300' });
+                            pushLog(`${target.name}'s SPD rose!`, true);
+                        } else if (move.stat === 'atk') { 
+                            target.atk = Math.min(400, target.atk + move.amount); 
+                            targetAnim.texts.push({ text: "ATK UP", color: 'text-orange-400' }); 
+                            pushLog(`${target.name}'s ATK rose!`, true); 
+                        } 
+                        else if (move.stat === 'def') { 
+                            target.def = Math.min(400, target.def + move.amount); 
+                            targetAnim.texts.push({ text: "DEF UP", color: 'text-slate-200' }); 
+                            pushLog(`${target.name}'s DEF rose!`, true); 
+                        }
+                    } else if (move.type === 'advance') {
+                        target.currentAV = Math.max(0, target.currentAV - ((BASE_CONSTANT / getSpeed(target)) * move.effectVal)); targetAnim.texts.push({ text: "ADVANCED", color: 'text-pink-400' });
+                        pushLog(`${target.name}'s timeline was advanced!`, true);
+                        if (move.targetEnergy) {
+                            target.energy = Math.min(target.maxEnergy, target.energy + move.targetEnergy);
+                            targetAnim.texts.push({ text: `+${move.targetEnergy} EN`, color: 'text-yellow-300' });
+                            pushLog(`${target.name} gained Energy!`, true);
+                        }
+                    } else if (move.type === 'delay') {
+                        if (target.ability === 'inner_focus') { targetAnim.texts.push({ text: "UNFAZED!", color: 'text-slate-200' }); } 
+                        else {
+                            let delayVal = (BASE_CONSTANT / getSpeed(target)) * move.effectVal; target.currentAV += delayVal; targetAnim.texts.push({ text: "FLINCHED!", color: 'text-slate-300' });
+                            pushLog(`${target.name} was delayed!`, true);
+                            if (target.ability === 'synchronize') attacker.currentAV += delayVal;
+                        }
+                    }
+
+                    if (target.hp <= 0 && !target.isDead) { 
+                        target.isDead = true; target.isActive = false; gameState.pendingDeaths.push(target.team); pushLog(`${target.name} fainted!`, true);
+                    }
+                    animEvent.targets.push(targetAnim);
+                });
+            }
+
+            if (move.type === 'damage_clear') {
+                gameState.hazards[attacker.team] = { stealth_rock: false, spikes: 0 };
+                animEvent.attackerTexts.push({ text: "HAZARDS CLEARED!", color: 'text-slate-200' });
+                pushLog(`Hazards were cleared!`, true);
+            }
+
+            if (attacker.hp > 0 && attacker.ability !== 'magic_guard') {
+                if (attacker.status === 'poison' || attacker.status === 'bad_poison' || attacker.status === 'burn') {
+                    let dotPercent = attacker.status === 'bad_poison' ? 0.20 : 0.125;
+                    let dot = Math.max(1, Math.floor(attacker.maxHp * dotPercent)); attacker.hp -= dot;
+                    animEvent.attackerTexts.push({ text: `-${dot} HP`, color: attacker.status.includes('poison') ? 'text-purple-400' : 'text-red-400' });
+                    pushLog(`${attacker.name} is hurt by its status!`, true);
+                }
+                
+                if (attacker.hp > 0 && gameState.weather.type === 'sand' && !attacker.types.includes('Rock') && !attacker.types.includes('Ground') && !attacker.types.includes('Steel')) {
+                    let wDot = Math.max(1, Math.floor(attacker.maxHp * 0.0625)); attacker.hp -= wDot;
+                    animEvent.attackerTexts.push({ text: `SAND STORM`, color: 'text-yellow-400' });
+                    pushLog(`${attacker.name} is buffeted by the sandstorm!`, true);
+                }
+            }
+
+            if (attacker.hp <= 0 && !attacker.isDead) { 
+                attacker.isDead = true; attacker.isActive = false; gameState.pendingDeaths.push(attacker.team); pushLog(`${attacker.name} fainted!`, true); 
+            }
+
+            attacker.state = 'IDLE'; 
+            attacker.queuedAction = null; 
+            attacker.lastMoveId = moveId;
+
+            let shouldPivot = false;
+            if (move.type === 'baton_pass') shouldPivot = true; 
+            if (move.type === 'damage_pivot' && pivotSuccessful) shouldPivot = true;
+            
+            if (shouldPivot && !attacker.isDead) {
+                gameState.pendingPivots.push({ team: attacker.team, uid: attacker.uid });
+                if (move.type === 'damage_pivot') {
+                    animEvent.attackerTexts.push({ text: "RETREATING!", color: 'text-slate-200' });
+                    pushLog(`${attacker.name} sped back to its trainer!`, true);
+                }
+            }          
+            
+            // --- YAWN DETONATION ---
+            if (attacker.hp > 0 && attacker.isDrowsy && !shouldPivot) {
+                attacker.isDrowsy = false;
+                if (!attacker.status) { 
+                    attacker.status = 'sleep';
+                    attacker.currentAV += ((BASE_CONSTANT / getSpeed(attacker)) * 0.8);
+                    animEvent.attackerTexts.push({ text: "FELL ASLEEP!", color: 'text-slate-300' });
+                    pushLog(`${attacker.name} fell fast asleep!`, true);
+                }
+            }
+
+            gameState.activeCombatantUid = getNextTurnStateLogic(false); 
+            gameState.animEvent = animEvent;
+            syncStateToClient(); renderState();
+        }
+
+                function resolveDeathSwitchLogic(monUid) {
+            const expectedTeam = gameState.pendingDeaths[0];
+            const mon = gameState.combatants.find(c => c.uid === monUid);
+            if (!mon || mon.team !== expectedTeam) return;
+
+            mon.isActive = true; 
+            mon.currentAV = 0; 
+            mon.state = 'IDLE';
+            mon.queuedAction = null;
+            
+            pushLog(`${mon.team} sent out ${mon.name}!`);
+            RetroSFX.switchOut();
+            setTimeout(() => RetroSFX.switchIn(), 300);
+
+            let animEvent = { id: Date.now(), attackerUid: null, attackerTeam: null, type: 'switch', targets: [], attackerTexts: [] };
+            applyHazards(mon, mon.team, animEvent);
+
+            // THE FIX: Changed 'benchedMon.uid' to 'mon.uid'
+            if (mon.hp > 0 && mon.ability === 'sand_stream') {
+                changeWeather('sand', 150, animEvent, mon.uid); 
+            }
+            if (mon.hp <= 0) { 
+                mon.isDead = true; 
+                mon.isActive = false; 
+                gameState.pendingDeaths.push(mon.team); 
+                pushLog(`${mon.name} fainted upon entering!`, true); 
+            }
+
+            gameState.pendingDeaths.shift(); 
+            if (gameState.pendingDeaths.length === 0 && gameState.pendingPivots.length === 0) gameState.activeCombatantUid = getNextTurnStateLogic(true); 
+
+            if (animEvent.targets.length > 0 || animEvent.attackerTexts.length > 0) gameState.animEvent = animEvent;
+            syncStateToClient(); renderState();
+        }
+
+
+        function resolvePivotSwitchLogic(monUid) {
+            const pivotData = gameState.pendingPivots[0];
+const expectedTeam = pivotData.team;
+const benchedMon = gameState.combatants.find(c => c.uid === monUid);
+if (!benchedMon || benchedMon.team !== expectedTeam) return;
+
+const team = benchedMon.team;
+// Target the exact Pokémon that used the move
+const activeMon = gameState.combatants.find(c => c.uid === pivotData.uid);
+            
+            pushLog(`${benchedMon.team} sent out ${benchedMon.name}!`);
+            RetroSFX.switchOut();
+            setTimeout(() => RetroSFX.switchIn(), 300);
+
+            benchedMon.isActive = true; 
+            benchedMon.currentAV = 0;
+            benchedMon.state = 'IDLE';
+            benchedMon.queuedAction = null;
+
+                        if(activeMon) {
+                activeMon.isActive = false;
+                activeMon.currentAV = 0; 
+                activeMon.state = 'BENCH';
+                activeMon.queuedAction = null;
+                activeMon.isFollowMe = false; 
+                activeMon.isDrowsy = false; // <-- CLEAR ON PIVOT
+                if (activeMon.ability === 'natural_cure' && activeMon.status) activeMon.status = null;
+            }
+
+            let animEvent = { id: Date.now(), attackerUid: null, attackerTeam: null, type: 'switch', targets: [], attackerTexts: [] };
+            
+            // Handle Baton Pass inheritance
+            if (gameState.passedEnergy && gameState.passedEnergy[team] > 0) {
+                benchedMon.energy = Math.min(benchedMon.maxEnergy, benchedMon.energy + gameState.passedEnergy[team]);
+                animEvent.attackerTexts.push({ text: `+${gameState.passedEnergy[team]} ENERGIZED!`, color: 'text-yellow-300' });
+                pushLog(`${benchedMon.name} inherited the passed Energy!`, true);
+                gameState.passedEnergy[team] = 0; // Reset
+            }
+
+            applyHazards(benchedMon, team, animEvent); 
+
+            if (benchedMon.hp > 0 && benchedMon.ability === 'sand_stream') {
+                 changeWeather('sand', 150, animEvent, benchedMon.uid);
+            }
+
+            gameState.pendingPivots.shift(); 
+            if (benchedMon.hp <= 0) { benchedMon.isDead = true; benchedMon.isActive = false; gameState.pendingDeaths.push(benchedMon.team); pushLog(`${benchedMon.name} fainted upon entering!`, true); 
+            }
+
+            if (gameState.pendingDeaths.length === 0 && gameState.pendingPivots.length === 0) gameState.activeCombatantUid = getNextTurnStateLogic(true);
+            if (animEvent.targets.length > 0 || animEvent.attackerTexts.length > 0) gameState.animEvent = animEvent;
+
+            syncStateToClient(); renderState();
+        }
+
+                        function evaluateTurnState() {
+            if (checkWinCondition()) return;
+
+            // Handle Faint Switches
+            if (gameState.pendingDeaths.length > 0) {
+                const teamToReplace = gameState.pendingDeaths[0]; 
+                const aliveBench = gameState.combatants.filter(c => c.team === teamToReplace && !c.isActive && !c.isDead);
+                if (aliveBench.length === 0) {
+                    if (gameMode === 'local' || isHost) {
+                        gameState.pendingDeaths.shift();
+                        if (gameState.pendingDeaths.length === 0 && gameState.pendingPivots.length === 0) gameState.activeCombatantUid = getNextTurnStateLogic(true);
+                        syncStateToClient(); renderState();
+                    }
+                } else {
+                    if (gameMode === 'local' || teamToReplace === myTeam) promptDeathSwitch(teamToReplace, "Choose a replacement!", 'DEATH_REPLACE');
+                    else lockMenuUI("Waiting for Opponent...");
+                }
+                return;
+            }
+
+            // Handle U-Turn / Volt Switch / Baton Pass
+            if (gameState.pendingPivots.length > 0) {
+                const teamToReplace = gameState.pendingPivots[0].team; 
+                
+                const aliveBench = gameState.combatants.filter(c => c.team === teamToReplace && !c.isActive && !c.isDead);
+                if (aliveBench.length === 0) {
+                    if (gameMode === 'local' || isHost) {
+                        gameState.pendingPivots.shift();
+                        if (gameState.pendingDeaths.length === 0 && gameState.pendingPivots.length === 0) gameState.activeCombatantUid = getNextTurnStateLogic(true);
+                        syncStateToClient(); renderState();
+                    }
+                } else {
+                    if (gameMode === 'local' || teamToReplace === myTeam) promptDeathSwitch(teamToReplace, "Choose a pivot!", 'PIVOT_REPLACE');
+                    else lockMenuUI("Waiting for Opponent...");
+                }
+                return;
+            }
+
+            const activeCombatant = gameState.combatants.find(c => c.uid === gameState.activeCombatantUid);
+            
+            if (activeCombatant.state === 'CHARGING') {
+                if (activeCombatant.queuedAction.type === 'MOVE') performExecutionPhase(activeCombatant);
+                else if (activeCombatant.queuedAction.type === 'SWITCH') performSwitchExecutionPhase(activeCombatant);
+                return;
+            }
+
+            // --- TURN START RESOLUTIONS ---
+            if (activeCombatant.state === 'IDLE') {
+                
+                if (activeCombatant.isProtected) {
+                    activeCombatant.isProtected = false;
+                    pushLog(`${activeCombatant.name}'s guard dropped.`, true);
+                }
+                if (activeCombatant.isFollowMe) {
+                    activeCombatant.isFollowMe = false;
+                    pushLog(`${activeCombatant.name} is no longer the center of attention.`, true);
+                }
+
+                // --- NEW THAW LOGIC ---
+                if (activeCombatant.status === 'freeze') {
+                    // 20% chance to thaw out naturally
+                    if (Math.random() <= 0.20) {
+                        activeCombatant.status = null;
+                        pushLog(`${activeCombatant.name} thawed out!`, true);
+                        // Allows the engine to naturally continue downward to render their turn
+                    } else {
+                        // Still frozen! Push them back down the timeline.
+                        activeCombatant.currentAV += (600 / getSpeed(activeCombatant)); 
+                        pushLog(`${activeCombatant.name} is frozen solid!`, true);
+                        
+                        let animEvent = { id: Date.now(), attackerUid: activeCombatant.uid, attackerTeam: activeCombatant.team, type: 'status', targets: [], attackerTexts: [{text: "FROZEN SOLID!", color: "text-cyan-300"}] };
+                        gameState.animEvent = animEvent;
+                        gameState.activeCombatantUid = getNextTurnStateLogic(false);
+                        syncStateToClient(); renderState();
+                        return; // End their turn immediately
+                    }
+                }
+
+                if (activeCombatant.status === 'sleep') {
+                    activeCombatant.status = null;
+                    activeCombatant.currentAV += (300 / getSpeed(activeCombatant)); 
+                    pushLog(`${activeCombatant.name} woke up!`, true);
+                    
+                    let animEvent = { id: Date.now(), attackerUid: activeCombatant.uid, attackerTeam: activeCombatant.team, type: 'wake', targets: [], attackerTexts: [{text: "WOKE UP!", color: "text-white"}] };
+                    gameState.animEvent = animEvent;
+                    gameState.activeCombatantUid = getNextTurnStateLogic(false);
+                    syncStateToClient(); renderState();
+                    return;
+                }
+
+                if (gameMode === 'local' || activeCombatant.team === myTeam) {
+                    document.getElementById('opponent-turn-overlay').classList.add('hidden');
+                    renderPlayerTurn();
+                } else lockMenuUI("Waiting for Opponent...");
+            }
+        }
+
+                        function playAnimations(animEvent) {
+            if (isAnimating) return; 
+            isAnimating = true;
+            
+            lockMenuUI(""); 
+            
+            // PHASE 1 (T=0ms): Cast Aura, Text, and Non-Damaging Sounds
+            if (animEvent.attackerUid) {
+                const attackerBox = document.getElementById(`sprite-box-${animEvent.attackerUid}`);
+                const attackerImg = attackerBox ? attackerBox.querySelector('img') : null;
+                const moveElem = animEvent.elem ? animEvent.elem.toLowerCase() : 'normal';
+
+                if (['protect', 'heal', 'buff', 'follow_me', 'weather', 'hazard', 'damage_clear'].includes(animEvent.type) || animEvent.type === 'baton_pass') {
+                    if (animEvent.type === 'protect') RetroSFX.protect();
+                    else if (animEvent.type === 'heal') RetroSFX.heal();
+                    else RetroSFX.buff();
+                }
+
+                if (animEvent.attackerTexts && animEvent.attackerTexts.length > 0) {
+                    animEvent.attackerTexts.forEach((txt, idx) => {
+                        // Sped up text pop
+                        setTimeout(() => showFloatingText({uid: animEvent.attackerUid}, txt.text, txt.color), idx * 200);
+                    });
+                }
+
+                if (attackerBox && attackerImg && animEvent.type.includes('damage')) {
+                    attackerImg.classList.add(`aura-${moveElem}`);
+                    
+                    // PHASE 2 (T=250ms): Snappy Lunge
+                    setTimeout(() => {
+                        const animClass = animEvent.attackerTeam === 'P1' ? 'attack-p1' : 'attack-p2';
+                        attackerBox.classList.add(animClass); 
+                        
+                        // Lunge CSS takes exactly 400ms, so we remove it exactly then
+                        setTimeout(() => { 
+                            if (attackerBox) attackerBox.classList.remove(animClass); 
+                            if (attackerImg) attackerImg.classList.remove(`aura-${moveElem}`);
+                        }, 400);
+                    }, 250); 
+                }
+            }
+
+                                    // PHASE 3 (T=500ms): Impact, VFX & Audio (Syncs exactly with lunge connection)
+            setTimeout(() => {
+                let maxHitDelay = 0;
+                
+                if (animEvent.targets && animEvent.targets.length > 0) {
+                    animEvent.targets.forEach((target, index) => {
+                        const targetBox = document.getElementById(`sprite-box-${target.uid}`);
+                        const targetImg = targetBox ? targetBox.querySelector('img') : null;
+                        
+                        if (targetBox && targetImg) {
+                            const hitCount = animEvent.hits || 1;
+                            const timeBetweenHits = 250; // 250ms gap between rapid strikes
+
+                            // 1. Trigger the floating text/damage numbers ONLY ONCE
+                            setTimeout(() => {
+                                if (target.texts && target.texts.length > 0) {
+                                    target.texts.forEach((txt, tIdx) => {
+                                        setTimeout(() => showFloatingText(target, txt.text, txt.color), tIdx * 200);
+                                    });
+                                }
+                            }, index * 100);
+
+                            // 2. Loop the visual impacts and sound effects!
+                            for (let h = 0; h < hitCount; h++) {
+                                let hitDelay = (index * 100) + (h * timeBetweenHits);
+                                if (hitDelay > maxHitDelay) maxHitDelay = hitDelay;
+
+                                setTimeout(() => {
+                                    if (animEvent.type.includes('damage')) {
+                                        // Force restart the CSS animation instantly
+                                        targetImg.classList.remove('sprite-flash-hit');
+                                        void targetImg.offsetWidth; // Trigger DOM reflow
+                                        targetImg.classList.add('sprite-flash-hit');
+                                        
+                                        playRetroDOMVFX(targetBox, animEvent.elem, animEvent.isPhysical);
+                                        
+                                        if (animEvent.isPhysical) RetroSFX.hitMelee();
+                                        else if (animEvent.elem === 'Electric') RetroSFX.shootElectric();
+                                        else RetroSFX.shootMagic();
+                                        
+                                    } else if (animEvent.type === 'status' || animEvent.type === 'debuff' || animEvent.type === 'delay') {
+                                        if (h === 0) RetroSFX.debuff(); 
+                                    }
+                                }, hitDelay); 
+                            }
+                        }
+                    });
+                }
+                
+                // PHASE 4 (T=1200ms): UI Reveal & Faint Check
+                // Waits for impacts to finish (700ms after the last hit connects)
+                setTimeout(() => {
+                    renderBattlefield(); 
+                    renderQueue();
+                    updateLogUI();
+
+                    let faintOccurred = false;
+                    gameState.combatants.forEach(c => {
+                        if (c.isDead) {
+                            const deadBox = document.getElementById(`sprite-box-${c.uid}`);
+                            const deadImg = deadBox ? deadBox.querySelector('img') : null;
+                            
+                            if (deadImg && !deadImg.classList.contains('sprite-faint')) {
+                                deadImg.classList.add('sprite-faint');
+                                faintOccurred = true;
+                                if (window.RetroSFX && RetroSFX.faint) RetroSFX.faint();
+                            }
+                        }
+                    });
+
+                    // PHASE 5: Cleanup & Unlock
+                    // If faint occurs, wait 800ms for them to sink. Otherwise, unlock instantly!
+                    let renderDelay = faintOccurred ? 800 : 100;
+
+                    setTimeout(() => {
+                        renderBattlefield(); 
+                        isAnimating = false;
+                        evaluateTurnState();
+                    }, renderDelay); 
+                    
+                }, maxHitDelay + 700); 
+                
+            }, 500); 
+        }
+
+             function renderBattlefield() {
+            const elP1Act = document.getElementById('team-p1-active');
+            const elP2Act = document.getElementById('team-p2-active');
+            const elP1Bench = document.getElementById('team-p1-bench');
+            const elP2Bench = document.getElementById('team-p2-bench');
+            
+            elP1Act.innerHTML = ''; elP2Act.innerHTML = ''; elP1Bench.innerHTML = ''; elP2Bench.innerHTML = '';
+
+                        gameState.combatants.forEach(c => {
+                if (c.isActive && !c.isDead) {
+                    
+                    const card = document.createElement('div');
+                    card.id = `char-wrap-${c.uid}`;
+                    card.className = `relative w-[135px] sm:w-[160px] md:w-[200px] xl:w-[260px] flex flex-col justify-end shrink-0`;
+                    
+                    const energyArray = Array.from({length: c.maxEnergy});
+
+                    let turnClass = '';
+                    if (gameState.pendingDeaths.length === 0 && gameState.pendingPivots.length === 0 && c.uid === gameState.activeCombatantUid && c.state === 'IDLE') {
+                        turnClass = c.team === 'P1' ? 'active-turn-p1' : 'active-turn-p2';
+                    }
+
+                    let hazardIcons = '';
+                    if (gameState.hazards[c.team].stealth_rock) hazardIcons += '🪨';
+                    if (gameState.hazards[c.team].spikes > 0) hazardIcons += '🎇'.repeat(gameState.hazards[c.team].spikes);
+                    if (c.isFollowMe) hazardIcons += '🎯'; 
+
+                    let scaleTransform = c.team === 'P1' 
+                        ? 'transform: scaleX(-1.35) scaleY(1.35); transform-origin: bottom center;' 
+                        : 'transform: scale(1.05); transform-origin: bottom center;';
+
+                    // Organic offset for Simple HUD to clear the scaled Pokémon's head
+                    let simpleHudOffset = c.team === 'P1' ? '-top-10 -right-4 sm:-right-8' : '-top-5 -right-2 sm:-right-6';
+
+                    // Fixed heights to create the uniform level ceiling for the DETAILED HUD
+                    let spriteBoxHeight = c.team === 'P1' 
+                        ? 'sprite-box-p1 h-[130px] sm:h-[140px] md:h-[180px] xl:h-[220px]' 
+                        : 'sprite-box-p2 h-[100px] sm:h-[110px] md:h-[150px] xl:h-[180px]';
+
+                    card.innerHTML = `
+                        <!-- DETAILED HUD LAYER: Normal flow, rests exactly on top of the fixed-height sprite box -->
+                        <div class="detailed-hud w-full ${turnClass} transition-all z-[50] relative pb-2">
+                            <div class="hp-box shadow-[0_4px_10px_rgba(0,0,0,0.5)]">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs font-black text-black truncate tracking-wide flex items-center gap-1">${c.name}</span>
+                                    <span class="text-[9px] font-bold text-slate-600">Lv50</span>
+                                </div>
+                                <div class="hp-bar-container mb-1">
+                                    <div class="h-full ${c.hp/c.maxHp < 0.25 ? 'bg-red-500' : (c.hp/c.maxHp < 0.5 ? 'bg-yellow-400' : 'bg-green-500')} transition-all duration-300" style="width: ${(c.hp/c.maxHp)*100}%;"></div>
+                                </div>
+                                <div class="flex justify-between items-end">
+                                    <div class="flex gap-1">${getStatusBadge(c)}</div>
+                                    <div class="text-[10px] text-black font-mono font-bold tracking-tighter">${c.hp}/${c.maxHp} <span class="text-[10px] ml-1 drop-shadow-md">${hazardIcons}</span></div>
+                                </div>
+                            </div>
+                            <div class="w-full relative mt-1.5 flex gap-1 justify-center">
+                                ${energyArray.map((_, i) => `<div class="energy-pip ${i < c.energy ? 'energy-filled' : 'energy-empty'} shadow-[0_2px_4px_rgba(0,0,0,0.5)]"></div>`).join('')}
+                            </div>
+                        </div>
+
+                        <!-- SPRITE LAYER: Fixed height to enforce Detailed HUD uniformity -->
+                        <div id="sprite-box-${c.uid}" class="w-full ${spriteBoxHeight} relative z-10 flex items-end justify-center pointer-events-none transition-all duration-300">
+                            
+                            <!-- INNER WRAPPER: Shrink-wraps to the actual image size -->
+                            <div class="relative inline-flex flex-col items-center justify-end">
+                                
+                                <!-- SIMPLE HUD LAYER: Placed inside the wrapper so it perfectly tracks the specific Pokémon's height -->
+                                <div class="simple-hud absolute ${simpleHudOffset} w-[80px] flex flex-col items-end z-[50] pointer-events-none">
+                                    <div class="w-full h-2.5 bg-[#222] border-2 border-[#111] rounded-sm overflow-hidden shadow-[2px_2px_0_rgba(0,0,0,0.5)]">
+                                        <div class="h-full ${c.hp/c.maxHp < 0.25 ? 'bg-red-500' : (c.hp/c.maxHp < 0.5 ? 'bg-yellow-400' : 'bg-green-500')} transition-all duration-300" style="width: ${(c.hp/c.maxHp)*100}%;"></div>
+                                    </div>
+                                    <div class="flex gap-0.5 mt-1 justify-end w-full pr-0.5">
+                                        ${energyArray.map((_, i) => `<div class="w-2 h-2 rounded-full border border-black ${i < c.energy ? 'bg-yellow-400' : 'bg-slate-600'} shadow-[1px_1px_0_rgba(0,0,0,0.5)]"></div>`).join('')}
+                                    </div>
+                                    ${(c.status || hazardIcons) ? `<div class="flex gap-1 mt-1 justify-end items-center scale-[0.8] origin-top-right">${getStatusBadge(c)}<span class="text-[10px] drop-shadow-md">${hazardIcons}</span></div>` : ''}
+                                </div>
+
+                                ${c.isProtected ? '<div class="protect-bubble z-30"></div>' : ''}
+                                <img src="https://play.pokemonshowdown.com/sprites/ani/${c.id}.gif" 
+                                     onload="window.alignShadow(this, '${c.uid}')" 
+                                     onerror="this.onerror=null; this.className='fallback w-full h-full'; this.src='${emptyImageSvg}';" 
+                                     class="relative z-20 ${c.state === 'CHARGING' ? 'brightness-125 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]' : ''}" 
+                                     style="${scaleTransform} filter: drop-shadow(0 6px 4px rgba(0,0,0,0.5));">
+                                <div id="shadow-${c.uid}" class="battle-shadow absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-0 opacity-75 transition-all duration-300"></div>
+                            </div>
+                        </div>
+                    `;
+
+                    if (c.team === 'P1') elP1Act.appendChild(card); else elP2Act.appendChild(card);
+                } else if (!c.isActive && !c.isDead) {
+                    const benchIcon = document.createElement('div');
+                    benchIcon.className = `w-10 h-10 bg-white border-2 ${c.team === 'P1' ? 'border-blue-500' : 'border-red-500'} rounded flex flex-col items-center justify-center shadow-md relative overflow-hidden group cursor-pointer`;
+                    benchIcon.innerHTML = `
+                        <img src="https://play.pokemonshowdown.com/sprites/ani/${c.id}.gif" onerror="this.onerror=null; this.src='${emptyImageSvg}';" class="h-8 w-8 object-contain ${c.team === 'P1' ? 'scale-x-[-1]' : ''}"> 
+                        <div class="absolute bottom-0 left-0 w-full h-1.5 bg-gray-700 border-t border-black"><div class="h-full bg-green-500" style="width: ${(c.hp/c.maxHp)*100}%"></div></div>
+                        <div class="absolute inset-0 bg-black/80 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity p-0.5">
+                            ${getStatusBadge(c)}
+                        </div>
+                    `;
+                    if (c.team === 'P1') elP1Bench.appendChild(benchIcon); else elP2Bench.appendChild(benchIcon);
+                }
+            });
+
+            // ... [Leave Weather Logic Unchanged] ...
+
+            const wOverlay = document.getElementById('weather-overlay');
+            if (gameState.weather.type) {
+                if (gameState.weather.type === 'sand') wOverlay.className = 'weather-overlay sandstorm-bg active';
+                else if (gameState.weather.type === 'rain') wOverlay.className = 'weather-overlay rain-bg active';
+                else if (gameState.weather.type === 'sun') wOverlay.className = 'weather-overlay sun-bg active';
+            } else { wOverlay.className = 'weather-overlay'; }
+        }
+
+        function renderQueue() {
+            const container = document.getElementById('action-queue-container'); container.innerHTML = '';
+            let virtualAVs = gameState.combatants.filter(c => c.isActive && !c.isDead).map(c => ({...c}));
+            
+            for(let i=0; i<8; i++) {
+                if(virtualAVs.length === 0) break;
+                virtualAVs.sort((a, b) => {
+                    if (Math.abs(a.currentAV - b.currentAV) < 0.01) return getSpeed(b) - getSpeed(a);
+                    return a.currentAV - b.currentAV;
+                });
+                
+                const nextAct = virtualAVs[0];
+                const item = document.createElement('div');
+                
+                let isNext = (i === 0);
+                
+                item.className = `flex-shrink-0 w-14 md:w-full md:max-h-[80px] bg-white border-2 border-[#111] rounded p-1 flex flex-col md:flex-row items-center gap-2 relative ${isNext ? 'shadow-[2px_2px_0_#eab308] border-yellow-500' : 'shadow-[2px_2px_0_#111] opacity-90'}`;
+                
+                let nameColor = nextAct.team === 'P1' ? 'text-blue-600' : 'text-red-600';
+
+                item.innerHTML = `
+                    <div class="w-10 h-10 shrink-0 border-2 border-black bg-[#e2e8f0] relative flex items-center justify-center overflow-hidden rounded">
+                        <img src="https://play.pokemonshowdown.com/sprites/ani/${nextAct.id}.gif" onerror="this.onerror=null; this.src='${emptyImageSvg}';" class="max-w-[130%] max-h-[130%] object-contain mt-1 ${nextAct.team === 'P1' ? 'scale-x-[-1]' : ''}">
+                    </div>
+                    <div class="hidden md:flex flex-col overflow-hidden w-full items-start justify-center pr-1">
+                        <div class="text-[10px] font-black ${nameColor} truncate w-full tracking-wide uppercase">${nextAct.name}</div>
+                        <div class="mt-1 bg-[#111] text-white px-2 py-0.5 rounded-sm border border-white text-[10px] font-mono font-bold flex items-center gap-1 shadow-inner w-full">
+                            <span class="text-yellow-400">AV:</span> ${Math.floor(nextAct.currentAV)}
+                        </div>
+                    </div>
+                    <div class="md:hidden absolute bottom-0 left-0 right-0 bg-[#111] text-white text-[8px] font-mono font-bold text-center border-t border-black truncate">
+                        AV:${Math.floor(nextAct.currentAV)}
+                    </div>
+                `;
+                container.appendChild(item);
+                
+                if (nextAct.state === 'CHARGING') {
+                    if (nextAct.queuedAction.move && nextAct.queuedAction.move.fixedAV !== undefined) {
+                        nextAct.currentAV += nextAct.queuedAction.move.fixedAV;
+                    } else {
+                        const delayCost = nextAct.queuedAction.type === 'SWITCH' ? 300 : nextAct.queuedAction.move.delay;
+                        nextAct.currentAV += (delayCost / getSpeed(nextAct)); 
+                    }
+                    nextAct.state = 'IDLE'; 
+                } else {
+                    nextAct.currentAV += (300 / getSpeed(nextAct)); 
+                }
+            }
+        }
+
+        function renderPlayerTurn() {
+document.getElementById('menu-tabs').classList.remove('hidden');
+    const activeCombatant = gameState.combatants.find(c => c.uid === gameState.activeCombatantUid);
+            const title = document.getElementById('menu-title');
+            title.innerHTML = `
+                <div class="h-6 w-6 bg-white rounded-full border border-[#111] flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
+                    <img src="https://play.pokemonshowdown.com/sprites/ani/${activeCombatant.id}.gif" onerror="this.onerror=null; this.src='${emptyImageSvg}';" class="max-w-[150%] max-h-[150%] object-contain mt-1 ${activeCombatant.team === 'P1' ? 'scale-x-[-1]' : ''}">
+                </div>
+                <span class="text-white truncate uppercase">${activeCombatant.name}</span>
+            `;
+            document.getElementById('menu-subtitle').innerHTML = `<span class="mr-2">EN: ${activeCombatant.energy}/${activeCombatant.maxEnergy}</span> SPD: ${getSpeed(activeCombatant)}`;
+            window.switchCategory(activeCategory);
+        }
+
+        function lockMenuUI(message) {
+            document.getElementById('opponent-turn-overlay').classList.remove('hidden');
+            if(message) document.querySelector('#opponent-turn-overlay > div > div').innerText = message;
+            else document.querySelector('#opponent-turn-overlay > div > div').innerText = "";
+        }
+
+                function renderSwitchMenu() {
+            const container = document.getElementById('view-moves'); container.innerHTML = '';
+            const activeCombatant = gameState.combatants.find(c => c.uid === gameState.activeCombatantUid);
+            const bench = gameState.combatants.filter(c => c.team === activeCombatant.team && !c.isActive && !c.isDead);
+            
+            if (bench.length === 0) { container.innerHTML = '<div class="col-span-full text-center text-slate-500 font-bold py-8 tracking-widest uppercase text-sm">Party is Empty</div>'; return; }
+
+            bench.forEach(mon => {
+                const btn = document.createElement('button');
+                btn.className = `pkmn-btn bg-white col-span-2 text-black p-2 text-left flex items-center gap-3`;
+                
+                // THE FIX: Hardcode UI display to 20 AV
+                const predictedAV = 20; 
+                
+                btn.innerHTML = `
+                    <div class="h-10 w-10 shrink-0 drop-shadow-md flex items-center justify-center relative bg-[#e2e8f0] border border-black rounded">
+                        <img src="https://play.pokemonshowdown.com/sprites/ani/${mon.id}.gif" onerror="this.onerror=null; this.src='${emptyImageSvg}';" class="max-w-full max-h-full object-contain ${mon.team === 'P1' ? 'scale-x-[-1]' : ''}">
+                        ${mon.status ? `<div class="absolute -top-2 -right-2 scale-75">${getStatusBadge(mon.status)}</div>` : ''}
+                    </div>
+                    <div class="flex flex-col flex-1 overflow-hidden">
+                        <span class="font-black text-sm text-black truncate uppercase tracking-wide">${mon.name}</span>
+                        <div class="hp-bar-container mt-1">
+                            <div class="h-full bg-green-500" style="width: ${(mon.hp/mon.maxHp)*100}%"></div>
+                        </div>
+                    </div>
+                    <div class="text-[10px] bg-[#111] px-2 py-1 rounded border border-slate-700 font-mono font-bold shrink-0 text-white text-center shadow-inner tracking-wider">
+                        Swap In<br><span class="text-yellow-400">Wait ${predictedAV} AV</span>
+                    </div>
+                `;
+                btn.onclick = () => { 
+                    lockMenuUI("Processing...");
+                    dispatchAction({ actionType: 'QUEUE_SWITCH', team: activeCombatant.team, monUid: mon.uid }); 
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function renderMoveMenu() {
+            const container = document.getElementById('view-moves'); container.innerHTML = '';
+            const activeCombatant = gameState.combatants.find(c => c.uid === gameState.activeCombatantUid);
+            
+            activeCombatant.moves.forEach(moveId => {
+                const move = MOVES[moveId];
+                if (move.cat !== activeCategory) return;
+
+                const isStale = (activeCombatant.lastMoveId === moveId);
+                const canAfford = activeCombatant.energy >= move.cost;
+                const isClickable = canAfford && !isStale;
+                
+                const predictedAV = move.fixedAV !== undefined ? move.fixedAV : Math.round(move.delay / getSpeed(activeCombatant));
+
+                const btn = document.createElement('button');
+                btn.className = `pkmn-btn type-${move.elem} p-2 flex flex-col justify-between min-h-[70px] relative overflow-hidden`;
+                if (!isClickable) btn.disabled = true;
+                
+                btn.innerHTML = `
+                    <div class="flex justify-between items-start w-full mb-2">
+                        <div class="flex flex-col gap-1 overflow-hidden">
+                            <span class="font-black text-sm truncate pr-1 tracking-wide uppercase shadow-black drop-shadow-md text-left ${move.isPriority ? 'text-yellow-300' : ''}">${move.name}</span>
+                        </div>
+                        <div class="flex flex-col items-end gap-1">
+                            
+                            <span class="text-[10px] text-white bg-black/60 px-1.5 py-0.5 rounded font-mono font-bold shrink-0 border ${move.isPriority ? 'border-yellow-400' : 'border-white/20'}">
+                                ${move.isPriority ? '⚡' : '+'}${predictedAV}AV
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full flex justify-between items-end bg-black/30 px-1.5 py-1 rounded shadow-inner border border-black/20 mt-auto">
+                        <span class="font-black text-[10px] tracking-widest ${move.cost > 0 ? 'text-yellow-300' : (move.gen > 0 ? 'text-emerald-300' : 'text-white')}">${move.cost > 0 ? `-${move.cost} EN` : (move.gen > 0 ? `+${move.gen} EN` : '0 EN')}</span>
+                        <span class="font-black text-[10px] text-white tracking-widest shadow-black drop-shadow-md">
+                            ${move.power > 0 && move.type !== 'heal' ? `PWR ${move.power}` : ''}
+                            ${move.type === 'heal' ? `HEAL ${move.power}` : ''}
+                            ${move.power === 0 && (move.type === 'status' || move.type === 'debuff') ? `${move.effectType ? move.effectType.replace('_', ' ') : 'DEBUFF'}`.toUpperCase() : ''}
+                            ${move.power === 0 && move.type === 'buff' ? `BUFF` : ''}
+                            ${move.power === 0 && (move.type === 'hazard' || move.type === 'weather' || move.type === 'protect') ? `FIELD` : ''}
+                            ${move.type === 'baton_pass' ? `TRANSFER` : ''}
+                            ${move.type === 'follow_me' ? `TAUNT` : ''}
+                        </span>
+                    </div>
+                    ${isStale ? `<div class="absolute inset-0 bg-black/50 flex items-center justify-center"><span class="bg-red-600 text-white font-black text-xs px-2 py-1 border border-black transform -rotate-12 tracking-widest shadow-md">COOLDOWN</span></div>` : ''}
+                `;
+                
+                if (isClickable) btn.onclick = () => openTargetMenu(moveId, move);
+                container.appendChild(btn);
+            });
+        }
+
+        function openTargetMenu(moveId, move) {
+            const activeCombatant = gameState.combatants.find(c => c.uid === gameState.activeCombatantUid);
+            
+            document.getElementById('view-moves').classList.add('hidden');
+            const tgtView = document.getElementById('view-targets');
+            tgtView.classList.remove('hidden'); tgtView.innerHTML = '';
+            
+            const displayAV = move.fixedAV !== undefined ? move.fixedAV : Math.round(move.delay / getSpeed(activeCombatant));
+            document.getElementById('menu-subtitle').innerHTML = `<span class="text-yellow-400">COST: ${move.cost}</span> | AV: ${displayAV}`;
+
+            let validTargets = [];
+            if (move.target === 'enemy') validTargets = gameState.combatants.filter(c => c.isActive && !c.isDead && c.team !== activeCombatant.team);
+            else if (move.target === 'all_adjacent') validTargets = gameState.combatants.filter(c => c.isActive && !c.isDead && c.uid !== activeCombatant.uid);
+            else if (move.target === 'ally_active') validTargets = gameState.combatants.filter(c => c.isActive && !c.isDead && c.team === activeCombatant.team && c.uid !== activeCombatant.uid);
+            else if (move.target === 'ally_bench') validTargets = gameState.combatants.filter(c => !c.isActive && !c.isDead && c.team === activeCombatant.team);
+            else if (move.target === 'self' || move.target === 'enemy_field') validTargets = [activeCombatant];
+
+            if (validTargets.length === 0) {
+                 tgtView.innerHTML = '<div class="col-span-full text-center text-slate-500 font-bold py-8 tracking-widest uppercase text-sm">No valid targets</div>';
+            }
+            else if (move.isSpread) {
+                const btn = document.createElement('button');
+                const targetText = move.target === 'all_adjacent' ? "Hit ALL Active Pokemon" : "Hit All Enemies";
+                
+                btn.className = `pkmn-btn col-span-2 md:col-span-full font-black py-4 px-4 bg-white text-black text-center tracking-wide uppercase`;
+                btn.innerHTML = `<span class="text-xl">⚔️</span> <span class="text-xs">${targetText}</span>`;
+                btn.onclick = () => { 
+                    lockMenuUI("Processing...");
+                    dispatchAction({ actionType: 'QUEUE_MOVE', team: activeCombatant.team, moveId: moveId, move: move, targets: validTargets }); 
+                };
+                tgtView.appendChild(btn);
+            } 
+            else if (move.target === 'enemy_field') {
+                const btn = document.createElement('button');
+                btn.className = `pkmn-btn col-span-2 md:col-span-full font-black py-4 px-4 bg-white text-black text-center tracking-wide uppercase`;
+                btn.innerHTML = `<span class="text-xl">🪨</span> <span class="text-xs">Target Enemy Field</span>`;
+                btn.onclick = () => { 
+                    lockMenuUI("Processing...");
+                    dispatchAction({ actionType: 'QUEUE_MOVE', team: activeCombatant.team, moveId: moveId, move: move, targets: validTargets }); 
+                };
+                tgtView.appendChild(btn);
+            }
+            else {
+                validTargets.forEach(t => {
+                    const btn = document.createElement('button');
+                    let borderCol = t.team === 'P1' ? 'border-blue-500' : 'border-red-500';
+                    if (move.target === 'self') borderCol = 'border-green-500';
+
+                    btn.className = `pkmn-btn bg-white text-black py-2 px-3 text-left flex items-center gap-2 ${borderCol}`;
+                    btn.innerHTML = `
+                        <div class="h-10 w-10 flex items-center justify-center shrink-0 relative bg-[#e2e8f0] border border-black rounded">
+                            <img src="https://play.pokemonshowdown.com/sprites/ani/${t.id}.gif" onerror="this.onerror=null; this.src='${emptyImageSvg}';" class="max-w-[120%] max-h-[120%] object-contain ${t.team === 'P1' ? 'scale-x-[-1]' : ''}"> 
+                        </div>
+                        <div class="flex flex-col items-start flex-1 overflow-hidden">
+                            <span class="text-[10px] font-black truncate tracking-wide mb-1 uppercase text-slate-500">Use on: <span class="text-black">${move.target === 'self' ? 'Self' : t.name}</span></span>
+                            <div class="hp-bar-container"><div class="h-full bg-green-500" style="width: ${(t.hp/t.maxHp)*100}%"></div></div>
+                        </div>
+                    `;
+                    btn.onclick = () => { 
+                        lockMenuUI("Processing...");
+                        dispatchAction({ actionType: 'QUEUE_MOVE', team: activeCombatant.team, moveId: moveId, move: move, targets: [t] }); 
+                    };
+                    tgtView.appendChild(btn);
+                });
+            }
+
+            const backBtn = document.createElement('button');
+            backBtn.className = `pkmn-btn col-span-2 md:col-span-full mt-2 bg-[#2a3b4c] text-white font-bold py-2 px-4 text-xs uppercase tracking-widest`;
+            backBtn.innerText = "← Cancel";
+            backBtn.onclick = renderPlayerTurn;
+            tgtView.appendChild(backBtn);
+        }
+
+        function promptDeathSwitch(team, headerText, actionStr) {
+    document.getElementById('opponent-turn-overlay').classList.add('hidden');
+    document.getElementById('menu-tabs').classList.add('hidden');
+    
+    const title = document.getElementById('menu-title');
+            title.innerHTML = `<span class="${team === 'P1' ? 'text-blue-400' : 'text-red-400'} animate-pulse drop-shadow-md">${team}: NEXT PKMN</span>`;
+            document.getElementById('menu-subtitle').innerText = "Must replace!";
+            
+            document.getElementById('view-moves').classList.add('hidden');
+            const tgtView = document.getElementById('view-targets');
+            tgtView.classList.remove('hidden'); tgtView.innerHTML = '';
+            
+            document.getElementById('action-menu-container').classList.remove('collapsed');
+
+            const bench = gameState.combatants.filter(c => c.team === team && !c.isActive && !c.isDead);
+            bench.forEach(mon => {
+                const btn = document.createElement('button');
+                btn.className = `pkmn-btn bg-white text-black p-3 flex flex-col items-center justify-center gap-2 ${mon.team === 'P1' ? 'border-blue-600' : 'border-red-600'}`;
+                btn.innerHTML = `
+                    <div class="h-10 w-10 drop-shadow-md relative mb-1 bg-[#e2e8f0] border border-black rounded flex items-center justify-center">
+                        <img src="https://play.pokemonshowdown.com/sprites/ani/${mon.id}.gif" onerror="this.onerror=null; this.src='${emptyImageSvg}';" class="max-w-[120%] max-h-[120%] object-contain ${mon.team === 'P1' ? 'scale-x-[-1]' : ''}">
+                        ${mon.status ? `<div class="absolute -top-2 -right-2 scale-75">${getStatusBadge(mon.status)}</div>` : ''}
+                    </div>
+                    <span class="font-black text-xs tracking-wide uppercase text-black">${mon.name}</span>
+                `;
+                btn.onclick = () => { 
+                    lockMenuUI("Processing...");
+                    dispatchAction({ actionType: actionStr, team: team, monUid: mon.uid }); 
+                };
+                tgtView.appendChild(btn);
+            });
+        }
+
+        function showFloatingText(target, text, colorClass) {
+            const targetEl = document.getElementById(`sprite-box-${target.uid}`);
+            if (!targetEl) return;
+            const rect = targetEl.getBoundingClientRect();
+            const txt = document.createElement('div');
+            txt.className = `damage-text text-xl md:text-3xl ${colorClass}`;
+            txt.innerText = text;
+            document.body.appendChild(txt);
+            txt.style.left = `${rect.left + window.scrollX + (rect.width/2) - 20 + (Math.random()*40-20)}px`;
+txt.style.top = `${rect.top + window.scrollY + (rect.height/2) - 20 + (Math.random()*20-10)}px`;
+            setTimeout(() => { if (document.body.contains(txt)) txt.remove(); }, 1200);
+        }
+
+        function checkWinCondition() {
+            const p1Alive = gameState.combatants.some(c => c.team === 'P1' && !c.isDead);
+            const p2Alive = gameState.combatants.some(c => c.team === 'P2' && !c.isDead);
+
+            if (!p1Alive || !p2Alive) {
+                lockMenuUI("GAME OVER");
+                const winScreen = document.getElementById('win-screen');
+                const winTitle = document.getElementById('win-title');
+                
+                document.getElementById('end-log').innerHTML = gameState.battleLog.map(l => `<div>${l}</div>`).join('');
+
+                winScreen.classList.remove('hidden');
+                
+                if (!p1Alive && !p2Alive) {
+                    winTitle.innerText = "DRAW!";
+                } else if (p1Alive) {
+                    winTitle.innerText = "P1 WINS!";
+                    winTitle.className = "text-4xl md:text-5xl font-black mb-6 text-center uppercase tracking-widest text-blue-600 drop-shadow-md";
+                } else {
+                    winTitle.innerText = "P2 WINS!";
+                    winTitle.className = "text-4xl md:text-5xl font-black mb-6 text-center uppercase tracking-widest text-red-600 drop-shadow-md";
+                }
+                return true;
+            }
+            return false;
+        }
+
+    </script>
+</body>
+</html>
