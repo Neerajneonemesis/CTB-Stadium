@@ -1,56 +1,40 @@
 # CTB Stadium: Anime Battle Sim
 
-> **⚠️ DISCLAIMER:** *CTB Stadium is a free, non-profit fan project. It is strictly not affiliated with, endorsed, or sponsored by Nintendo, Game Freak, or The Pokémon Company. All related characters, names, and assets are property of their respective owners.*
+**CTB Stadium** is a fan-made, browser-based Pokémon battle simulator that completely replaces traditional round-based combat with a **Continuous Turn Battle (CTB)** Action Value (AV) timeline. 
 
-**CTB Stadium: Anime Battle Sim** is a browser-based tactical battle simulator focusing more on the anime battle momentum and team mechanics. 
+Battles flow dynamically like they do in the anime: fast Pokémon can lap slower ones, heavy moves require charging, and managing your Action Value is just as important as managing your HP.
 
-Engineered as a lightweight Progressive Web App (PWA), it bypasses traditional app stores. Players can install the game directly to their home screens for a native, fullscreen viewport. Thanks to dynamic Service Worker caching all assets, including heavy GIF sprites are stored locally, enabling fully offline same-device battles.
+## 🌟 Key Features
+* **The AV Timeline Engine:** Moves don't happen simultaneously. Every action costs Action Value (AV) based on its power and the user's Speed stat. Fast sweeps, delayed charges, and timeline manipulation dictate the meta.
+* **Energy Economy:** Replaces PP. Pokémon must use low-power **Builders** to generate Energy before they can unleash high-power **Spenders** or setup moves.
+* **100% Client-Side:** Built entirely in HTML, Tailwind CSS, and Vanilla JavaScript. No backend servers required.
+* **Online PvP:** Seamless peer-to-peer multiplayer using **PeerJS**. 
+* **PWA Ready:** Installable as a Progressive Web App to play offline or on mobile devices like a native app.
+* **Anime-Style Presentation:** Dynamic hit sparks, screen shakes, UI pop-ups, and retro SFX for high-impact combat.
 
----
+## 🎮 Game Modes
+* **Stadium Campaign (1P):** A 13-boss gauntlet featuring Kanto Gym Leaders, the Elite Four, and the Champion. Features advanced AI that understands format-specific metas, entry hazards, and speed control. Saves your progress locally.
+* **Quickplay (1P vs CPU):** Draft a custom team and fight against the AI in either Singles or Doubles.
+* **Local PvP (2P):** Pass-and-play multiplayer on a single screen.
+* **Online PvP:** Host or join a room via a simple 5-character room code to battle friends remotely.
 
-## ⚔️ Gameplay Overview
+## ⚔️ Formats & Meta
+The engine dynamically adjusts rules and AI behavior based on the selected format:
+* **VGC 2v2 (Doubles):** Focuses on spread damage, speed control (`Tailwind`, `Icy Wind`), and redirection (`Follow Me`, `Wide Guard`). 
+* **Smogon 6v6 (Singles):** Focuses on a brutal war of attrition. The meta revolves around Entry Hazards (`Stealth Rock`, `Spikes`), Phazing (`Roar`, `Dragon Tail`) to bankrupt enemy energy, and safe pivots (`U-turn`, `Volt Switch`).
 
-Unlike traditional battle simulators that restrict you to 4 moves, CTB Stadium opens up the entire playbook. It features a dynamic CTB combat system where **every character has access to 10+ distinct attacks and abilities** simultaneously, giving you total tactical control over their entire kit.
+## ⚙️ Core Mechanics
+* **Charge Delays:** Powerful moves (Advanced Spenders, Setup Buffs) enter a `⏳ CHARGING` phase. The Pokémon sits on the timeline while preparing the attack, leaving them vulnerable to fast priority strikes or evasive maneuvers.
+* **Evasion Intercepts:** Tactical moves like `Detect` and `Double Team` instantly consume your turn but guarantee evasion against the very next incoming attack, serving as vital defensive tools against slow nukes.
+* **Weather & Terrain Scaling:** Certain moves interact directly with the timeline. For example, `Solar Beam` charges 30% faster in Harsh Sunlight, and `Expanding Force` is cast 30% faster on Psychic Terrain.
 
-### ⚡ Move Categories & Economy
-To balance having access to over a dozen options at once, every character's move pool is structured around three core categories:
-* **Basic (Energy Generators):** Fast, reliable strikes and setup moves that generate the energy needed to trigger larger plays.
-* **Advanced (High-Cost Nukes):** Powerful, expensive finishers (like *Earthquake*, *Stone Edge*, and *Outrage*) that consume pooled energy to deliver massive damage.
-* **Tactics (Utility & Control):** Status ailments, heals, entry hazards, and defensive maneuvers (like *Softboiled*, *Stealth Rock*, and *Protect*) used to dictate the tempo of the battle.
+## 🚀 Quick Start
+CTB Stadium is 100% client-side. No servers, no databases, no heavy downloads.
 
-### 🛡️ Playstyle Archetypes
-With over 20+ moves per character, each Pokémon features a tailored move distribution that defines its combat role:
-* **Offensive Juggernauts:** Heavy hitters like **Garchomp** and **Tyranitar** packed with expensive **Advanced** moves to clean up weakened targets.
-* **Fast Energy Generators:** Swift speedsters like **Weavile** featuring deep **Basic** move pools for rapid momentum generation.
-* **Utility Walls:** Defensive anchors like **Blissey**, **Skarmory**, and **Umbreon** loaded with **Tactics** options to stall out hyper-offensive teams.
+* **Play Locally:** Download the files, keep `index.html`, `sw.js`, and `manifest.json` in the same folder, and open `index.html` in any web browser.
+* **Play Online:** Host the folder for free on GitHub Pages, Vercel, or Netlify to generate a live link for Online PvP.
+* **Go Mobile:** Because the engine is PWA-ready, opening your live link on an Android or iOS browser will prompt you to "Add to Home Screen"—turning it into a standalone mobile app!
 
----
-
-## ✨ Features
-* **Massive Move Pools:** Access 20+ moves per character without swapping.
-* **Local Play:** Pass-and-play tactical battles on a single device.
-* **Online PVP:** Peer-to-peer WebRTC matchmaking powered by PeerJS.
-* **PWA Ready:** Installable to mobile home screens with full offline caching support.
-* **High-Performance Visuals:** Smooth, hardware-accelerated CSS animations with floating damage numbers and animated sprite visuals.
-
----
-
-## 🚀 What's New in v1.2 (The Campaign & Polish Update)
-
-Version 1.2 introduces a massive single-player experience alongside critical upgrades to the engine's AI, combat math, and mobile responsiveness.
-
-### 🏆 Single Player Stadium Campaign
-* **Campaign Mode:** Challenge a 13-stage offline PvE campaign featuring 8 Gym Leaders, the Elite Four, and the Champion. 
-* **Thematic Boss AI:** Each boss features a pre-constructed thematic draft (e.g., Weather, Terrain, Stall, Hyper-Offense) with progressive AI aggression.
-* **Hall of Fame:** Defeating the Champion generates a dynamic, shareable "Certificate of Triumph" to commemorate your victory.
-
-### 🧠 Smarter CPU AI
-* **Protect Awareness:** The AI is designed to predict baits and stall tactics, providing a very high yet dynamic difficulty progression.
-* **Kill Securing:** Fixed execution math to ensure the AI properly leverages priority moves (like *Quick Attack* or *Bullet Punch*) when an enemy is at low HP.
-
-### 🛠️ Engine & UI Fixes
-* **Mobile Viewport Lock:** Upgraded the app container to utilize `100dvh` and strictly locked touch-scaling, completely preventing the UI from bouncing or clipping behind mobile browser URL bars.
-* **Turn Order panel Stabilized:** Squashed fatal scope errors associated with Confusion self-damage, ensuring the timeline engine seamlessly processes volatile status effects without freezing.
-* **Gluttony Fixed:** The Gluttony ability correctly doubles energy generation post-execution.
-* **Now includes a Tutorial Guide:** Tutorial mode implemented to address the difficulty in learning CTB combat for newcomers.
-* **Clean Exits:** Forfeiting a match or exiting the tutorial now flawlessly clears all high z-index overlays, preventing UI ghosting on the Main Menu and Win screens.
+## 📜 Disclaimer & Legal
+**CTB Stadium is a non-profit, open-source fan project.** 
+This simulator is created strictly for educational programming and entertainment purposes. It is not affiliated with, endorsed, sponsored, or specifically approved by Nintendo, Game Freak, or The Pokémon Company. All Pokémon images, names, and related media are intellectual property of their respective owners. No monetization, advertisements, or microtransactions exist within this project.

@@ -477,7 +477,7 @@
             <div id="loading-bar" class="bg-gradient-to-r from-emerald-400 to-emerald-300 h-full w-0 transition-all duration-300 ease-out relative z-0"></div>
         </div>
         
-                <div id="loading-text" class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-3 drop-shadow-md">Caching Assets...</div>
+                <div id="loading-text" class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-3 drop-shadow-md">Loading Assets...</div>
         
         <!-- NEW: Type Icons Grid -->
         <div id="loader-icons" class="grid grid-cols-6 gap-3 sm:gap-4 mt-8 mb-2 max-w-xs z-10"></div>
@@ -657,7 +657,7 @@
             <button id="btn-tutorial-play" class="text-slate-600 hover:text-black font-bold uppercase tracking-wider flex items-center gap-1">
                 <span>📖</span> Tutorial Guide
             </button>
-            <span class="text-[10px] text-slate-400 font-mono">v1.2 Patched</span>
+            <span class="text-[10px] text-slate-400 font-mono">v1.3 Patched</span>
         </div>
 </div>    
     <!-- Disclaimer -->
@@ -1184,7 +1184,6 @@ const TYPE_ICONS = {
 const MOVES = {
     // ==========================================
     // 1. BUILDERS: CLASS A (Priority / Instant)
-    // 0 Cost, 0 Gen. Fast execution.
     // ==========================================
     'quick_attack': { name: 'Quick Attack', elem: 'Normal', isPhysical: true, cat: 'builders', power: 40, delay: 540, isPriority: true, cost: 0, gen: 0, target: 'enemy', type: 'damage' },
     'mach_punch': { name: 'Mach Punch', elem: 'Fighting', isPhysical: true, cat: 'builders', power: 40, delay: 540, isPriority: true, cost: 0, gen: 0, target: 'enemy', type: 'damage' },
@@ -1197,10 +1196,10 @@ const MOVES = {
     'thunderclap': { name: 'Thunderclap', elem: 'Electric', isPhysical: false, cat: 'builders', power: 70, delay: 940, isPriority: true, cost: 0, gen: 0, target: 'enemy', type: 'damage' },
     'extreme_speed': { name: 'Extreme Speed', elem: 'Normal', isPhysical: true, cat: 'builders', power: 80, delay: 1060, isPriority: true, cost: 0, gen: 0, target: 'enemy', type: 'damage' },
     'feint': { name: 'Feint', elem: 'Normal', isPhysical: true, cat: 'builders', power: 30, delay: 400, isPriority: true, cost: 0, gen: 0, target: 'enemy', type: 'damage' },
+    'grassy_glide': { name: 'Grassy Glide', elem: 'Grass', isPhysical: true, cat: 'builders', power: 70, delay: 780, isPriority: true, cost: 0, gen: 0, target: 'enemy', type: 'damage', terrainSpeedUp: 'grassy' },
 
     // ==========================================
     // 2. BUILDERS: CLASS B (Heavy Generators)
-    // 0 Cost, +2 Gen. Pure Economy.
     // ==========================================
     'tackle': { name: 'Tackle', elem: 'Normal', isPhysical: true, cat: 'builders', power: 40, delay: 540, cost: 0, gen: 2, target: 'enemy', type: 'damage' },
     'pound': { name: 'Pound', elem: 'Normal', isPhysical: true, cat: 'builders', power: 40, delay: 540, cost: 0, gen: 2, target: 'enemy', type: 'damage' },
@@ -1209,7 +1208,6 @@ const MOVES = {
 
     // ==========================================
     // 3. BUILDERS: CLASS C (Utility Generators)
-    // 0 Cost, +1 Gen. Minor secondary effects/traps.
     // ==========================================
     'astonish': { name: 'Astonish', elem: 'Ghost', isPhysical: true, cat: 'builders', power: 30, delay: 400, cost: 0, gen: 1, target: 'enemy', type: 'damage_delay', effectVal: 0.3, effectChance: 0.3 },
     'lick': { name: 'Lick', elem: 'Ghost', isPhysical: true, cat: 'builders', power: 30, delay: 400, cost: 0, gen: 1, target: 'enemy', type: 'damage', effectType: 'paralyze', effectChance: 0.3 },
@@ -1221,13 +1219,14 @@ const MOVES = {
     'infestation': { name: 'Infestation', elem: 'Bug', isPhysical: true, cat: 'builders', power: 20, delay: 260, cost: 0, gen: 1, target: 'enemy', type: 'damage', isTrap: true },
     'night_shade': { name: 'Night Shade', elem: 'Ghost', isPhysical: false, cat: 'builders', power: 50, delay: 660, cost: 0, gen: 1, target: 'enemy', type: 'fixed_damage', damageValue: 50 },
     'seismic_toss': { name: 'Seismic Toss', elem: 'Fighting', isPhysical: true, cat: 'builders', power: 50, delay: 660, cost: 0, gen: 1, target: 'enemy', type: 'fixed_damage', damageValue: 50 },
+    'sonic_boom': { name: 'Sonic Boom', elem: 'Normal', isPhysical: false, cat: 'builders', power: 20, delay: 540, cost: 0, gen: 1, target: 'enemy', type: 'fixed_damage', damageValue: 20 },
     'rapid_spin': { name: 'Rapid Spin', elem: 'Normal', isPhysical: true, cat: 'builders', power: 50, delay: 660, cost: 0, gen: 1, target: 'enemy', type: 'damage_clear' },
     'fairy_wind': { name: 'Fairy Wind', elem: 'Fairy', isPhysical: false, cat: 'builders', power: 40, delay: 540, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
     'twister': { name: 'Twister', elem: 'Dragon', isPhysical: false, cat: 'builders', power: 40, delay: 540, cost: 0, gen: 1, target: 'enemy', type: 'damage_delay', effectVal: 0.2, effectChance: 0.2 },
     'echoed_voice': { name: 'Echoed Voice', elem: 'Normal', isPhysical: false, cat: 'builders', power: 40, delay: 540, cost: 0, gen: 1, target: 'enemy', type: 'damage', isSound: true },
     'gust': { name: 'Gust', elem: 'Flying', isPhysical: false, cat: 'builders', power: 40, delay: 540, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
     'smack_down': { name: 'Smack Down', elem: 'Rock', isPhysical: true, cat: 'builders', power: 50, delay: 660, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
-    'confusion': { name: 'Confusion', elem: 'Psychic', isPhysical: false, cat: 'builders', power: 50, delay: 660, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
+    'confusion': { name: 'Confusion', elem: 'Psychic', isPhysical: false, cat: 'builders', power: 50, delay: 660, cost: 0, gen: 1, target: 'enemy', type: 'damage_confuse', effectType: 'confusion', effectChance: 0.1 },
     'pursuit': { name: 'Pursuit', elem: 'Dark', isPhysical: true, cat: 'builders', power: 40, delay: 540, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
     'magnet_bomb': { name: 'Magnet Bomb', elem: 'Steel', isPhysical: true, cat: 'builders', power: 60, delay: 800, cost: 0, gen: 1, target: 'enemy', type: 'damage' },
     'poison_fang': { name: 'Poison Fang', elem: 'Poison', isPhysical: true, cat: 'builders', power: 50, delay: 660, cost: 0, gen: 1, target: 'enemy', type: 'damage', effectType: 'bad_poison', effectChance: 0.5 },
@@ -1235,16 +1234,15 @@ const MOVES = {
     'powder_snow': { name: 'Powder Snow', elem: 'Ice', isPhysical: false, cat: 'builders', power: 40, delay: 540, cost: 0, gen: 1, target: 'enemy', type: 'damage', effectType: 'freeze', effectChance: 0.1 },
     'thunder_shock': { name: 'Thunder Shock', elem: 'Electric', isPhysical: false, cat: 'builders', power: 40, delay: 540, cost: 0, gen: 1, target: 'enemy', type: 'damage', effectType: 'paralyze', effectChance: 0.1 },
     'dragon_breath': { name: 'Dragon Breath', elem: 'Dragon', isPhysical: false, cat: 'builders', power: 60, delay: 800, cost: 0, gen: 1, target: 'enemy', type: 'damage', effectType: 'paralyze', effectChance: 0.3 },
-    
+    'absorb': { name: 'Absorb', elem: 'Grass', isPhysical: false, cat: 'builders', power: 20, delay: 260, cost: 0, gen: 1, target: 'enemy', type: 'damage_drain' },
+
     // ==========================================
     // 4. BUILDERS: CLASS D (Stat Tax)
-    // 0 Cost, 0 Gen. Non-speed debuffs.
     // ==========================================
-    'mud_slap': { name: 'Mud-Slap', elem: 'Ground', isPhysical: false, cat: 'builders', power: 20, delay: 260, cost: 0, gen: 0, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'speed', amount: 10, chance: 1.0} },
+    'mud_slap': { name: 'Mud-Slap', elem: 'Ground', isPhysical: false, cat: 'builders', power: 20, delay: 540, cost: 0, gen: 0, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'speed', amount: 10, chance: 1.0} },
 
     // ==========================================
     // 5. SPENDERS: TIER 1 (1 Cost)
-    // 60-85 BP Singles, Weak Multi-hits, and Stat Taxes (Non-Speed)
     // ==========================================
     'u_turn': { name: 'U-turn', elem: 'Bug', isPhysical: true, cat: 'spenders', power: 70, delay: 780, cost: 1, gen: 0, target: 'enemy', type: 'damage_pivot' },
     'volt_switch': { name: 'Volt Switch', elem: 'Electric', isPhysical: false, cat: 'spenders', power: 70, delay: 780, cost: 1, gen: 0, target: 'enemy', type: 'damage_pivot' },
@@ -1259,7 +1257,7 @@ const MOVES = {
     'scald': { name: 'Scald', elem: 'Water', isPhysical: false, effectType: 'burn', effectChance: 0.3, cat: 'spenders', power: 80, delay: 880, cost: 1, gen: 0, target: 'enemy', type: 'damage' },
     'mystical_fire': { name: 'Mystical Fire', elem: 'Fire', isPhysical: false, cat: 'spenders', power: 75, delay: 840, cost: 1, gen: 0, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'spa', amount: 15, chance: 1.0} },
     'tri_attack': { name: 'Tri Attack', elem: 'Normal', isPhysical: false, cat: 'spenders', power: 80, delay: 880, cost: 1, gen: 0, target: 'enemy', type: 'damage', effectType: 'paralyze', effectChance: 0.2 },
-    'aura_sphere': { name: 'Aura Sphere', elem: 'Fighting', isPhysical: false, cat: 'spenders', power: 80, delay: 880, cost: 1, gen: 0, target: 'enemy', type: 'damage' },
+    'aura_sphere': { name: 'Aura Sphere', elem: 'Fighting', isPhysical: false, cat: 'spenders', power: 80, delay: 880, cost: 1, gen: 0, target: 'enemy', type: 'damage', ignoresEvasion: true },
     'shadow_claw': { name: 'Shadow Claw', elem: 'Ghost', isPhysical: true, cat: 'spenders', power: 70, delay: 780, cost: 1, gen: 0, target: 'enemy', type: 'damage', highCrit: true },
     'night_slash': { name: 'Night Slash', elem: 'Dark', isPhysical: true, cat: 'spenders', power: 70, delay: 780, cost: 1, gen: 0, target: 'enemy', type: 'damage', highCrit: true },
     'cross_poison': { name: 'Cross Poison', elem: 'Poison', isPhysical: true, cat: 'spenders', power: 70, delay: 780, cost: 1, gen: 0, target: 'enemy', type: 'damage', effectType: 'poison', effectChance: 0.1, highCrit: true },
@@ -1285,36 +1283,47 @@ const MOVES = {
     'headbutt': { name: 'Headbutt', elem: 'Normal', isPhysical: true, cat: 'spenders', power: 70, delay: 780, cost: 1, gen: 0, target: 'enemy', type: 'damage_delay', effectVal: 0.3, effectChance: 0.3 },
     'bite': { name: 'Bite', elem: 'Dark', isPhysical: true, cat: 'spenders', power: 60, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'damage_delay', effectVal: 0.3, effectChance: 0.3 },
     'knock_off': { name: 'Knock Off', elem: 'Dark', isPhysical: true, cat: 'spenders', power: 65, delay: 720, cost: 1, gen: 0, target: 'enemy', type: 'damage' },
-    'aerial_ace': { name: 'Aerial Ace', elem: 'Flying', isPhysical: true, cat: 'spenders', power: 60, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'damage' },
+    'aerial_ace': { name: 'Aerial Ace', elem: 'Flying', isPhysical: true, cat: 'spenders', power: 60, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'damage', ignoresEvasion: true },
     'fire_fang': { name: 'Fire Fang', elem: 'Fire', isPhysical: true, cat: 'spenders', power: 65, delay: 720, cost: 1, gen: 0, target: 'enemy', type: 'damage', effectType: 'burn', effectChance: 0.1 },
     'thunder_fang': { name: 'Thunder Fang', elem: 'Electric', isPhysical: true, cat: 'spenders', power: 65, delay: 720, cost: 1, gen: 0, target: 'enemy', type: 'damage', effectType: 'paralyze', effectChance: 0.1 },
     'ice_fang': { name: 'Ice Fang', elem: 'Ice', isPhysical: true, cat: 'spenders', power: 65, delay: 720, cost: 1, gen: 0, target: 'enemy', type: 'damage', effectType: 'freeze', effectChance: 0.1 },
     'ominous_wind': { name: 'Ominous Wind', elem: 'Ghost', isPhysical: false, cat: 'spenders', power: 60, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'damage' },
-    'magical_leaf': { name: 'Magical Leaf', elem: 'Grass', isPhysical: false, cat: 'spenders', power: 60, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'damage' },
+    'magical_leaf': { name: 'Magical Leaf', elem: 'Grass', isPhysical: false, cat: 'spenders', power: 60, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'damage', ignoresEvasion: true },
     'water_pulse': { name: 'Water Pulse', elem: 'Water', isPhysical: false, cat: 'spenders', power: 60, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'damage_delay', effectVal: 0.2, effectChance: 0.2 },
     'ancient_power': { name: 'Ancient Power', elem: 'Rock', isPhysical: false, cat: 'spenders', power: 60, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'damage' },
-    'shock_wave': { name: 'Shock Wave', elem: 'Electric', isPhysical: false, cat: 'spenders', power: 60, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'damage' },
+    'shock_wave': { name: 'Shock Wave', elem: 'Electric', isPhysical: false, cat: 'spenders', power: 60, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'damage', ignoresEvasion: true },
     'bug_bite': { name: 'Bug Bite', elem: 'Bug', isPhysical: true, cat: 'spenders', power: 60, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'damage' },
     'metal_claw': { name: 'Metal Claw', elem: 'Steel', isPhysical: true, cat: 'spenders', power: 50, delay: 560, cost: 1, gen: 0, target: 'enemy', type: 'damage', selfStatBuff: {stat: 'atk', amount: 15, chance: 0.1} },
     'flame_wheel': { name: 'Flame Wheel', elem: 'Fire', isPhysical: true, cat: 'spenders', power: 60, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'damage', effectType: 'burn', effectChance: 0.1 },
-    'psybeam': { name: 'Psybeam', elem: 'Psychic', isPhysical: false, cat: 'spenders', power: 65, delay: 720, cost: 1, gen: 0, target: 'enemy', type: 'damage', effectType: 'confusion', effectChance: 0.1 },
+    'psybeam': { name: 'Psybeam', elem: 'Psychic', isPhysical: false, cat: 'spenders', power: 65, delay: 720, cost: 1, gen: 0, target: 'enemy', type: 'damage_confuse', effectType: 'confusion', effectChance: 0.1 },
     'assurance': { name: 'Assurance', elem: 'Dark', isPhysical: true, cat: 'spenders', power: 60, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'damage' },
     'steel_wing': { name: 'Steel Wing', elem: 'Steel', isPhysical: true, cat: 'spenders', power: 70, delay: 780, cost: 1, gen: 0, target: 'enemy', type: 'damage', selfStatBuff: {stat: 'def', amount: 15, chance: 0.1} },
     'spark': { name: 'Spark', elem: 'Electric', isPhysical: true, cat: 'spenders', power: 65, delay: 720, cost: 1, gen: 0, target: 'enemy', type: 'damage', effectType: 'paralyze', effectChance: 0.3 },
     'fiery_dance': { name: 'Fiery Dance', elem: 'Fire', isPhysical: false, cat: 'spenders', power: 80, delay: 880, cost: 1, gen: 0, target: 'enemy', type: 'damage', selfStatBuff: {stat: 'spa', amount: 15, chance: 0.5} },
+    'draining_kiss': { name: 'Draining Kiss', elem: 'Fairy', isPhysical: false, cat: 'spenders', power: 50, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'damage_drain' },
+    'mega_punch': { name: 'Mega Punch', elem: 'Normal', isPhysical: true, cat: 'spenders', power: 80, delay: 880, cost: 1, gen: 0, target: 'enemy', type: 'damage', punch: true },
+    'air_slash': { name: 'Air Slash', elem: 'Flying', isPhysical: false, cat: 'spenders', power: 75, delay: 840, cost: 1, gen: 0, target: 'enemy', type: 'damage_delay', effectVal: 0.3, effectChance: 0.3 },
+    
+    // -- Multi-Hits & Special Spenders --
     'double_kick': { name: 'Double Kick', elem: 'Fighting', isPhysical: true, cat: 'spenders', power: 30, hits: 2, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'damage' },
     'dual_chop': { name: 'Dual Chop', elem: 'Dragon', isPhysical: true, cat: 'spenders', power: 40, hits: 2, delay: 880, cost: 1, gen: 0, target: 'enemy', type: 'damage' },
     'dual_wingbeat': { name: 'Dual Wingbeat', elem: 'Flying', isPhysical: true, cat: 'spenders', power: 40, hits: 2, delay: 880, cost: 1, gen: 0, target: 'enemy', type: 'damage' },
     'triple_axel': { name: 'Triple Axel', elem: 'Ice', isPhysical: true, cat: 'spenders', power: 20, hits: 3, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'damage' },
+    'bone_rush': { name: 'Bone Rush', elem: 'Ground', isPhysical: true, cat: 'spenders', power: 25, hits: 4, delay: 880, cost: 1, gen: 0, target: 'enemy', type: 'damage' },
+    'brick_break': { name: 'Brick Break', elem: 'Fighting', isPhysical: true, cat: 'spenders', power: 75, delay: 840, cost: 1, gen: 0, target: 'enemy', type: 'damage' },
     
-    // --- Stat Tax (Non-Speed) ---
+    // -- Phazing Spenders --
+    'dragon_tail': { name: 'Dragon Tail', elem: 'Dragon', isPhysical: true, cat: 'spenders', power: 60, delay: 880, cost: 1, gen: 0, target: 'enemy', type: 'damage_force_switch' },
+    'circle_throw': { name: 'Circle Throw', elem: 'Fighting', isPhysical: true, cat: 'spenders', power: 60, delay: 880, cost: 1, gen: 0, target: 'enemy', type: 'damage_force_switch' },
+    'shadow_punch': { name: 'Shadow Punch', elem: 'Ghost', isPhysical: true, cat: 'spenders', power: 60, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'damage', ignoresEvasion: true },
+
+    // -- Stat Tax (Non-Speed) --
     'snarl': { name: 'Snarl', elem: 'Dark', isPhysical: false, cat: 'spenders', power: 55, delay: 620, cost: 1, gen: 0, target: 'enemy', isSpread: true, type: 'damage', targetStatDrop: {stat: 'spa', amount: 10, chance: 1.0}, isSound: true },
     'struggle_bug': { name: 'Struggle Bug', elem: 'Bug', isPhysical: false, cat: 'spenders', power: 50, delay: 560, cost: 1, gen: 0, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'spa', amount: 10, chance: 1.0}, isSpread: true },
     'razor_leaf': { name: 'Razor Leaf', elem: 'Grass', isPhysical: true, cat: 'spenders', power: 55, delay: 620, cost: 1, gen: 0, target: 'enemy', type: 'damage', highCrit: true, isSpread: true },
 
     // ==========================================
     // 6. SPENDERS: TIER 2 (2 Cost)
-    // Heavy Singles (90-110 BP), Symmetrical Spreads, and Elevated Speed Taxes
     // ==========================================
     'psychic': { name: 'Psychic', elem: 'Psychic', isPhysical: false, cat: 'spenders', power: 90, delay: 860, cost: 2, gen: 0, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'spd', amount: 15, chance: 0.1} },
     'earth_power': { name: 'Earth Power', elem: 'Ground', isPhysical: false, cat: 'spenders', power: 90, delay: 860, cost: 2, gen: 0, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'spd', amount: 15, chance: 0.1} },
@@ -1338,102 +1347,81 @@ const MOVES = {
     'play_rough': { name: 'Play Rough', elem: 'Fairy', isPhysical: true, cat: 'spenders', power: 90, delay: 860, cost: 2, gen: 0, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'atk', amount: 15, chance: 0.1} },
     'phantom_force': { name: 'Phantom Force', elem: 'Ghost', isPhysical: true, cat: 'spenders', power: 90, delay: 860, cost: 2, gen: 0, target: 'enemy', type: 'damage', isVanish: true },                        
     'foul_play': { name: 'Foul Play', elem: 'Dark', isPhysical: true, cat: 'spenders', power: 95, delay: 900, cost: 2, gen: 0, target: 'enemy', type: 'damage' },
-        'draco_meteor': { 
-        name: 'Draco Meteor', 
-        elem: 'Dragon', 
-        isPhysical: false, 
-        cat: 'spenders', 
-        power: 130, 
-        delay: 960, 
-        cost: 2, 
-        gen: 0, 
-        target: 'all_adjacent', 
-        isSpread: true, 
-        type: 'damage', 
-        selfDebuff: [{ stat: 'spa', amount: 30 }] 
-    },
     'bug_buzz': { name: 'Bug Buzz', elem: 'Bug', isPhysical: false, cat: 'spenders', power: 90, delay: 860, cost: 2, gen: 0, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'spd', amount: 15, chance: 0.1}, isSound: true },
     'dynamic_punch': { name: 'Dynamic Punch', elem: 'Fighting', isPhysical: true, cat: 'spenders', power: 100, delay: 960, cost: 2, gen: 0, target: 'enemy', type: 'damage_confuse', effectType: 'confusion', effectChance: 1.0 },
     'dragon_darts': { name: 'Dragon Darts', elem: 'Dragon', isPhysical: true, cat: 'spenders', power: 50, hits: 2, delay: 960, cost: 2, gen: 0, target: 'enemy', type: 'damage_smart' },
     'pin_missile': { name: 'Pin Missile', elem: 'Bug', isPhysical: true, cat: 'spenders', power: 25, hits: 4, delay: 960, cost: 2, gen: 0, target: 'enemy', type: 'damage' },
-    
-    // --- Elevated Speed Taxes (+1 Tier) ---
-    'mud_shot': { name: 'Mud Shot', elem: 'Ground', isPhysical: false, cat: 'spenders', power: 55, delay: 520, cost: 2, gen: 0, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'speed', amount: 10, chance: 1.0} },
-    'rock_tomb': { name: 'Rock Tomb', elem: 'Rock', isPhysical: true, cat: 'spenders', power: 60, delay: 580, cost: 2, gen: 0, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'speed', amount: 10, chance: 1.0} },
-    'low_sweep': { name: 'Low Sweep', elem: 'Fighting', isPhysical: true, cat: 'spenders', power: 65, delay: 620, cost: 2, gen: 0, target: 'enemy', type: 'damage', targetStatDrop: {stat: 'speed', amount: 10, chance: 1.0} },
-    'icy_wind': { name: 'Icy Wind', elem: 'Ice', isPhysical: false, cat: 'spenders', power: 55, delay: 520, cost: 2, gen: 0, target: 'enemy', isSpread: true, type: 'damage', targetStatDrop: {stat: 'speed', amount: 10, chance: 1.0} },
-    'electroweb': { name: 'Electroweb', elem: 'Electric', isPhysical: false, cat: 'spenders', power: 55, delay: 520, cost: 2, gen: 0, target: 'enemy', isSpread: true, type: 'damage', targetStatDrop: {stat: 'speed', amount: 10, chance: 1.0} },
-    'bulldoze': { name: 'Bulldoze', elem: 'Ground', isPhysical: true, cat: 'spenders', power: 60, delay: 580, cost: 2, gen: 0, target: 'all_adjacent', isSpread: true, type: 'damage', targetStatDrop: {stat: 'speed', amount: 10, chance: 1.0} },
-// --- damage drains---
-    'absorb': { name: 'Absorb', elem: 'Grass', isPhysical: false, cat: 'builders', power: 20, delay: 260, cost: 0, gen: 1, target: 'enemy', type: 'damage_drain' },
+    'natures_madness': { name: "Nature's Madness", elem: 'Fairy', isPhysical: false, cat: 'spenders', power: 0, delay: 860, cost: 2, gen: 0, target: 'enemy', type: 'halve_hp' },
+    'scale_shot': { name: 'Scale Shot', elem: 'Dragon', isPhysical: true, cat: 'spenders', power: 25, hits: 4, delay: 860, cost: 2, gen: 0, target: 'enemy', type: 'damage', selfDebuff: [{stat: 'def', amount: 15}] },
+    'leaf_blade': { name: 'Leaf Blade', elem: 'Grass', isPhysical: true, cat: 'spenders', power: 90, delay: 860, cost: 2, gen: 0, target: 'enemy', type: 'damage', highCrit: true },
+    'mega_kick': { name: 'Mega Kick', elem: 'Normal', isPhysical: true, cat: 'spenders', power: 120, delay: 1000, cost: 2, gen: 0, target: 'enemy', type: 'damage' },
+    'dark_pulse': { name: 'Dark Pulse', elem: 'Dark', isPhysical: false, cat: 'spenders', power: 80, delay: 860, cost: 2, gen: 0, target: 'enemy', type: 'damage_delay', effectVal: 0.2, effectChance: 0.2 },
+
+    // -- Semi-Invulnerable Vanish Moves --
+    'fly': { name: 'Fly', elem: 'Flying', isPhysical: true, cat: 'spenders', power: 90, delay: 900, cost: 2, gen: 0, target: 'enemy', type: 'damage', isVanish: true },
+    'dig': { name: 'Dig', elem: 'Ground', isPhysical: true, cat: 'spenders', power: 80, delay: 800, cost: 2, gen: 0, target: 'enemy', type: 'damage', isVanish: true },
+    'dive': { name: 'Dive', elem: 'Water', isPhysical: true, cat: 'spenders', power: 80, delay: 800, cost: 2, gen: 0, target: 'enemy', type: 'damage', isVanish: true },
+    'bounce': { name: 'Bounce', elem: 'Flying', isPhysical: true, effectType: 'paralyze', effectChance: 0.3, cat: 'spenders', power: 85, delay: 880, cost: 2, gen: 0, target: 'enemy', type: 'damage', isVanish: true },
+
+    // -- Drains --
     'leech_life': { name: 'Leech Life', elem: 'Bug', isPhysical: true, cat: 'spenders', power: 80, delay: 880, cost: 1, gen: 0, target: 'enemy', type: 'damage_drain' },
     'dream_eater': { name: 'Dream Eater', elem: 'Psychic', isPhysical: false, cat: 'spenders', power: 100, delay: 960, cost: 2, gen: 0, target: 'enemy', type: 'damage_drain' },
     'giga_drain': { name: 'Giga Drain', elem: 'Grass', isPhysical: false, cat: 'spenders', power: 75, delay: 720, cost: 2, gen: 0, target: 'enemy', type: 'damage_drain' },
-    // --- Symmetrical / Moderate Net BP Spreads ---
-    'swift': { name: 'Swift', elem: 'Normal', isPhysical: false, cat: 'spenders', power: 60, delay: 580, cost: 2, gen: 0, target: 'enemy', isSpread: true, type: 'damage' },
+
+    // -- Spreads --
+    'swift': { name: 'Swift', elem: 'Normal', isPhysical: false, cat: 'spenders', power: 60, delay: 580, cost: 2, gen: 0, target: 'enemy', isSpread: true, type: 'damage', ignoresEvasion: true },
     'discharge': { name: 'Discharge', elem: 'Electric', isPhysical: false, cat: 'spenders', power: 80, delay: 760, cost: 2, gen: 0, target: 'all_adjacent', isSpread: true, type: 'damage', effectType: 'paralyze', effectChance: 0.3 },
     'lava_plume': { name: 'Lava Plume', elem: 'Fire', isPhysical: false, cat: 'spenders', power: 80, delay: 760, cost: 2, gen: 0, target: 'all_adjacent', isSpread: true, type: 'damage', effectType: 'burn', effectChance: 0.3 },
     'surf': { name: 'Surf', elem: 'Water', isPhysical: false, cat: 'spenders', power: 90, delay: 860, cost: 2, gen: 0, target: 'all_adjacent', isSpread: true, type: 'damage' },
     'sludge_wave': { name: 'Sludge Wave', elem: 'Poison', isPhysical: false, cat: 'spenders', power: 95, delay: 900, cost: 2, gen: 0, target: 'all_adjacent', isSpread: true, type: 'damage', effectType: 'poison', effectChance: 0.1 },
+    'rock_slide': { name: 'Rock Slide', elem: 'Rock', isPhysical: true, cat: 'spenders', power: 75, delay: 720, cost: 2, gen: 0, target: 'enemy', isSpread: true, type: 'damage_delay', effectVal: 0.3, effectChance: 0.3 },
     'earthquake': { name: 'Earthquake', elem: 'Ground', isPhysical: true, cat: 'spenders', power: 100, delay: 960, cost: 2, gen: 0, target: 'all_adjacent', isSpread: true, type: 'damage' },
 
     // ==========================================
     // 7. SPENDERS: TIER 3 (3 Cost)
-    // Massive Tactical Strikes (120 BP) & Overpowered Asymmetricals
     // ==========================================
-    // -- THE RECKLESS (Physical Instant Nukes + AV Debt) --
     'close_combat': { name: 'Close Combat', elem: 'Fighting', isPhysical: true, cat: 'spenders', power: 120, delay: 1000, cost: 3, gen: 0, target: 'enemy', type: 'damage', selfDebuff: [{stat: 'def', amount: 15}, {stat: 'spd', amount: 15}], isInstantNuke: true },
-    'outrage': { 
-        name: 'Outrage', 
-        elem: 'Dragon', 
-        isPhysical: true, 
-        cat: 'spenders', 
-        power: 60, 
-        hits: 2, 
-        delay: 1000, 
-        cost: 3, 
-        gen: 0, 
-        target: 'enemy', 
-        type: 'damage_smart', 
-        isInstantNuke: true, 
-        selfStatus: 'confusion' 
-    },
+    'heat_wave': { name: 'Heat Wave', elem: 'Fire', isPhysical: false, cat: 'spenders', power: 95, delay: 900, cost: 3, gen: 0, target: 'enemy', isSpread: true, type: 'damage', effectType: 'burn', effectChance: 0.1 },
+    'outrage': { name: 'Outrage', elem: 'Dragon', isPhysical: true, cat: 'spenders', power: 60, hits: 2, delay: 1000, cost: 3, gen: 0, target: 'enemy', type: 'damage_smart', isInstantNuke: true, selfStatus: 'confusion' },
     'superpower': { name: 'Superpower', elem: 'Fighting', isPhysical: true, cat: 'spenders', power: 120, delay: 1000, cost: 3, gen: 0, target: 'enemy', type: 'damage', selfDebuff: [{stat: 'atk', amount: 15}, {stat: 'def', amount: 15}], isInstantNuke: true },
     'flare_blitz': { name: 'Flare Blitz', elem: 'Fire', isPhysical: true, effectType: 'burn', effectChance: 0.1, cat: 'spenders', power: 120, delay: 1000, cost: 3, gen: 0, target: 'enemy', type: 'damage', selfDebuff: [{stat: 'hp', amount: 0.33}], isInstantNuke: true },
     'brave_bird': { name: 'Brave Bird', elem: 'Flying', isPhysical: true, cat: 'spenders', power: 120, delay: 1000, cost: 3, gen: 0, target: 'enemy', type: 'damage', selfDebuff: [{stat: 'hp', amount: 0.33}], isInstantNuke: true },
     'double_edge': { name: 'Double-Edge', elem: 'Normal', isPhysical: true, cat: 'spenders', power: 120, delay: 1000, cost: 3, gen: 0, target: 'enemy', type: 'damage', selfDebuff: [{stat: 'hp', amount: 0.33}], isInstantNuke: true },
     'wood_hammer': { name: 'Wood Hammer', elem: 'Grass', isPhysical: true, cat: 'spenders', power: 120, delay: 1000, cost: 3, gen: 0, target: 'enemy', type: 'damage', selfDebuff: [{stat: 'hp', amount: 0.33}], isInstantNuke: true },
     
-    // -- THE CHANNELERS (Special / Projectile Strikes, 500 AV Charge Time -> Doubled to 1000) --
+    // -- Channelers & Weather/Terrain Speed-Ups --
     'overheat': { name: 'Overheat', elem: 'Fire', isPhysical: false, cat: 'spenders', power: 120, delay: 1000, cost: 3, gen: 0, target: 'enemy', type: 'damage', selfDebuff: [{stat: 'spa', amount: 30}] },
-        'rock_slide': { name: 'Rock Slide', elem: 'Rock', isPhysical: true, cat: 'spenders', power: 75, delay: 720, cost: 3, gen: 0, target: 'enemy', isSpread: true, type: 'damage_delay', effectVal: 0.3, effectChance: 0.3 },
+    'solar_beam': { name: 'Solar Beam', elem: 'Grass', isPhysical: false, cat: 'spenders', power: 120, delay: 1400, cost: 2, gen: 0, target: 'enemy', type: 'damage', weatherSpeedUp: 'sun' },
     'hydro_pump': { name: 'Hydro Pump', elem: 'Water', isPhysical: false, cat: 'spenders', power: 110, delay: 920, cost: 3, gen: 0, target: 'enemy', type: 'damage' },
     'fire_blast': { name: 'Fire Blast', elem: 'Fire', isPhysical: false, effectType: 'burn', effectChance: 0.1, cat: 'spenders', power: 110, delay: 920, cost: 3, gen: 0, target: 'enemy', type: 'damage' },
-    'thunder': { name: 'Thunder', elem: 'Electric', isPhysical: false, effectType: 'paralyze', effectChance: 0.3, cat: 'spenders', power: 110, delay: 920, cost: 3, gen: 0, target: 'enemy', type: 'damage' },
-    'blizzard': { name: 'Blizzard', elem: 'Ice', isPhysical: false, effectType: 'freeze', effectChance: 0.1, cat: 'spenders', power: 110, delay: 920, cost: 3, gen: 0, target: 'enemy', type: 'damage' },
-    'hurricane': { name: 'Hurricane', elem: 'Flying', isPhysical: false, effectType: 'confusion', effectChance: 0.3, cat: 'spenders', power: 110, delay: 920, cost: 3, gen: 0, target: 'enemy', type: 'damage' },
+    'thunder': { name: 'Thunder', elem: 'Electric', isPhysical: false, effectType: 'paralyze', effectChance: 0.3, cat: 'spenders', power: 110, delay: 920, cost: 3, gen: 0, target: 'enemy', type: 'damage', weatherSpeedUp: 'rain', ignoresEvasion: true },
+    'blizzard': { name: 'Blizzard', elem: 'Ice', isPhysical: false, effectType: 'freeze', effectChance: 0.1, cat: 'spenders', power: 110, delay: 920, cost: 3, gen: 0, target: 'enemy', type: 'damage', weatherSpeedUp: 'hail' },
+    'hurricane': { name: 'Hurricane', elem: 'Flying', isPhysical: false, effectType: 'confusion', effectChance: 0.3, cat: 'spenders', power: 110, delay: 920, cost: 3, gen: 0, target: 'enemy', type: 'damage_confuse', weatherSpeedUp: 'rain' },
     'gunk_shot': { name: 'Gunk Shot', elem: 'Poison', isPhysical: true, cat: 'spenders', power: 120, delay: 1000, cost: 3, gen: 0, target: 'enemy', type: 'damage', effectType: 'poison', effectChance: 0.3 },
     'avalanche': { name: 'Avalanche', elem: 'Ice', isPhysical: true, cat: 'spenders', power: 120, delay: 1000, cost: 3, gen: 0, target: 'enemy', type: 'damage' },
+    'shadow_force': { name: 'Shadow Force', elem: 'Ghost', isPhysical: true, cat: 'spenders', power: 120, delay: 1000, cost: 3, gen: 0, target: 'enemy', type: 'damage', isVanish: true, isInstantNuke: true },
+    'leaf_storm': { name: 'Leaf Storm', elem: 'Grass', isPhysical: false, cat: 'spenders', power: 130, delay: 960, cost: 3, gen: 0, target: 'enemy', type: 'damage', selfDebuff: [{ stat: 'spa', amount: 30 }] },
+    'sky_attack': { name: 'Sky Attack', elem: 'Flying', isPhysical: true, cat: 'spenders', power: 140, delay: 1200, cost: 3, gen: 0, target: 'enemy', type: 'damage', highCrit: true, effectType: 'flinch', effectChance: 0.3 },
     
-    // -- Overpowered Asymmetrical Spreads (120+ Net BP) --
+    // -- Spreads --
     'dazzling_gleam': { name: 'Dazzling Gleam', elem: 'Fairy', isPhysical: false, cat: 'spenders', power: 80, delay: 660, cost: 3, gen: 0, target: 'enemy', isSpread: true, type: 'damage' },
-    'expanding_force': { name: 'Expanding Force', elem: 'Psychic', isPhysical: false, cat: 'spenders', power: 80, delay: 660, cost: 3, gen: 0, target: 'enemy', isSpread: true, type: 'damage' },
+    'expanding_force': { name: 'Expanding Force', elem: 'Psychic', isPhysical: false, cat: 'spenders', power: 80, delay: 660, cost: 3, gen: 0, target: 'enemy', isSpread: true, type: 'damage', terrainSpeedUp: 'psychic' },
     'hyper_voice': { name: 'Hyper Voice', elem: 'Normal', isPhysical: false, cat: 'spenders', power: 90, delay: 760, cost: 3, gen: 0, target: 'enemy', isSpread: true, type: 'damage', isSound: true },
 
     // ==========================================
     // 8. SPENDERS: TIER 4 (4 Cost)
-    // Ultimate Game Enders (Instant Execute + Flat AV Debt)
     // ==========================================
     'hyper_beam': { name: 'Hyper Beam', elem: 'Normal', isPhysical: false, cat: 'spenders', power: 150, delay: 1000, cost: 4, gen: 0, target: 'enemy', type: 'damage', isInstantNuke: true },
     'explosion': { name: 'Explosion', elem: 'Normal', isPhysical: true, cat: 'spenders', power: 250, delay: 1000, cost: 4, gen: 0, target: 'all_adjacent', isSpread: true, type: 'damage', isSuicide: true, isInstantNuke: true },
-    
+    'giga_impact': { name: 'Giga Impact', elem: 'Normal', isPhysical: true, cat: 'spenders', power: 150, delay: 1000, cost: 4, gen: 0, target: 'enemy', type: 'damage', isInstantNuke: true },
+
     // ==========================================
     // 9. TACTICS TIER 1 (1 Cost)
-    // Fast Shields, Status Gambles, & Pivots
     // ==========================================
     'protect': { name: 'Protect', elem: 'Normal', cat: 'tactics', power: 0, delay: 1000, fixedAV: 20, isPriority: true, cost: 1, target: 'self', type: 'protect' },
+    'detect': { name: 'Detect', elem: 'Fighting', cat: 'tactics', power: 0, delay: 260, isPriority: true, cost: 1, target: 'self', type: 'detect' },
     'wide_guard': { name: 'Wide Guard', elem: 'Rock', cat: 'tactics', power: 0, delay: 1000, fixedAV: 20, isPriority: true, cost: 1, target: 'self', type: 'protect_spread' },
-    'helping_hand': { name: 'Helping Hand', elem: 'Normal', cat: 'tactics', power: 0, delay: 1000, fixedAV: 20, isPriority: true, cost: 1, target: 'ally_active', type: 'helping_hand' },
+        'helping_hand': { name: 'Helping Hand', elem: 'Normal', cat: 'tactics', power: 0, delay: 1000, fixedAV: 20, isPriority: true, cost: 1, target: 'ally_active', type: 'helping_hand', effectVal: 0.4 },
     'follow_me': { name: 'Follow Me', elem: 'Normal', cat: 'tactics', power: 0, delay: 1000, fixedAV: 20, isPriority: true, cost: 1, target: 'self', type: 'follow_me' },
     'teleport': { name: 'Teleport', elem: 'Psychic', cat: 'tactics', power: 0, delay: 1000, fixedAV: 20, isPriority: true, cost: 1, target: 'self', type: 'damage_pivot' },
     'baton_pass': { name: 'Baton Pass', elem: 'Normal', cat: 'tactics', power: 0, delay: 800, cost: 1, target: 'self', type: 'baton_pass' },
@@ -1450,12 +1438,16 @@ const MOVES = {
     'fake_tears': { name: 'Fake Tears', elem: 'Dark', cat: 'tactics', type: 'debuff', stat: 'spd', amount: 30, cost: 1, delay: 1000, power: 0, target: 'enemy' },
     'screech': { name: 'Screech', elem: 'Normal', cat: 'tactics', type: 'debuff', stat: 'def', amount: 30, cost: 1, delay: 1000, power: 0, target: 'enemy', isSound: true },
     'heal_pulse': { name: 'Heal Pulse', elem: 'Psychic', cat: 'tactics', power: 0, delay: 1000, cost: 1, target: 'ally_active', type: 'heal_team', healPercent: 0.5 },
+    'confuse_ray': { name: 'Confuse Ray', elem: 'Ghost', cat: 'tactics', power: 0, delay: 1000, cost: 1, target: 'enemy', type: 'confuse', effectChance: 1.0 },
+    'mirror_move': { name: 'Mirror Move', elem: 'Flying', cat: 'tactics', power: 0, delay: 660, cost: 1, gen: 0, target: 'enemy', type: 'mirror_move' },
+    'supersonic': { name: 'Supersonic', elem: 'Normal', cat: 'tactics', power: 0, delay: 1000, cost: 1, target: 'enemy', type: 'confuse', effectChance: 0.55, isSound: true },
+    'metal_sound': { name: 'Metal Sound', elem: 'Steel', cat: 'tactics', type: 'debuff', stat: 'spd', amount: 30, cost: 1, delay: 1000, power: 0, target: 'enemy', isSound: true },
 
     // ==========================================
     // 10. TACTICS TIER 2 (2 Cost)
-    // 100% Guaranteed Setup, Screens, Weather & Hazards
     // ==========================================
     'swords_dance': { name: 'Swords Dance', elem: 'Normal', cat: 'tactics', power: 0, delay: 1200, cost: 2, target: 'self', type: 'buff', stat: 'atk', amount: 30 },
+    'double_team': { name: 'Double Team', elem: 'Normal', cat: 'tactics', power: 0, delay: 260, isPriority: true, cost: 0, target: 'self', type: 'double_team', selfDebuff: [{stat: 'def', amount: 15}, {stat: 'spd', amount: 15}] },
     'nasty_plot': { name: 'Nasty Plot', elem: 'Dark', cat: 'tactics', power: 0, delay: 1200, cost: 2, target: 'self', type: 'buff', stat: 'spa', amount: 30 },
     'calm_mind': { name: 'Calm Mind', elem: 'Psychic', cat: 'tactics', power: 0, delay: 1200, cost: 2, target: 'self', type: 'buff_multi', stats: [{stat: 'spa', amount: 15}, {stat: 'spd', amount: 15}] },
     'agility': { name: 'Agility', elem: 'Psychic', cat: 'tactics', power: 0, delay: 1000, cost: 2, target: 'self', type: 'buff', stat: 'speed', amount: 30 },
@@ -1474,7 +1466,7 @@ const MOVES = {
     'aurora_veil': { name: 'Aurora Veil', elem: 'Ice', cat: 'tactics', power: 0, delay: 1200, cost: 2, target: 'self', type: 'aurora_veil' },
     'wish': { name: 'Wish', elem: 'Normal', cat: 'tactics', power: 0, delay: 1000, cost: 2, target: 'self', type: 'wish' },
     'heal_bell': { name: 'Heal Bell', elem: 'Normal', cat: 'tactics', power: 0, delay: 1200, cost: 2, target: 'self', type: 'heal_bell' },
-    'safeguard': { name: 'Safeguard', elem: 'Normal', cat: 'tactics', power: 0, delay: 1000, cost: 2, target: 'self', type: 'heal_bell' },
+    'safeguard': { name: 'Safeguard', elem: 'Normal', cat: 'tactics', power: 0, delay: 1000, cost: 2, target: 'self', type: 'safeguard' },
     'recover': { name: 'Recover', elem: 'Normal', cat: 'tactics', power: 0, delay: 1000, cost: 2, target: 'self', type: 'heal_self', healPercent: 0.5 },
     'softboiled': { name: 'Soft-Boiled', elem: 'Normal', cat: 'tactics', power: 0, delay: 1000, cost: 2, target: 'self', type: 'heal_self', healPercent: 0.5 },
     'moonlight': { name: 'Moonlight', elem: 'Fairy', cat: 'tactics', power: 0, delay: 1000, cost: 2, target: 'self', type: 'heal_self', healPercent: 0.5 },
@@ -1497,7 +1489,6 @@ const MOVES = {
 
     // ==========================================
     // 11. TACTICS TIER 3 (3 Cost)
-    // Premium Board Control & Multiple Stat Buffs
     // ==========================================
     'dragon_dance': { name: 'Dragon Dance', elem: 'Dragon', cat: 'tactics', power: 0, delay: 1200, cost: 3, target: 'self', type: 'buff_multi', stats: [{stat: 'atk', amount: 15}, {stat: 'speed', amount: 15}] },
     'quiver_dance': { name: 'Quiver Dance', elem: 'Bug', cat: 'tactics', power: 0, delay: 1200, cost: 3, target: 'self', type: 'buff_multi', stats: [{stat: 'spa', amount: 15}, {stat: 'spd', amount: 15}, {stat: 'speed', amount: 15}] },
@@ -1510,326 +1501,428 @@ const POKEDEX = [
         id: 'tapukoko', name: 'Tapu Koko', types: ['Electric', 'Fairy'], ability: 'electric_surge', 
         maxHp: 145, speed: 39, atk: 115, def: 85, spa: 95, spd: 75, 
         moves: [
+            // Cost 0
             'quick_attack', 'thunder_shock', 'fairy_wind', 'charge_beam', 
-            'u_turn', 'volt_switch', 'facade', 'aerial_ace',
-            'dazzling_gleam', 'discharge', 'electroweb', 'thunderbolt', 'play_rough', 'swift',
-            'brave_bird', 'thunder', 
-            'protect', 'taunt', 'reflect', 'light_screen', 'roost', 'electric_terrain', 'thunder_wave', 'calm_mind'
+            // Cost 1
+            'u_turn', 'volt_switch', 'facade', 'aerial_ace', 'steel_wing', 'protect', 'taunt', 'thunder_wave', 
+            // Cost 2
+            'electroweb', 'thunderbolt', 'play_rough', 'swift', 'discharge', 'natures_madness', 'reflect', 'light_screen', 'roost', 'electric_terrain', 'calm_mind', 
+            // Cost 3
+            'brave_bird', 'thunder', 'dazzling_gleam'
         ] 
     },
     { 
         id: 'tapulele', name: 'Tapu Lele', types: ['Psychic', 'Fairy'], ability: 'psychic_surge', 
         maxHp: 145, speed: 31, atk: 85, def: 75, spa: 130, spd: 115, 
         moves: [
+            // Cost 0
             'confusion', 'astonish', 'charge_beam', 'pound', 
-            'shadow_ball', 'psyshock', 'extrasensory', 'magical_leaf', 'facade', 
-            'psychic', 'expanding_force', 'moonblast', 'dazzling_gleam', 'energy_ball', 'thunderbolt', 'swift', 
-            'protect', 'taunt', 'reflect', 'light_screen', 'psychic_terrain', 'calm_mind', 'charm', 'fake_tears'
+            // Cost 1
+            'shadow_ball', 'psyshock', 'extrasensory', 'magical_leaf', 'facade', 'psybeam', 'draining_kiss', 'protect', 'taunt', 'charm', 'fake_tears', 
+            // Cost 2
+            'psychic', 'moonblast', 'energy_ball', 'thunderbolt', 'swift', 'reflect', 'light_screen', 'psychic_terrain', 'calm_mind', 
+            // Cost 3
+            'expanding_force', 'dazzling_gleam'
         ] 
     },
     { 
         id: 'garchomp', name: 'Garchomp', types: ['Dragon', 'Ground'], ability: 'rough_skin',
         maxHp: 235, speed: 32, atk: 135, def: 95, spa: 70, spd: 85,
         moves: [
+            // Cost 0
             'tackle', 'mud_slap', 'twister', 'sand_tomb', 
-            'dragon_claw', 'poison_jab', 'crunch', 'iron_head', 'fire_fang', 'dual_chop', 'facade', 
-            'earthquake', 'earth_power', 'rock_slide', 'stone_edge', 'dragon_rush', 'bulldoze', 
-            'draco_meteor', 'outrage', 
-            'protect', 'swords_dance', 'stealth_rock', 'roar', 'substitute'
+            // Cost 1
+            'dragon_claw', 'poison_jab', 'crunch', 'iron_head', 'fire_fang', 'dual_chop', 'facade', 'dig', 'brick_break', 
+            // Cost 2
+            'earthquake', 'earth_power', 'stone_edge', 'dragon_rush', 'bulldoze', 'flamethrower', 'scale_shot', 'sandstorm', 'swords_dance', 'stealth_rock', 'roar', 'substitute', 
+            // Cost 3
+            'draco_meteor', 'outrage', 'rock_slide', 
+            // Cost 4
+            'giga_impact'
         ] 
     },
     { 
         id: 'gengar', name: 'Gengar', types: ['Ghost', 'Poison'], ability: 'levitate', 
         maxHp: 135, speed: 38, atk: 65, def: 60, spa: 130, spd: 75, 
         moves: [
+            // Cost 0
             'lick', 'astonish', 'clear_smog', 'night_shade', 'sucker_punch', 
-            'shadow_ball', 'venoshock', 'ominous_wind', 'knock_off', 
-            'sludge_bomb', 'sludge_wave', 'dazzling_gleam', 'energy_ball', 'psychic', 'dream_eater', 'payback', 'foul_play', 'icy_wind', 
-            'explosion', 
-            'protect', 'will_o_wisp', 'hypnosis', 'taunt', 'substitute'
+            // Cost 1
+            'shadow_ball', 'venoshock', 'ominous_wind', 'knock_off', 'shadow_punch', 'protect', 'will_o_wisp', 'hypnosis', 'taunt', 
+            // Cost 2
+            'sludge_bomb', 'sludge_wave', 'energy_ball', 'psychic', 'dream_eater', 'payback', 'foul_play', 'icy_wind', 'substitute', 
+            // Cost 3
+            'dazzling_gleam', 
+            // Cost 4
+            'explosion'
         ] 
     },
     { 
         id: 'ragingbolt', name: 'Raging Bolt', types: ['Electric', 'Dragon'], ability: 'protosynthesis', 
         maxHp: 270, speed: 23, atk: 73, def: 91, spa: 137, spd: 89, 
         moves: [
-            'thunder_shock', 'twister', 'snarl', 'thunderclap', 'tackle', 'dragon_breath', 
-            'volt_switch', 'spark', 'dragon_pulse', 'body_press', 'weather_ball', 
-            'thunderbolt', 'discharge', 'electroweb', 'dragon_rush', 
-            'thunder', 'draco_meteor', 'outrage', 
-            'protect', 'calm_mind', 'substitute', 'roar', 'thunder_wave', 'rest'
+            // Cost 0
+            'thunder_shock', 'twister', 'thunderclap', 'tackle', 'dragon_breath', 
+            // Cost 1
+            'snarl', 'volt_switch', 'spark', 'dragon_pulse', 'body_press', 'weather_ball', 'protect', 'thunder_wave', 
+            // Cost 2
+            'thunderbolt', 'discharge', 'electroweb', 'dragon_rush', 'calm_mind', 'substitute', 'roar', 'rest', 
+            // Cost 3
+            'thunder', 'draco_meteor', 'outrage'
         ] 
     },
     { 
         id: 'volcarona', name: 'Volcarona', types: ['Bug', 'Fire'], ability: 'flame_body', 
         maxHp: 185, speed: 30, atk: 60, def: 65, spa: 135, spd: 105, 
         moves: [
-            'string_shot', 'struggle_bug', 'absorb', 'gust', 'fire_spin', 
-            'bug_bite', 'flame_wheel', 'fiery_dance', 'u_turn', 'mystical_fire', 'signal_beam', 'facade', 
-            'bug_buzz', 'giga_drain', 'flamethrower', 'lava_plume', 
-            'fire_blast', 'overheat', 'hurricane', 
-            'quiver_dance', 'roost', 'protect', 'will_o_wisp', 'tailwind'
+            // Cost 0
+            'absorb', 'gust', 'fire_spin', 
+            // Cost 1
+            'struggle_bug', 'bug_bite', 'flame_wheel', 'fiery_dance', 'u_turn', 'mystical_fire', 'signal_beam', 'facade', 'protect', 'will_o_wisp', 
+            // Cost 2
+            'string_shot', 'bug_buzz', 'giga_drain', 'flamethrower', 'lava_plume', 'roost', 'tailwind', 
+            // Cost 3
+            'fire_blast', 'overheat', 'hurricane', 'quiver_dance'
         ] 
     },
     { 
         id: 'dragapult', name: 'Dragapult', types: ['Dragon', 'Ghost'], ability: 'clear_body', 
         maxHp: 195, speed: 43, atk: 120, def: 75, spa: 100, spd: 75, 
         moves: [
+            // Cost 0
             'astonish', 'quick_attack', 'sucker_punch', 'twister', 
-            'u_turn', 'shadow_ball', 'shadow_claw', 'dragon_claw', 'facade', 'bite', 'double_kick', 'aerial_ace', 
-            'dragon_darts', 'phantom_force', 'surf', 
-            'draco_meteor', 'hydro_pump', 'fire_blast', 'thunder', 
-            'dragon_dance', 'will_o_wisp', 'thunder_wave', 'protect', 'substitute'
+            // Cost 1
+            'u_turn', 'shadow_ball', 'shadow_claw', 'dragon_claw', 'facade', 'bite', 'double_kick', 'aerial_ace', 'dragon_tail', 'protect', 'will_o_wisp', 'thunder_wave', 
+            // Cost 2
+            'dragon_darts', 'phantom_force', 'surf', 'substitute', 
+            // Cost 3
+            'draco_meteor', 'hydro_pump', 'fire_blast', 'thunder', 'dragon_dance'
         ] 
     },
     { 
         id: 'abomasnow', name: 'Abomasnow', types: ['Grass', 'Ice'], ability: 'snow_warning', 
         maxHp: 165, speed: 20, atk: 92, def: 75, spa: 92, spd: 85, 
         moves: [
-            'powder_snow', 'razor_leaf', 'ice_shard', 'pound', 'absorb', 
-            'icy_wind', 'magical_leaf', 'water_pulse', 'ice_punch', 'seed_bomb', 'facade', 
-            'blizzard', 'ice_beam', 'energy_ball', 'earthquake', 'rock_slide', 'bulldoze', 
-            'wood_hammer', 'avalanche', 
-            'aurora_veil', 'swords_dance', 'protect', 'substitute', 'rest'
+            // Cost 0
+            'powder_snow', 'ice_shard', 'pound', 'absorb', 
+            // Cost 1
+            'razor_leaf', 'magical_leaf', 'water_pulse', 'ice_punch', 'seed_bomb', 'facade', 'protect', 
+            // Cost 2
+            'icy_wind', 'ice_beam', 'energy_ball', 'earthquake', 'bulldoze', 'aurora_veil', 'swords_dance', 'substitute', 'rest', 
+            // Cost 3
+            'blizzard', 'rock_slide', 'wood_hammer', 'avalanche'
         ] 
     },
     { 
         id: 'sceptile', name: 'Sceptile', types: ['Grass'], ability: 'grassy_surge', 
         maxHp: 145, speed: 36, atk: 85, def: 65, spa: 105, spd: 85, 
         moves: [
-            'absorb', 'pursuit', 'mud_slap', 'quick_attack', 'pound', 'dual_chop', 'razor_leaf', 
-            'magical_leaf', 'seed_bomb', 'dragon_pulse', 'x_scissor', 'aerial_ace', 'facade', 'night_slash', 'rock_tomb', 
-            'energy_ball', 'rock_slide', 'earthquake', 'giga_drain', 
-            'outrage', 
-            'swords_dance', 'agility', 'protect', 'grassy_terrain'
+            // Cost 0
+            'absorb', 'pursuit', 'mud_slap', 'quick_attack', 'pound', 
+            // Cost 1
+            'dual_chop', 'razor_leaf', 'magical_leaf', 'seed_bomb', 'dragon_pulse', 'x_scissor', 'aerial_ace', 'facade', 'night_slash', 'protect', 
+            // Cost 2
+            'rock_tomb', 'leaf_blade', 'solar_beam', 'energy_ball', 'earthquake', 'giga_drain', 'swords_dance', 'agility', 'grassy_terrain', 
+            // Cost 3
+            'outrage', 'rock_slide', 'leaf_storm'
         ] 
     },
     { 
         id: 'greattusk', name: 'Great Tusk', types: ['Ground', 'Fighting'], ability: 'protosynthesis', 
         maxHp: 175, speed: 27, atk: 131, def: 131, spa: 53, spd: 53, 
         moves: [
+            // Cost 0
             'tackle', 'mud_slap', 'smack_down', 'rapid_spin', 'mach_punch', 
-            'headbutt', 'knock_off', 'body_press', 'rock_tomb', 'ice_fang', 'iron_head', 'facade', 
-            'high_horsepower', 'stone_edge', 'earthquake', 'bulldoze', 'play_rough', 'heavy_slam', 
-            'close_combat', 'superpower', 
-            'bulk_up', 'stealth_rock', 'taunt', 'protect'
+            // Cost 1
+            'headbutt', 'knock_off', 'body_press', 'ice_fang', 'iron_head', 'facade', 'protect', 'taunt', 
+            // Cost 2
+            'rock_tomb', 'high_horsepower', 'stone_edge', 'earthquake', 'bulldoze', 'play_rough', 'heavy_slam', 'stealth_rock', 
+            // Cost 3
+            'close_combat', 'superpower', 'bulk_up'
         ] 
     },
     { 
         id: 'machamp', name: 'Machamp', types: ['Fighting'], ability: 'guts', 
         maxHp: 165, speed: 20, atk: 130, def: 80, spa: 65, spd: 85, 
         moves: [
-            'seismic_toss', 'smack_down', 'tackle', 'bullet_punch', 'mach_punch', 'double_kick', 
-            'knock_off', 'fire_punch', 'thunder_punch', 'ice_punch', 'rock_tomb', 'poison_jab', 'facade', 'body_slam', 
-            'payback', 'stone_edge', 'heavy_slam', 'cross_chop', 'earthquake', 
-            'dynamic_punch', 'close_combat', 
-            'bulk_up', 'protect', 'wide_guard'
+            // Cost 0
+            'seismic_toss', 'smack_down', 'tackle', 'bullet_punch', 'mach_punch', 
+            // Cost 1
+            'double_kick', 'knock_off', 'fire_punch', 'thunder_punch', 'ice_punch', 'poison_jab', 'facade', 'body_slam', 'protect', 'wide_guard', 
+            // Cost 2
+            'rock_tomb', 'payback', 'stone_edge', 'heavy_slam', 'cross_chop', 'earthquake', 'dynamic_punch', 
+            // Cost 3
+            'close_combat', 'bulk_up'
         ] 
     },
     { 
         id: 'lucario', name: 'Lucario', types: ['Fighting', 'Steel'], ability: 'inner_focus', 
         maxHp: 145, speed: 28, atk: 110, def: 70, spa: 115, spd: 70, 
         moves: [
-            'rock_smash', 'pound', 'mud_slap', 'vacuum_wave', 'bullet_punch', 'extreme_speed', 'dual_chop', 
-            'force_palm', 'aura_sphere', 'zen_headbutt', 'poison_jab', 'crunch', 'facade', 'ice_punch', 'shadow_claw', 
-            'meteor_mash', 'earthquake', 'stone_edge', 'rock_slide', 
-            'close_combat', 
-            'swords_dance', 'nasty_plot', 'protect', 'taunt'
+            // Cost 0
+            'rock_smash', 'pound', 'mud_slap', 'vacuum_wave', 'bullet_punch', 'extreme_speed', 
+            // Cost 1
+            'dual_chop', 'force_palm', 'aura_sphere', 'zen_headbutt', 'poison_jab', 'crunch', 'facade', 'ice_punch', 'shadow_claw', 'bone_rush', 'metal_sound', 'detect', 'circle_throw', 'protect', 'taunt', 
+            // Cost 2
+            'meteor_mash', 'earthquake', 'stone_edge', 'swords_dance', 'nasty_plot', 
+            // Cost 3
+            'rock_slide', 'close_combat'
         ] 
     },
     { 
         id: 'mimikyu', name: 'Mimikyu', types: ['Ghost', 'Fairy'], ability: 'disguise', 
         maxHp: 130, speed: 32, atk: 90, def: 80, spa: 50, spd: 105, 
         moves: [
+            // Cost 0
             'scratch', 'fairy_wind', 'astonish', 'feint', 'shadow_sneak', 'mud_slap', 
-            'shadow_claw', 'x_scissor', 'leech_life', 'facade', 'night_slash', 'shadow_ball', 
-            'play_rough', 'phantom_force', 'dazzling_gleam', 'payback', 
-            'wood_hammer', 
-            'swords_dance', 'protect', 'will_o_wisp', 'taunt', 'thunder_wave', 'trick_room', 'charm'
+            // Cost 1
+            'shadow_claw', 'x_scissor', 'leech_life', 'facade', 'night_slash', 'shadow_ball', 'protect', 'will_o_wisp', 'taunt', 'thunder_wave', 'charm', 
+            // Cost 2
+            'play_rough', 'phantom_force', 'payback', 'swords_dance', 'trick_room', 
+            // Cost 3
+            'dazzling_gleam', 'wood_hammer'
         ] 
     },
     { 
         id: 'gastrodon', name: 'Gastrodon', types: ['Water', 'Ground'], ability: 'water_absorb', 
         maxHp: 245, speed: 11, atk: 83, def: 68, spa: 92, spd: 82, 
         moves: [
+            // Cost 0
             'mud_slap', 'clear_smog', 'whirlpool', 'smack_down', 'tackle', 
-            'water_pulse', 'mud_shot', 'icy_wind', 'scald', 'liquidation', 'brine', 'facade', 'body_slam', 'ancient_power', 
-            'earth_power', 'ice_beam', 'surf', 'earthquake', 'sludge_bomb', 'rock_slide', 'bulldoze', 
-            'protect', 'recover', 'yawn'
+            // Cost 1
+            'water_pulse', 'scald', 'liquidation', 'brine', 'facade', 'body_slam', 'ancient_power', 'protect', 'yawn', 
+            // Cost 2
+            'mud_shot', 'icy_wind', 'earth_power', 'ice_beam', 'surf', 'earthquake', 'sludge_bomb', 'bulldoze', 'recover', 
+            // Cost 3
+            'rock_slide'
         ] 
     },
     { 
         id: 'snorlax', name: 'Snorlax', types: ['Normal'], ability: 'gluttony', 
         maxHp: 320, speed: 16, atk: 110, def: 65, spa: 65, spd: 110, 
         moves: [
+            // Cost 0
             'tackle', 'lick', 'mud_slap', 'pound', 'smack_down', 
-            'headbutt', 'body_slam', 'zen_headbutt', 'seed_bomb', 'fire_punch', 'ice_punch', 'thunder_punch', 'crunch', 'facade', 
-            'high_horsepower', 'heavy_slam', 'earthquake', 'bulldoze', 
-            'double_edge', 'gunk_shot', 'hyper_beam', 
-            'protect', 'yawn', 'belly_drum'
+            // Cost 1
+            'headbutt', 'body_slam', 'zen_headbutt', 'seed_bomb', 'fire_punch', 'ice_punch', 'thunder_punch', 'crunch', 'facade', 'mega_punch', 'protect', 'yawn', 
+            // Cost 2
+            'high_horsepower', 'heavy_slam', 'earthquake', 'bulldoze', 'mega_kick', 'belly_drum', 
+            // Cost 3
+            'double_edge', 'gunk_shot', 
+            // Cost 4
+            'hyper_beam'
         ] 
     },
     { 
         id: 'torkoal', name: 'Torkoal', types: ['Fire'], ability: 'drought', 
         maxHp: 140, speed: 8, atk: 85, def: 140, spa: 85, spd: 70, 
         moves: [
+            // Cost 0
             'pound', 'smack_down', 'mud_slap', 'clear_smog', 'fire_spin', 'rapid_spin', 
-            'flame_wheel', 'rock_tomb', 'body_press', 'facade', 
-            'lava_plume', 'flamethrower', 'earth_power', 'rock_slide', 'bulldoze', 'earthquake', 'sludge_bomb', 
-            'overheat', 'fire_blast', 
-            'will_o_wisp', 'protect', 'yawn', 'stealth_rock', 'iron_defense'
+            // Cost 1
+            'flame_wheel', 'body_press', 'facade', 'body_slam', 'will_o_wisp', 'protect', 'yawn', 
+            // Cost 2
+            'rock_tomb', 'lava_plume', 'flamethrower', 'earth_power', 'bulldoze', 'earthquake', 'sludge_bomb', 'heat_wave', 'stealth_rock', 'iron_defense', 
+            // Cost 3
+            'rock_slide', 'overheat', 'fire_blast'
         ] 
     },
     { 
         id: 'togekiss', name: 'Togekiss', types: ['Fairy', 'Flying'], ability: 'serene_grace', 
         maxHp: 160, speed: 26, atk: 50, def: 95, spa: 120, spd: 115, 
         moves: [
+            // Cost 0
             'gust', 'peck', 'echoed_voice', 'extreme_speed', 'fairy_wind', 'twister', 
-            'magical_leaf', 'water_pulse', 'ancient_power', 'shock_wave', 'aura_sphere', 'mystical_fire', 'tri_attack', 'facade', 
-            'swift', 'dazzling_gleam', 'moonblast', 'flamethrower', 
-            'fire_blast', 
-            'follow_me', 'helping_hand', 'protect', 'roost', 'thunder_wave'
+            // Cost 1
+            'magical_leaf', 'water_pulse', 'ancient_power', 'shock_wave', 'aura_sphere', 'mystical_fire', 'tri_attack', 'facade', 'air_slash', 'follow_me', 'helping_hand', 'protect', 'thunder_wave', 
+            // Cost 2
+            'swift', 'moonblast', 'flamethrower', 'safeguard', 'roost', 
+            // Cost 3
+            'dazzling_gleam', 'fire_blast', 'sky_attack'
         ] 
     },
     { 
         id: 'lapras', name: 'Lapras', types: ['Water', 'Ice'], ability: 'water_absorb', 
         maxHp: 205, speed: 18, atk: 85, def: 80, spa: 85, spd: 95, 
         moves: [
-            'icy_wind', 'whirlpool', 'mud_slap', 'ice_shard', 'powder_snow', 
-            'water_pulse', 'brine', 'freeze_dry', 'dragon_pulse', 'iron_head', 'body_slam', 'facade', 
-            'ice_beam', 'heavy_slam', 'avalanche', 'hydro_pump', 'surf', 'blizzard', 
-            'protect', 'rain_dance', 'hail', 'life_dew', 'sing', 'rest'
+            // Cost 0
+            'whirlpool', 'mud_slap', 'ice_shard', 'powder_snow', 
+            // Cost 1
+            'water_pulse', 'brine', 'freeze_dry', 'dragon_pulse', 'iron_head', 'body_slam', 'facade', 'protect', 'sing', 
+            // Cost 2
+            'icy_wind', 'ice_beam', 'heavy_slam', 'surf', 'rain_dance', 'hail', 'life_dew', 'rest', 
+            // Cost 3
+            'avalanche', 'hydro_pump', 'blizzard'
         ] 
     },
     { 
         id: 'scizor', name: 'Scizor', types: ['Bug', 'Steel'], ability: 'technician', 
         maxHp: 150, speed: 18, atk: 135, def: 110, spa: 45, spd: 80, 
         moves: [
-            'tackle', 'smack_down', 'pursuit', 'bullet_punch', 'quick_attack', 'dual_wingbeat', 
-            'bug_bite', 'metal_claw', 'night_slash', 'u_turn', 'iron_head', 'x_scissor', 'steel_wing', 'aerial_ace', 'knock_off', 
-            'iron_tail', 
-            'close_combat', 'superpower', 
-            'defog', 'protect', 'swords_dance', 'roost', 'agility', 'light_screen'
+            // Cost 0
+            'tackle', 'smack_down', 'pursuit', 'bullet_punch', 'quick_attack','double_team', 
+            // Cost 1
+            'dual_wingbeat', 'bug_bite', 'metal_claw', 'night_slash', 'u_turn', 'iron_head', 'x_scissor', 'steel_wing', 'aerial_ace', 'knock_off', 'defog', 'protect', 
+            // Cost 2
+            'iron_tail', 'swift', 'swords_dance', 'roost', 'agility', 'light_screen', 
+            // Cost 3
+            'close_combat', 'superpower'
         ] 
     },
     { 
         id: 'blissey', name: 'Blissey', types: ['Normal'], ability: 'natural_cure', 
         maxHp: 400, speed: 15, atk: 10, def: 10, spa: 65, spd: 140, 
         moves: [
+            // Cost 0
             'seismic_toss', 'mud_slap', 'charge_beam', 'echoed_voice', 'pound', 
-            'water_pulse', 'shadow_ball', 'tri_attack', 'facade', 'icy_wind', 
-            'swift', 'dazzling_gleam', 'flamethrower', 'ice_beam', 'thunderbolt', 'hyper_voice', 
-            'fire_blast', 
-            'helping_hand', 'protect', 'softboiled', 'wish', 'heal_bell', 'toxic', 'stealth_rock'
+            // Cost 1
+            'water_pulse', 'shadow_ball', 'tri_attack', 'facade', 'mega_punch', 'helping_hand', 'protect', 'toxic', 
+            // Cost 2
+            'icy_wind', 'swift', 'flamethrower', 'ice_beam', 'thunderbolt', 'softboiled', 'wish', 'heal_bell', 'stealth_rock', 
+            // Cost 3
+            'dazzling_gleam', 'hyper_voice', 'fire_blast'
         ] 
     },
     { 
         id: 'suicune', name: 'Suicune', types: ['Water'], ability: 'inner_focus', 
         maxHp: 235, speed: 24, atk: 60, def: 115, spa: 95, spd: 135, 
         moves: [
-            'snarl', 'mud_slap', 'whirlpool', 'gust', 
-            'water_pulse', 'ice_fang', 'scald', 'liquidation', 'shadow_ball', 'extrasensory', 'brine', 'waterfall', 'facade', 
-            'icy_wind', 'ice_beam', 'surf', 
-            'hydro_pump', 'avalanche', 
-            'protect', 'calm_mind', 'tailwind', 'roar', 'rain_dance', 'rest'
+            // Cost 0
+            'mud_slap', 'whirlpool', 'gust', 
+            // Cost 1
+            'snarl', 'water_pulse', 'ice_fang', 'scald', 'liquidation', 'shadow_ball', 'extrasensory', 'brine', 'waterfall', 'facade', 'weather_ball', 'protect', 
+            // Cost 2
+            'icy_wind', 'ice_beam', 'surf', 'calm_mind', 'tailwind', 'roar', 'rain_dance', 'rest', 
+            // Cost 3
+            'hydro_pump', 'avalanche'
         ] 
     },
     { 
         id: 'tyranitar', name: 'Tyranitar', types: ['Rock', 'Dark'], ability: 'sand_stream', 
         maxHp: 230, speed: 16, atk: 134, def: 110, spa: 95, spd: 120, 
         moves: [
-            'snarl', 'mud_slap', 'pursuit', 'smack_down', 'tackle', 
-            'rock_tomb', 'bite', 'fire_fang', 'ice_fang', 'thunder_fang', 'crunch', 'dragon_claw', 'assurance', 'facade', 
-            'rock_slide', 'payback', 'stone_edge', 'foul_play', 'earth_power', 'iron_tail', 'earthquake', 
-            'superpower', 
-            'protect', 'dragon_dance'
+            // Cost 0
+            'mud_slap', 'pursuit', 'smack_down', 'tackle', 
+            // Cost 1
+            'snarl', 'bite', 'fire_fang', 'ice_fang', 'thunder_fang', 'crunch', 'dragon_claw', 'assurance', 'facade', 'protect', 
+            // Cost 2
+            'rock_tomb', 'payback', 'stone_edge', 'foul_play', 'earth_power', 'iron_tail', 'earthquake', 
+            // Cost 3
+            'rock_slide', 'superpower', 'dragon_dance'
         ] 
     },
     { 
         id: 'metagross', name: 'Metagross', types: ['Steel', 'Psychic'], ability: 'clear_body', 
         maxHp: 220, speed: 22, atk: 145, def: 140, spa: 95, spd: 90,
         moves: [
+            // Cost 0
             'confusion', 'magnet_bomb', 'pursuit', 'mud_slap', 'bullet_punch', 'tackle', 
-            'zen_headbutt', 'metal_claw', 'ice_punch', 'thunder_punch', 'psyshock', 'iron_head', 'facade', 
-            'bulldoze', 'rock_slide', 'meteor_mash', 'psychic', 'gyro_ball', 'hammer_arm', 'earthquake', 
-            'explosion', 
-            'protect', 'agility', 'reflect'
+            // Cost 1
+            'zen_headbutt', 'metal_claw', 'ice_punch', 'thunder_punch', 'psyshock', 'iron_head', 'facade', 'protect', 
+            // Cost 2
+            'bulldoze', 'meteor_mash', 'psychic', 'gyro_ball', 'hammer_arm', 'earthquake', 'agility', 'reflect', 
+            // Cost 3
+            'rock_slide', 
+            // Cost 4
+            'explosion', 'hyper_beam'
         ] 
     },
     { 
         id: 'infernape', name: 'Infernape', types: ['Fire', 'Fighting'], ability: 'blaze', 
         maxHp: 115, speed: 33, atk: 120, def: 60, spa: 120, spd: 60, 
         moves: [
+            // Cost 0
             'seismic_toss', 'smack_down', 'pursuit', 'mach_punch', 'vacuum_wave', 'fake_out', 
-            'u_turn', 'fire_punch', 'thunder_punch', 'rock_tomb', 'flame_wheel', 'poison_jab', 'facade', 
-            'earthquake', 
-            'close_combat', 'flare_blitz', 'overheat', 'fire_blast', 'gunk_shot', 
-            'protect', 'swords_dance', 'nasty_plot', 'stealth_rock', 'taunt'
+            // Cost 1
+            'u_turn', 'fire_punch', 'thunder_punch', 'flame_wheel', 'poison_jab', 'facade', 'dig', 'protect', 'taunt', 
+            // Cost 2
+            'rock_tomb', 'earthquake', 'swords_dance', 'nasty_plot', 'stealth_rock', 
+            // Cost 3
+            'close_combat', 'flare_blitz', 'overheat', 'fire_blast', 'gunk_shot'
         ] 
     },
     { 
         id: 'alakazam', name: 'Alakazam', types: ['Psychic'], ability: 'magic_guard', 
         maxHp: 100, speed: 36, atk: 40, def: 35, spa: 160, spd: 85, 
         moves: [
-            'confusion', 'charge_beam', 'night_shade', 'astonish', 'snarl', 
-            'psybeam', 'signal_beam', 'shadow_ball', 'psyshock', 'tri_attack', 'zen_headbutt', 'psycho_cut', 
-            'dazzling_gleam', 'psychic', 'energy_ball', 
-            'expanding_force', 
-            'teleport', 'protect', 'nasty_plot', 'calm_mind', 'recover', 'hypnosis', 'taunt', 'trick_room'
+            // Cost 0
+            'confusion', 'charge_beam', 'night_shade', 'astonish','double_team', 
+            // Cost 1
+            'snarl', 'psybeam', 'signal_beam', 'shadow_ball', 'psyshock', 'tri_attack', 'zen_headbutt', 'psycho_cut', 'mirror_move', 'teleport', 'protect', 'hypnosis', 'taunt', 
+            // Cost 2
+            'psychic', 'energy_ball', 'nasty_plot', 'calm_mind', 'recover', 'trick_room', 
+            // Cost 3
+            'dazzling_gleam', 'expanding_force'
         ] 
     },
     { 
         id: 'umbreon', name: 'Umbreon', types: ['Dark'], ability: 'synchronize', 
         maxHp: 190, speed: 17, atk: 60, def: 110, spa: 50, spd: 140, 
         moves: [
-            'snarl', 'mud_slap', 'pursuit', 'quick_attack', 'sucker_punch', 'tackle', 
-            'bite', 'assurance', 'knock_off', 'shadow_ball', 'facade', 
-            'payback', 'foul_play', 'psychic', 
-            'hyper_voice', 
-            'charm', 'fake_tears', 'protect', 'curse', 'moonlight', 'wish', 'heal_bell', 'yawn', 'toxic'
+            // Cost 0
+            'mud_slap', 'pursuit', 'quick_attack', 'sucker_punch', 'tackle', 
+            // Cost 1
+            'snarl', 'bite', 'assurance', 'knock_off', 'shadow_ball', 'facade', 'confuse_ray', 'charm', 'fake_tears', 'protect', 'yawn', 'toxic', 
+            // Cost 2
+            'payback', 'foul_play', 'psychic', 'iron_tail', 'dark_pulse', 'curse', 'moonlight', 'wish', 'heal_bell', 'reflect', 
+            // Cost 3
+            'hyper_voice'
         ] 
     },
     { 
         id: 'crobat', name: 'Crobat', types: ['Poison', 'Flying'], ability: 'inner_focus', 
         maxHp: 120, speed: 38, atk: 95, def: 70, spa: 70, spd: 70, 
         moves: [
-            'gust', 'peck', 'poison_fang', 'absorb', 'astonish', 'clear_smog', 'quick_attack', 
-            'u_turn', 'cross_poison', 'venoshock', 'aerial_ace', 'bite', 'leech_life', 'steel_wing', 'facade', 
-            'sludge_bomb', 'sludge_wave', 
-            'brave_bird', 
-            'defog', 'haze', 'protect', 'tailwind', 'taunt', 'roost'
+            // Cost 0
+            'gust', 'peck', 'poison_fang', 'absorb', 'astonish', 'clear_smog', 'quick_attack', 'sonic_boom','double_team', 
+            // Cost 1
+            'u_turn', 'cross_poison', 'venoshock', 'aerial_ace', 'bite', 'leech_life', 'steel_wing', 'facade', 'supersonic', 'defog', 'haze', 'protect', 'taunt', 
+            // Cost 2
+            'sludge_bomb', 'sludge_wave', 'tailwind', 'roost', 
+            // Cost 3
+            'brave_bird'
         ] 
     },
     { 
         id: 'weavile', name: 'Weavile', types: ['Dark', 'Ice'], ability: 'pickpocket', 
         maxHp: 110, speed: 34, atk: 140, def: 55, spa: 40, spd: 75, 
         moves: [
-            'scratch', 'powder_snow', 'snarl', 'mud_slap', 'pursuit', 'fake_out', 'ice_shard', 'quick_attack', 'sucker_punch', 'feint', 
-            'triple_axel', 'knock_off', 'night_slash', 'throat_chop', 'poison_jab', 'x_scissor', 'ice_punch', 
-            'icy_wind', 'foul_play', 
-            'fake_tears', 'protect', 'swords_dance', 'taunt', 'reflect'
+            // Cost 0
+            'scratch', 'powder_snow', 'mud_slap', 'pursuit', 'fake_out', 'ice_shard', 'quick_attack', 'sucker_punch', 'feint', 
+            // Cost 1
+            'snarl', 'triple_axel', 'knock_off', 'night_slash', 'throat_chop', 'poison_jab', 'x_scissor', 'ice_punch', 'metal_claw', 'fake_tears', 'protect', 'taunt', 
+            // Cost 2
+            'rock_tomb', 'icy_wind', 'foul_play', 'ice_beam', 'swords_dance', 'reflect', 
+            // Cost 3
+            'blizzard'
         ] 
     },
     { 
         id: 'skarmory', name: 'Skarmory', types: ['Steel', 'Flying'], ability: 'sturdy', 
         maxHp: 160, speed: 22, atk: 90, def: 160, spa: 30, spd: 70,
         moves: [
+            // Cost 0
             'peck', 'mud_slap', 'gust', 'feint', 'sand_tomb', 
-            'steel_wing', 'iron_head', 'night_slash', 'x_scissor', 'rock_tomb', 'aerial_ace', 'body_press', 'facade', 
-            'icy_wind', 'rock_slide', 'heavy_slam', 
-            'brave_bird', 
-            'protect', 'spikes', 'stealth_rock', 'roost', 'whirlwind', 'iron_defense', 'defog'
+            // Cost 1
+            'steel_wing', 'iron_head', 'night_slash', 'x_scissor', 'aerial_ace', 'body_press', 'facade', 'protect', 'defog', 
+            // Cost 2
+            'rock_tomb', 'icy_wind', 'heavy_slam', 'spikes', 'stealth_rock', 'roost', 'whirlwind', 'iron_defense', 
+            // Cost 3
+            'rock_slide', 'brave_bird'
         ] 
     },
     { 
         id: 'jolteon', name: 'Jolteon', types: ['Electric'], ability: 'quick_feet', 
         maxHp: 115, speed: 35, atk: 60, def: 50, spa: 140, spd: 85, 
         moves: [
-            'mud_slap', 'charge_beam', 'quick_attack', 'thunder_shock', 
-            'double_kick', 'pin_missile', 'spark', 'volt_switch', 'shadow_ball', 'signal_beam', 'weather_ball', 'facade', 
-            'electroweb', 'thunderbolt', 'discharge', 'iron_tail', 
-            'thunder', 'hyper_voice', 
-            'baton_pass', 'charm', 'protect', 'agility', 'thunder_wave', 'light_screen'
+            // Cost 0
+            'mud_slap', 'charge_beam', 'quick_attack', 'thunder_shock','double_team', 
+            // Cost 1
+            'double_kick', 'spark', 'volt_switch', 'shadow_ball', 'signal_beam', 'weather_ball', 'facade', 'baton_pass', 'charm', 'protect', 'thunder_wave', 
+            // Cost 2
+            'pin_missile', 'electroweb', 'thunderbolt', 'discharge', 'iron_tail', 'agility', 'light_screen', 
+            // Cost 3
+            'thunder', 'hyper_voice'
         ] 
     }
 ];
@@ -1943,8 +2036,9 @@ const STADIUM_GAUNTLET = [
         badge: "Boulder Badge",
         bossSprite: "https://play.pokemonshowdown.com/sprites/trainers/brock.png",
         badgeSprite: "https://archives.bulbagarden.net/media/upload/d/dd/Boulder_Badge.png",
-        quote: "A solid defense dictates the flow of battle. You found the cracks in my armor and exploited them perfectly. Proceed.",
-        roster: ['tyranitar', 'gastrodon', 'greattusk', 'skarmory'],
+        quote: "My Rock-types pride themselves on a rock-solid defense, but you didn't even give us a second to breathe! You've got real potential.",
+        // Tyranitar sets Sand -> Skarmory sets Spikes/Rocks -> Gastrodon & Great Tusk stall & tax with Mud-Slap
+        roster: ['tyranitar', 'skarmory', 'gastrodon', 'greattusk'],
         aiAggression: 0.8
     },
     {
@@ -1954,8 +2048,9 @@ const STADIUM_GAUNTLET = [
         badge: "Cascade Badge",
         bossSprite: "https://play.pokemonshowdown.com/sprites/trainers/misty.png",
         badgeSprite: "https://archives.bulbagarden.net/media/upload/9/9c/Cascade_Badge.png",
-        quote: "Water is fluid, adapting to any strike. But your offensive pacing completely broke my current. Well played.",
-        roster: ['suicune', 'lapras', 'gastrodon', 'blissey'],
+        quote: "You really are something! I thought my Water-types would drown you out, but your relentless attacks totally washed us away!",
+        // Dropped Blissey for Umbreon (Wish/Yawn stall without the 10 Def flaw)
+        roster: ['suicune', 'lapras', 'gastrodon', 'umbreon'],
         aiAggression: 0.9 
     },
     {
@@ -1965,19 +2060,21 @@ const STADIUM_GAUNTLET = [
         badge: "Thunder Badge",
         bossSprite: "https://play.pokemonshowdown.com/sprites/trainers/ltsurge.png",
         badgeSprite: "https://archives.bulbagarden.net/media/upload/a/a6/Thunder_Badge.png",
-        quote: "In war, hesitation gets you paralyzed. Your execution was flawless, soldier. You earned this.",
-        roster: ['jolteon', 'tapukoko', 'ragingbolt', 'scizor'],
+        quote: "Ten-hut! You shocked me right to my core, kid! You moved so fast my squad couldn't even counterattack. Take this badge!",
+        // Dropped frail Jolteon for Lucario (Extreme Speed / Bullet Punch priority core)
+        roster: ['tapukoko', 'ragingbolt', 'scizor', 'lucario'],
         aiAggression: 1.1
     },
     {
         id: "gym_4_erika",
         bossName: "Leader Erika",
-        theme: "Grass Terrain & Sustain",
+        theme: "Grass Terrain & Veil Sustain",
         badge: "Rainbow Badge",
         bossSprite: "https://play.pokemonshowdown.com/sprites/trainers/erika.png",
         badgeSprite: "https://archives.bulbagarden.net/media/upload/b/b5/Rainbow_Badge.png",
-        quote: "Nature teaches us patience. You dismantled my ecosystem with surgical precision. A beautiful victory.",
-        roster: ['sceptile', 'abomasnow', 'volcarona', 'togekiss'],
+        quote: "...Oh my, I must have dozed off. Just kidding. Your attacks were like a storm that completely uprooted us. I concede.",
+        // Sceptile (Terrain) -> Abomasnow (Snow + Veil) -> Volcarona (Setup Sweep) -> Gastrodon (Water Immunity + Terrain Heal)
+        roster: ['sceptile', 'abomasnow', 'volcarona', 'gastrodon'],
         aiAggression: 1.1
     },
     {
@@ -1987,19 +2084,21 @@ const STADIUM_GAUNTLET = [
         badge: "Soul Badge",
         bossSprite: "https://play.pokemonshowdown.com/sprites/trainers/koga.png",
         badgeSprite: "https://archives.bulbagarden.net/media/upload/7/7d/Soul_Badge.png",
-        quote: "Shadows and poison. You saw through the misdirection and struck the core. A terrifying display of awareness.",
+        quote: "Fwahaha! A true ninja strikes from the shadows, but your relentless assault pierced right through my illusions! A terrifying display.",
+        // Fast U-turn pivots, Pickpocket energy theft, and Umbreon status traps
         roster: ['crobat', 'gengar', 'weavile', 'umbreon'],
         aiAggression: 1.3
     },
     {
         id: "gym_6_sabrina",
         bossName: "Leader Sabrina",
-        theme: "Psychic Terrain & Trick Room",
+        theme: "Psychic Surge & Expanding Force",
         badge: "Marsh Badge",
         bossSprite: "https://play.pokemonshowdown.com/sprites/trainers/sabrina.png",
         badgeSprite: "https://archives.bulbagarden.net/media/upload/6/6b/Marsh_Badge.png",
-        quote: "I foresaw multiple timelines, and in all of them, your momentum overwhelmed my calculations. Take the badge.",
-        roster: ['alakazam', 'tapulele', 'metagross', 'mimikyu'],
+        quote: "I had a vision of my victory... but you moved faster than even my foresight could predict. I am no match for you.",
+        // Shifted purely to Psychic Terrain Hyper-Offense; dropped Mimikyu for bulky Suicune (Tailwind setter)
+        roster: ['tapulele', 'alakazam', 'metagross', 'suicune'],
         aiAggression: 1.5
     },
     {
@@ -2009,8 +2108,9 @@ const STADIUM_GAUNTLET = [
         badge: "Volcano Badge",
         bossSprite: "https://play.pokemonshowdown.com/sprites/trainers/blaine.png",
         badgeSprite: "https://archives.bulbagarden.net/media/upload/1/12/Volcano_Badge.png",
-        quote: "Fire consumes the reckless. You didn't burn—you suffocated the oxygen from my strategy.",
-        roster: ['torkoal', 'infernape', 'volcarona', 'garchomp'],
+        quote: "Hah! You'd better have a Burn Heal! But seriously, your blazing speed completely extinguished my fiery spirit!",
+        // Torkoal sets Sun + Rocks -> Volcarona Quiver Dance -> Infernape / Garchomp nukes
+        roster: ['torkoal', 'volcarona', 'infernape', 'garchomp'],
         aiAggression: 1.6
     },
     {
@@ -2019,10 +2119,10 @@ const STADIUM_GAUNTLET = [
         theme: "Heavy Ground & Absolute Power",
         badge: "Earth Badge",
         bossSprite: "https://play.pokemonshowdown.com/sprites/trainers/giovanni.png",
-        // Fixed: Bypassed Bulbagarden's broken link by using a Wikia CDN
         badgeSprite: "https://static.stands4.com/images/symbol/1/2158_earth-badge.png",
-        quote: "Power is absolute, yet you systematically stripped me of my resources. I respect a ruthless tactician. The Gyms are yours.",
-        roster: ['tyranitar', 'garchomp', 'greattusk', 'snorlax'],
+        quote: "Hmph. I built an empire on absolute, overwhelming power, but you decimated it before I could even strike. You fight with the ruthless precision of a cold tactician. I know when I've been bested.",
+        // Colossal BST squad: Mud-Slap AV control, Stealth Rock, and high-stat bruisers
+        roster: ['tyranitar', 'garchomp', 'greattusk', 'metagross'],
         aiAggression: 1.8
     },
 
@@ -2030,14 +2130,13 @@ const STADIUM_GAUNTLET = [
     {
         id: "e4_1_lorelei",
         bossName: "Elite Lorelei",
-        theme: "Hail, Ice & Unbreakable Defense",
+        theme: "Hail, Ice & Screen Defense",
         badge: "Ice Clearance",
-        // Fixed: Showdown requires the generation tag for older trainers
         bossSprite: "https://play.pokemonshowdown.com/sprites/trainers/lorelei-gen3.png",
-        // Fixed: Moved to PokeAPI and added the hyphen
         badgeSprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/never-melt-ice.png",
-        quote: "Cold logic freezes lesser opponents. You shattered my tempo before the frost could set in.",
-        roster: ['lapras', 'abomasnow', 'suicune', 'weavile'],
+        quote: "No one can break my icy composure... or so I thought. You completely shattered my defenses before the frost could even set in.",
+        // Abomasnow sets Hail/Aurora Veil -> Lapras & Suicune wall -> Weavile revenges with Ice Shard
+        roster: ['abomasnow', 'lapras', 'suicune', 'weavile'],
         aiAggression: 1.9 
     },
     {
@@ -2046,10 +2145,10 @@ const STADIUM_GAUNTLET = [
         theme: "Fighting & Unstoppable Force",
         badge: "Combat Clearance",
         bossSprite: "https://play.pokemonshowdown.com/sprites/trainers/bruno.png",
-        // Fixed: Moved to PokeAPI and added the hyphen
         badgeSprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/black-belt.png",
-        quote: "Raw strength means nothing without the timeline advantage to back it up. You outmaneuvered my heavy hitters.",
-        roster: ['machamp', 'lucario', 'infernape', 'greattusk'],
+        quote: "Hoo hah! We trained our bodies to the limit, but raw power means nothing if you're too fast to hit! We have been humbled!",
+        // Swapped Machamp for Scizor (Technician Bullet Punch / Swords Dance) to support Lucario & Great Tusk
+        roster: ['greattusk', 'lucario', 'infernape', 'scizor'],
         aiAggression: 1.9 
     },
     {
@@ -2057,24 +2156,23 @@ const STADIUM_GAUNTLET = [
         bossName: "Elite Agatha",
         theme: "Ghost, Status & Phantoms",
         badge: "Phantom Clearance",
-        // Fixed: Added generation tag
         bossSprite: "https://play.pokemonshowdown.com/sprites/trainers/agatha-gen3.png",
-        // Fixed: Moved to PokeAPI and added the hyphen
         badgeSprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/spell-tag.png",
-        quote: "You aren't afraid of the dark, are you? You navigated the phantom delays and severed my momentum.",
-        roster: ['gengar', 'mimikyu', 'dragapult', 'crobat'],
+        quote: "Hmph! You're a lot sharper than that old fool Oak. You didn't give my ghosts a single second to toy with you. Go on, then, child!",
+        // Disguise stall, Will-O-Wisp burns, and Dragapult pivot pressure
+        roster: ['mimikyu', 'gengar', 'dragapult', 'umbreon'],
         aiAggression: 2.0
     },
     {
         id: "e4_4_lance",
         bossName: "Elite Lance",
-        theme: "Dragon Sweepers & Board Wipes",
+        theme: "Dragon Sweepers & Hazard Control",
         badge: "Dragon Clearance",
         bossSprite: "https://play.pokemonshowdown.com/sprites/trainers/lance.png",
-        // Fixed: Moved to PokeAPI and added the hyphen
         badgeSprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dragon-fang.png",
-        quote: "Dragons demand absolute respect. You didn't cower; you dictated the terms of engagement. You've earned the right to face the Champion.",
-        roster: ['dragapult', 'garchomp', 'ragingbolt', 'skarmory'],
+        quote: "My dragons are virtually indestructible, yet you overwhelmed them from start to finish. You have earned the right to face the Champion!",
+        // Skarmory sets Spikes/Rocks/Tailwind -> Dragapult, Garchomp & Raging Bolt sweep
+        roster: ['skarmory', 'dragapult', 'garchomp', 'ragingbolt'],
         aiAggression: 2.0 
     },
 
@@ -2085,10 +2183,10 @@ const STADIUM_GAUNTLET = [
         theme: "The Meta Hyper-Offense",
         badge: "Stadium Crown",
         bossSprite: "https://play.pokemonshowdown.com/sprites/trainers/blue.png",
-        // Fixed: Moved to PokeAPI and added the hyphen
         badgeSprite: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/relic-crown.png",
-        quote: "No excuses. You read every pivot, predicted every nuke, and controlled the timeline. The title is yours.",
-        roster: ['tapulele', 'tapukoko', 'snorlax', 'metagross'],
+        quote: "What?! No way! I assembled the ultimate team! I had the perfect tempo! How could you out-speed me?! ...Tch. Fine! You're the new Champ! Smell ya later!",
+        // The ultimate S-Tier team: Clear Body core (Dragapult + Metagross) + Tapu Lele (Psychic Surge) + Volcarona (Quiver Dance)
+        roster: ['tapulele', 'dragapult', 'metagross', 'volcarona'],
         aiAggression: 2.5 
     }
 ];
@@ -2134,21 +2232,50 @@ const STADIUM_GAUNTLET = [
             bgmPlayer.play().catch(error => console.log("Audio autoplay prevented:", error));
         }
 
-        // ======= ASSET PRELOADER =======
+        // ======= ASSET PRELOADER (PURE RETRY + CACHE BUSTING) =======
         const preloadedAudio = [];
         const preloadedImages = []; 
         let assetsLoaded = 0;
+        let hasFatalError = false;
         
         let totalAssets = BATTLE_BGM.length + (POKEDEX.length * 2) + (STADIUM_GAUNTLET.length * 2) + 18;
 
+        // --- Fatal Network Error UI ---
+        function triggerFatalLoadError() {
+            if (hasFatalError || isReadyTimerStarted) return;
+            hasFatalError = true;
+            
+            const bar = document.getElementById('loading-bar');
+            if (bar) {
+                bar.classList.remove('from-emerald-400', 'to-emerald-300');
+                bar.classList.add('from-red-600', 'to-red-500');
+            }
+            
+            const title = document.getElementById('loading-title');
+            title.innerText = "NETWORK ERROR";
+            title.classList.remove('animate-pulse');
+            title.classList.add('text-red-500');
+            
+            document.getElementById('loading-text').innerText = "Failed to download core assets. Please check your internet and retry.";
+            
+            const btn = document.getElementById('btn-press-start');
+            btn.innerText = "RETRY CONNECTION";
+            btn.classList.remove('hidden', 'bg-yellow-400', 'hover:bg-yellow-300', 'text-black', 'animate-pulse');
+            btn.classList.add('bg-red-600', 'hover:bg-red-500', 'text-white', 'border-red-800');
+            
+            btn.onclick = () => location.reload();
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             
-            // --- NEW: Resilient Audio Loader ---
+            // --- Resilient Audio Loader ---
             function attemptLoadAudio(src) {
                 const audio = new Audio();
                 audio.preload = 'auto';
+                let failCount = 0; 
                 
                 const loadHandler = () => {
+                    if (hasFatalError) return;
                     audio.removeEventListener('canplaythrough', loadHandler);
                     audio.removeEventListener('error', errorHandler);
                     assetsLoaded++; 
@@ -2156,12 +2283,25 @@ const STADIUM_GAUNTLET = [
                 };
                 
                 const errorHandler = () => {
-                    console.warn("Audio load failed, retrying in 1s...", src);
+                    if (hasFatalError) return;
+                    failCount++;
+                    
+                    if (failCount >= 5) {
+                        console.error(`[Fatal] Audio asset failed after 5 attempts: ${src}`);
+                        triggerFatalLoadError();
+                        return; 
+                    }
+                    
+                    console.warn(`[Retry ${failCount}/5] Audio failed, retrying in 1s: ${src}`);
                     setTimeout(() => {
-                        audio.src = ''; // Clear to force network reset
-                        audio.src = src;
-                        audio.load();
-                    }, 1000);
+                        if (!hasFatalError) {
+                            // Cache-Buster: Forces the browser to ask the server again instead of caching the error
+                            const retryUrl = src.includes('?') ? `${src}&retry=${Date.now()}` : `${src}?retry=${Date.now()}`;
+                            audio.src = '';
+                            audio.src = retryUrl;
+                            audio.load();
+                        }
+                    }, 1000); 
                 };
                 
                 audio.addEventListener('canplaythrough', loadHandler);
@@ -2171,11 +2311,13 @@ const STADIUM_GAUNTLET = [
                 preloadedAudio.push(audio);
             }
 
-            // --- NEW: Resilient Image/SVG Loader ---
+            // --- Resilient Image/SVG Loader ---
             function attemptLoadImage(src) {
                 const img = new Image();
+                let failCount = 0; 
                 
                 const loadHandler = () => {
+                    if (hasFatalError) return;
                     img.removeEventListener('load', loadHandler);
                     img.removeEventListener('error', errorHandler);
                     assetsLoaded++; 
@@ -2183,11 +2325,24 @@ const STADIUM_GAUNTLET = [
                 };
                 
                 const errorHandler = () => {
-                    console.warn("Image load failed, retrying in 1s...", src);
+                    if (hasFatalError) return;
+                    failCount++;
+                    
+                    if (failCount >= 5) {
+                        console.error(`[Fatal] Image asset failed after 5 attempts: ${src}`);
+                        triggerFatalLoadError();
+                        return; 
+                    }
+                    
+                    console.warn(`[Retry ${failCount}/5] Image failed, retrying in 1s: ${src}`);
                     setTimeout(() => {
-                        img.src = ''; // Clear to force network reset
-                        img.src = src;
-                    }, 1000);
+                        if (!hasFatalError) {
+                            // Cache-Buster: Forces the browser to ask the server again instead of caching the error
+                            const retryUrl = src.includes('?') ? `${src}&retry=${Date.now()}` : `${src}?retry=${Date.now()}`;
+                            img.src = '';
+                            img.src = retryUrl;
+                        }
+                    }, 1000); 
                 };
                 
                 img.addEventListener('load', loadHandler);
@@ -2212,7 +2367,7 @@ const STADIUM_GAUNTLET = [
                 attemptLoadImage(stage.badgeSprite);
             });
             
-            // 4. Cache & Display Type Icons
+            // 4. Cache Type Icons
             const loaderIconsContainer = document.getElementById('loader-icons');
             const typeColors = {
                 Normal: '#A8A878', Fire: '#F08030', Water: '#6890F0', Electric: '#F8D030',
@@ -2227,9 +2382,8 @@ const STADIUM_GAUNTLET = [
                 if (type === 'Default') return;
                 const url = TYPE_ICONS[type];
                 
-                attemptLoadImage(url); // Send SVG through the robust retry loader
+                attemptLoadImage(url);
                 
-                // Inject visually into the DOM immediately
                 if (loaderIconsContainer) {
                     const iconWrap = document.createElement('div');
                     iconWrap.className = 'w-6 h-6 sm:w-7 sm:h-7 animate-pulse drop-shadow-md';
@@ -2269,7 +2423,7 @@ const STADIUM_GAUNTLET = [
                 document.getElementById('loading-text').innerText = "DECODING SPRITES...";
                 
                 setTimeout(() => {
-                    document.getElementById('loading-text').innerText = "ALL ASSETS CACHED";
+                    document.getElementById('loading-text').innerText = "ALL ASSETS LOADED";
                     document.getElementById('loading-title').classList.remove('animate-pulse');
                     document.getElementById('loading-title').innerText = "READY";
                     document.getElementById('btn-press-start').classList.remove('hidden');
@@ -2873,7 +3027,16 @@ const step = seqArray[gameState.draftStateIndex];
                 const move = MOVES[mId];
                 if (!move || cpuMon.energy < move.cost || cpuMon.lastMoveId === mId) return;
 
-                let simulatedAV = move.fixedAV !== undefined ? move.fixedAV : (move.delay / getSpeed(cpuMon));
+                // --- V1.3 WEATHER/TERRAIN SPEEDUP MATH ---
+                let effectiveDelay = move.delay || 0;
+                if (move.weatherSpeedUp && gameState.weather && gameState.weather.type === move.weatherSpeedUp) {
+                    effectiveDelay = Math.floor(effectiveDelay * 0.7); // 70% AV Discount
+                }
+                if (move.terrainSpeedUp && gameState.terrain && gameState.terrain.type === move.terrainSpeedUp) {
+                    effectiveDelay = Math.floor(effectiveDelay * 0.7); // 70% AV Discount
+                }
+                let simulatedAV = move.fixedAV !== undefined ? move.fixedAV : (effectiveDelay / Math.max(1, getSpeed(cpuMon)));
+                // -----------------------------------------
                 
                 let potentialTargets = [];
                 if (move.target === 'self' || move.target === 'enemy_field') potentialTargets = [cpuMon];
@@ -2899,21 +3062,26 @@ const step = seqArray[gameState.draftStateIndex];
                         score -= 600; 
                         return;
                     }
-
+                    // --- SINGLES DEAD MOVES ---
+                    if (!isDoubles && ['follow_me', 'wide_guard', 'helping_hand'].includes(mId)) {
+                        score -= 2000; 
+                        return;
+                    }
+                        
                     if (move.type.includes('damage') || move.type === 'fixed_damage') {
                         // Protect Shield Awareness
                         if (target.isProtected) {
-                            if (mId === 'feint' || move.isVanish) {
+                            if (['feint', 'phantom_force', 'shadow_force'].includes(mId)) {
                                 score += 200 * aggression; // Breaks shields
+
                             } else if (move.type === 'damage_smart' && isDoubles) {
                                 score -= 10; // Auto-redirects
                             } else if (move.gen > 0) {
-                                // Farm free energy! The attack deals 0 damage, but the energy generates safely.
                                 score += 50 * aggression; 
-                                predHP = 9999; // Cancels out the "Kill Securing" hallucination
+                                predHP = 9999; 
                             } else {
-                                score -= 2000; // Hard waste of a turn (0-Gen Priority / Spenders)
-                                predHP = 9999; // Cancels out the "Kill Securing" hallucination
+                                score -= 2000; 
+                                predHP = 9999; 
                             }
                         }
 
@@ -3010,9 +3178,18 @@ const step = seqArray[gameState.draftStateIndex];
                         if (enemyChargingHighDamage || isUnderLethalThreat) score += 350 * aggression; 
                     }
 
+                    // --- AV TAXING & CLEAR BODY AWARENESS ---
                     if (move.targetStatDrop && move.targetStatDrop.stat === 'speed') {
-                        let fastestEnemy = enemies.reduce((max, e) => getSpeed(e) > getSpeed(max) ? e : max, enemies[0]);
-                        if (getSpeed(cpuMon) < getSpeed(fastestEnemy)) score += 80 * aggression;
+                        if (target.ability === 'clear_body') {
+                            score -= 300; // Do not attempt to stat-drop a Clear Body user!
+                        } else {
+                            let fastestEnemy = enemies.reduce((max, e) => getSpeed(e) > getSpeed(max) ? e : max, enemies[0]);
+                            if (getSpeed(cpuMon) < getSpeed(fastestEnemy)) {
+                                score += 120 * aggression; // High priority to slow them down
+                            } else if (!isDoubles && target.speed > 25) {
+                                score += 60 * aggression; // Tax their AV anyway in singles
+                            }
+                        }
                     }
 
                     if (['swords_dance', 'nasty_plot', 'quiver_dance', 'dragon_dance', 'bulk_up'].includes(mId)) {
@@ -3042,10 +3219,23 @@ const step = seqArray[gameState.draftStateIndex];
                         else score -= 100;
                     }
 
-                    if (move.type === 'protect' && !cpuMon.isProtected) {
-                        if (enemyChargingHighDamage || isUnderLethalThreat) score += 350 * aggression; 
-                        else if (cpuMon.hp < cpuMon.maxHp * 0.35) score += Math.random() * 80;
+                    // --- V1.3 PROTECT / DETECT / DOUBLE TEAM LOGIC ---
+                    if (move.type === 'protect' || move.type === 'detect' || move.type === 'double_team') {
+                        if (cpuMon.isProtected || cpuMon.hasDetect || cpuMon.hasDoubleTeam) {
+                            score -= 2000; // Never double-evade
+                        } else if (move.type === 'detect' && (enemyChargingSpreadMove || enemies.some(e => e.moves.some(m => MOVES[m] && (MOVES[m].hits > 1 || MOVES[m].ignoresEvasion))))) {
+                            score -= 500; // Detect fails vs spread or multi-hits
+                        } else if (enemyChargingHighDamage || isUnderLethalThreat) {
+                            score += (move.type === 'detect' ? 420 : 350) * aggression; // Prefers Detect for the low AV hit
+                        } else if (move.type === 'double_team' && isUnderLethalThreat && cpuMon.energy === 0) {
+                            score += 250; // Desperation stamina burn
+                        } else if (move.type === 'double_team') {
+                            score -= 300; // Avoid normal usage
+                        } else if (cpuMon.hp < cpuMon.maxHp * 0.35) {
+                            score += Math.random() * 80;
+                        }
                     }
+
                     if (move.type === 'follow_me' && isDoubles) {
                         if ((allyUnderLethalThreat || allyIsChargingBigMove) && !isUnderLethalThreat) score += 420 * aggression; 
                     }
@@ -3079,8 +3269,21 @@ const step = seqArray[gameState.draftStateIndex];
                         else score += 90 * aggression;
                     }
 
+                    // --- V1.3 SAFEGUARD LOGIC ---
+                    if (move.type === 'safeguard') {
+                        if (gameState.safeguard && gameState.safeguard[cpuMon.team] > 0) {
+                            score -= 1000;
+                        } else {
+                            let enemyHasStatus = enemies.some(e => e.moves.some(m => MOVES[m] && (['status', 'confuse', 'yawn'].includes(MOVES[m].type) || MOVES[m].effectType)));
+                            if (enemyHasStatus) score += 200 * aggression;
+                        }
+                    }
+
+                    // --- V1.3 STATUS / YAWN LOGIC ---
                     if (move.type === 'status' || move.type === 'yawn') {
-                        if (target.status || target.isDrowsy) {
+                        if (gameState.safeguard && gameState.safeguard[target.team] > 0) {
+                            score -= 1000; // Safeguard wall
+                        } else if (target.status || target.isDrowsy) {
                             score -= 500; 
                         } else if (isGrounded(target)) {
                             if (gameState.terrain && gameState.terrain.type === 'misty') score -= 500;
@@ -3090,6 +3293,7 @@ const step = seqArray[gameState.draftStateIndex];
                             if (target.hp < target.maxHp * 0.3) score -= 60; 
                         }
                     }
+                    
                     if (move.type === 'trick_room') {
                         if (getSpeed(cpuMon) < 20 && gameState.trickRoom === 0) score += 130 * aggression;
                         else if (gameState.trickRoom > 0) score -= 120;
@@ -3100,6 +3304,20 @@ const step = seqArray[gameState.draftStateIndex];
                         let sP1 = gameState.screens['P1']; 
                         if (!hP2.stealth_rock && hP2.spikes === 0 && sP1.reflect === 0 && sP1.light_screen === 0) score -= 100;
                         else score += (isDoubles ? 90 : 180) * aggression; 
+                    }
+
+                    // --- V1.3 MIRROR MOVE LOGIC ---
+                    if (move.type === 'mirror_move') {
+                        let enemyLastMove = target.lastMoveId ? MOVES[target.lastMoveId] : null;
+                        if (!enemyLastMove) {
+                            score -= 1000;
+                        } else if (enemyLastMove.cat === 'spenders' && enemyLastMove.power >= 90) {
+                            score += 240 * aggression;
+                        } else if (['swords_dance', 'dragon_dance', 'quiver_dance', 'nasty_plot'].includes(target.lastMoveId)) {
+                            score += 260 * aggression;
+                        } else {
+                            score -= 60;
+                        }
                     }
 
                     // AV Debt & Nukes
@@ -3124,21 +3342,29 @@ const step = seqArray[gameState.draftStateIndex];
                         }
                     }
 
-                    // Forced Switch / Phazing
-                    if (move.type === 'forced_switch') {
+                    // --- V1.3 FORCED SWITCH / PHAZING LOGIC ---
+                    if (move.type === 'forced_switch' || move.type === 'damage_force_switch') {
                         let enemyBench = gameState.combatants.filter(c => c.team === target.team && !c.isActive && !c.isDead);
                         
-                        if (enemyBench.length === 0) {
+                        if (enemyBench.length === 0 || target.ability === 'suction_cups') {
                             score -= 1000;
                         } else if (target.substituteHp > 0 && !move.isSound) {
                             score -= 1000;
                         } else {
-                            if (target.energy >= 3) score += (target.energy * 60) * aggression;
-                            else if (target.energy === 0) score -= 50;
+                            // Wipe enemy banked energy!
+                            if (target.energy >= 2) score += (target.energy * 80) * aggression;
                             
+                            // Wipe enemy stat buffs!
                             let buffTotal = 0;
                             Object.values(target.statStages).forEach(val => { if (val > 0) buffTotal += val; });
-                            if (buffTotal >= 2) score += (buffTotal * 70) * aggression;
+                            if (buffTotal >= 1) score += (buffTotal * 100) * aggression;
+
+                            // NEW: Hazard Grinder Synergy (Singles Focus)
+                            if (!isDoubles) {
+                                let enemyHazards = gameState.hazards['P1']; // Assuming CPU is P2
+                                if (enemyHazards.stealth_rock) score += 90 * aggression;
+                                if (enemyHazards.spikes > 0) score += (enemyHazards.spikes * 40) * aggression;
+                            }
                         }
                     }
 
@@ -3223,6 +3449,7 @@ const step = seqArray[gameState.draftStateIndex];
                 }
             }, 1200 + Math.random() * 800);
         }
+
 
         function applyHazards(mon, team, animEvent) {
             if (mon.ability === 'magic_guard') return;
@@ -3408,10 +3635,18 @@ const step = seqArray[gameState.draftStateIndex];
 
         function getStatusBadge(c) {
             let badges = [];
+            // --- V1.3 TACTICAL STATUSES ---
+            if (c.hasDetect) badges.push(`<span class="text-[8px] font-black uppercase px-1 border border-black rounded bg-teal-500 text-white shadow-[1px_1px_0_#000] leading-none">DETECT</span>`);
+            if (c.hasDoubleTeam) badges.push(`<span class="text-[8px] font-black uppercase px-1 border border-black rounded bg-cyan-500 text-white shadow-[1px_1px_0_#000] leading-none animate-pulse">EVASION</span>`);
+            if (c.trapAV > 0) badges.push(`<span class="text-[8px] font-black uppercase px-1 border border-black rounded bg-orange-600 text-white shadow-[1px_1px_0_#000] leading-none">TRAPPED</span>`);
+            if (c.isFollowMe) badges.push(`<span class="text-[8px] font-black uppercase px-1 border border-black rounded bg-pink-500 text-white shadow-[1px_1px_0_#000] leading-none">TAUNT</span>`);
+            
+            // --- CORE STATUSES ---
             if (c.hasDisguise) badges.push(`<span class="text-[8px] font-black uppercase px-1 border border-black rounded bg-pink-300 text-black shadow-[1px_1px_0_#000] leading-none">DECOY</span>`);
             if (c.substituteHp > 0) badges.push(`<span class="text-[8px] font-black uppercase px-1 border border-black rounded bg-green-500 text-white shadow-[1px_1px_0_#000] leading-none">SUB</span>`);
             if (c.isProtected) badges.push(`<span class="text-[8px] font-black uppercase px-1 border border-black rounded bg-blue-400 text-white shadow-[1px_1px_0_#000] leading-none">PRO</span>`);
             if (c.isFocused) badges.push(`<span class="text-[8px] font-black uppercase px-1 border border-black rounded bg-red-500 text-white shadow-[1px_1px_0_#000] leading-none">FOC</span>`);
+            
             if (c.status) {
                 let colors = { 'burn': 'bg-orange-500', 'paralyze': 'bg-yellow-500', 'poison': 'bg-purple-500', 'bad_poison': 'bg-purple-700', 'sleep': 'bg-slate-500', 'freeze': 'bg-cyan-400' };
                 let shortStatus = c.status.substring(0,3);
@@ -3610,19 +3845,19 @@ if (gameState.draftStateIndex < seqArray.length) {
                 // 1. The "Battery" Role: High Gen + Baton Pass
                 if (candidate.moves.includes('baton_pass')) {
                     score += 65; // Massive boost for economic safety
-                    if (bestGen >= 2 || candidate.speed > 30) score += 40; // Fast/Heavy generators make the best batteries (e.g., Jolteon)
+                    if (bestGen >= 2 || candidate.speed > 30) score += 40; // Fast/Heavy generators make the best batteries
                 }
 
-                // 2. The "Economic Phazer": Roar / Whirlwind
-                if (candidate.moves.includes('roar') || candidate.moves.includes('whirlwind')) {
+                // 2. The "Economic Phazer": V1.3 Updated with Damage Phazers
+                if (candidate.moves.some(m => ['roar', 'whirlwind', 'dragon_tail', 'circle_throw'].includes(m))) {
                     score += 55; // Highly valued for bankrupting enemies
                     let bulk = candidate.maxHp + candidate.def + candidate.spd;
-                    if (bulk >= 300) score += 35; // Bulky phazers (Skarmory, Snorlax) are incredible
+                    if (bulk >= 300) score += 35; // Bulky phazers are incredible
                 }
 
                 // 3. Physical Deterrents & Status Walls
                 if (['flame_body', 'static', 'poison_point', 'rough_skin'].includes(candidate.ability)) {
-                    score += 70; // Massive value to punish physical sweepers and instant nukes
+                    score += 70; // Massive value to punish physical sweepers
                 }
 
                 // 4. Instant Nuke Capabilities
@@ -3646,19 +3881,29 @@ if (gameState.draftStateIndex < seqArray.length) {
             let isTerrainSetter = setsPsychic || setsElectric || setsGrassy || candidate.ability === 'misty_surge' || candidate.moves.includes('misty_terrain');
 
             if (!isBanning) {
-                // Synergies with own drafted team
+                // --- V1.3 SPEED-UP ABUSER SYNERGIES ---
                 aiTeam.forEach(ally => {
-                    if (setsSun && (ally.ability === 'protosynthesis' || ally.ability === 'chlorophyll' || ally.types.includes('Fire'))) score += 75;
-                    if ((ally.ability === 'drought' || ally.moves.includes('sunny_day')) && (candidate.ability === 'protosynthesis' || candidate.ability === 'chlorophyll')) score += 75;
+                    // Sun + Solar Beam
+                    if (setsSun && (ally.ability === 'protosynthesis' || ally.ability === 'chlorophyll' || ally.types.includes('Fire') || ally.moves.includes('solar_beam'))) score += 75;
+                    if ((ally.ability === 'drought' || ally.moves.includes('sunny_day')) && (candidate.ability === 'protosynthesis' || candidate.ability === 'chlorophyll' || candidate.moves.includes('solar_beam'))) score += 75;
 
-                    if (setsRain && (ally.ability === 'swift_swim' || ally.types.includes('Water'))) score += 60;
-                    if ((ally.ability === 'drizzle' || ally.moves.includes('rain_dance')) && (candidate.ability === 'swift_swim' || candidate.types.includes('Water'))) score += 60;
+                    // Rain + Thunder / Hurricane
+                    if (setsRain && (ally.ability === 'swift_swim' || ally.types.includes('Water') || ally.moves.some(m => ['thunder', 'hurricane', 'weather_ball'].includes(m)))) score += 60;
+                    if ((ally.ability === 'drizzle' || ally.moves.includes('rain_dance')) && (candidate.ability === 'swift_swim' || candidate.types.includes('Water') || candidate.moves.some(m => ['thunder', 'hurricane', 'weather_ball'].includes(m)))) score += 60;
 
-                    if (setsSand && (ally.ability === 'sand_rush' || ally.types.includes('Rock'))) score += 60;
+                    // Hail + Blizzard
+                    if (setsHail && (ally.ability === 'slush_rush' || ally.moves.some(m => ['blizzard', 'aurora_veil', 'weather_ball'].includes(m)))) score += 60;
+                    if ((ally.ability === 'snow_warning' || ally.moves.includes('hail')) && (candidate.ability === 'slush_rush' || candidate.moves.some(m => ['blizzard', 'aurora_veil', 'weather_ball'].includes(m)))) score += 60;
 
-                    // Psychic Surge + Expanding Force / Alakazam / Psychic
+                    if (setsSand && (ally.ability === 'sand_rush' || ally.types.includes('Rock') || ally.moves.includes('weather_ball'))) score += 60;
+
+                    // Psychic Surge + Expanding Force
                     if (setsPsychic && ally.moves.includes('expanding_force')) score += 90;
                     if ((ally.ability === 'psychic_surge' || ally.moves.includes('psychic_terrain')) && candidate.moves.includes('expanding_force')) score += 90;
+
+                    // Grassy Surge + Grassy Glide
+                    if (setsGrassy && ally.moves.includes('grassy_glide')) score += 70;
+                    if ((ally.ability === 'grassy_surge' || ally.moves.includes('grassy_terrain')) && candidate.moves.includes('grassy_glide')) score += 70;
 
                     // Follow Me Bodyguard Core
                     let candidateHasFollowMe = candidate.moves.includes('follow_me');
@@ -3702,7 +3947,7 @@ if (gameState.draftStateIndex < seqArray.length) {
 
                 // Ban Phazers if the AI is trying to draft a setup/energy-hoarding team
                 let aiReliesOnSetup = aiTeam.some(a => a.moves.some(m => ['swords_dance', 'nasty_plot', 'quiver_dance', 'belly_drum'].includes(m)));
-                if (aiReliesOnSetup && (candidate.moves.includes('roar') || candidate.moves.includes('whirlwind'))) {
+                if (aiReliesOnSetup && candidate.moves.some(m => ['roar', 'whirlwind', 'dragon_tail', 'circle_throw'].includes(m))) {
                     threatScore += 80; // Absolute priority ban!
                 }
 
@@ -3725,12 +3970,12 @@ if (gameState.draftStateIndex < seqArray.length) {
                         if (mod > 1) threatScore += (35 * mod);
                     });
 
-                    // --- NEW: BAN THE HARD COUNTER COVERAGE MOVES ---
+                    // Ban hard counter coverage
                     if (candidate.moves.includes('freeze_dry') && ally.types.includes('Water')) {
-                        threatScore += 80; // Massive threat to water allies!
+                        threatScore += 80;
                     }
                     if (candidate.moves.includes('magnet_bomb') && ally.types.includes('Steel')) {
-                        threatScore += 80; // Massive threat to steel allies!
+                        threatScore += 80; 
                     }
                 });
                 return threatScore + score;
@@ -3746,12 +3991,25 @@ if (gameState.draftStateIndex < seqArray.length) {
                 if (candidate.moves.includes('follow_me')) score += 60;
                 if (candidate.moves.includes('fake_out')) score += 40;
             } else {
-                if (candidate.speed > 32) score += 40;
-                if (candidate.moves.some(mId => MOVES[mId] && MOVES[mId].isPriority)) score += 35;
-                if (candidate.moves.some(m => ['u_turn', 'volt_switch'].includes(m))) score += 50; 
-                if (candidate.moves.some(m => ['stealth_rock', 'spikes'].includes(m))) score += 55; 
-                if (candidate.moves.some(m => ['defog', 'rapid_spin'].includes(m))) score += 50; 
-                if (candidate.moves.some(m => ['swords_dance', 'nasty_plot', 'quiver_dance', 'dragon_dance'].includes(m))) score += 45; 
+                // --- SINGLES AV & HAZARD META LOGIC ---
+                
+                // 1. Penalize dead moves in Singles
+                if (candidate.moves.some(m => ['follow_me', 'wide_guard', 'helping_hand'].includes(m))) score -= 80;
+                
+                // 2. Punish extreme frailty (Because switching costs AV)
+                if ((candidate.maxHp + candidate.def) < 145 || (candidate.maxHp + candidate.spd) < 145) score -= 60;
+
+                // 3. High Value Abilities
+                if (candidate.ability === 'clear_body') score += 75; // Immune to Mud-Slap AV taxing
+                if (candidate.ability === 'magic_guard') score += 70; // Immune to Hazard Stall
+
+                // 4. Premium Singles Moves
+                if (candidate.moves.some(m => ['stealth_rock', 'spikes'].includes(m))) score += 70; // Hazard Setters
+                if (candidate.moves.some(m => ['roar', 'whirlwind', 'dragon_tail'].includes(m))) score += 80; // Phazers (Energy wipers)
+                if (candidate.moves.some(m => ['defog', 'rapid_spin'].includes(m))) score += 65; // Hazard removal
+                if (candidate.moves.includes('mud_slap') || candidate.moves.includes('icy_wind')) score += 50; // AV Taxers
+                if (candidate.moves.some(m => ['u_turn', 'volt_switch'].includes(m))) score += 50; // Pivots
+                if (candidate.speed > 35) score += 40; // Raw speed still matters
             }
 
             // ==========================================
@@ -3770,14 +4028,14 @@ if (gameState.draftStateIndex < seqArray.length) {
                 // Defensive Matchup: Are we weak to their STAB?
                 let isWeakToEnemy = enemy.types.some(eType => getMultiplier(eType, candidate.types) > 1);
                 
-                // --- NEW: AVOID OPPONENT'S HARD COUNTER COVERAGE MOVES ---
+                // Avoid opponent's hard counter coverage
                 if (enemy.moves.includes('freeze_dry') && candidate.types.includes('Water')) {
                     isWeakToEnemy = true;
-                    score -= 60; // Extra penalty for massive weakness
+                    score -= 60; 
                 }
                 if (enemy.moves.includes('magnet_bomb') && candidate.types.includes('Steel')) {
                     isWeakToEnemy = true;
-                    score -= 60; // Extra penalty for massive weakness
+                    score -= 60; 
                 }
 
                 let enemyOutspeeds = enemy.speed >= candidate.speed;
@@ -3797,14 +4055,20 @@ if (gameState.draftStateIndex < seqArray.length) {
                     }
                 });
 
-                // --- NEW: ACTIVELY DRAFT SPECIFIC COUNTER COVERAGE MOVES ---
+                // Actively draft specific counter coverage
                 if (candidate.moves.includes('freeze_dry') && enemy.types.includes('Water')) {
-                    score += 70; // Huge bonus to draft this counter!
+                    score += 70; 
                     if (candidate.speed > enemy.speed) score += 40;
                 }
                 if (candidate.moves.includes('magnet_bomb') && enemy.types.includes('Steel')) {
-                    score += 70; // Huge bonus to draft this counter!
+                    score += 70; 
                     if (candidate.speed > enemy.speed) score += 40;
+                }
+
+                // --- V1.3 COUNTER-DRAFT: SAFEGUARD vs STATUS ---
+                let enemyHasStatus = enemy.moves.some(m => ['will_o_wisp', 'toxic', 'thunder_wave', 'hypnosis', 'yawn'].includes(m));
+                if (enemyHasStatus && candidate.moves.includes('safeguard')) {
+                    score += 85; // Extremely valuable to shut down their status core
                 }
 
                 // Immunity Check
@@ -3836,6 +4100,7 @@ if (gameState.draftStateIndex < seqArray.length) {
 
             return score;
         }
+
 
         function getSpeed(mon) {
             let spd = mon.speed;
@@ -3880,6 +4145,7 @@ if (gameState.draftStateIndex < seqArray.length) {
         function initBattleStateLogic() {
             let startCombatants = [];
             let maxActive = gameState.battleFormat === 'VGC' ? 2 : 1;
+            
             gameState.p1Draft.forEach((mon, index) => {
                 let c = JSON.parse(JSON.stringify(mon));
                 c.uid = `P1_${index}`; c.team = 'P1'; c.hp = c.maxHp; c.displayHp = c.maxHp; c.energy = 0; c.maxEnergy = 5;
@@ -3888,27 +4154,33 @@ if (gameState.draftStateIndex < seqArray.length) {
                 c.currentAV = 0;
                 c.lastMoveId = null; c.isDead = false; c.status = null; c.isProtected = false;
                 c.isFollowMe = false; c.isDrowsy = false; c.isFocused = false; c.turnsActive = 0; c.substituteHp = 0;
+                c.hasDoubleTeam = false;
+                c.hasDetect = false;
                 c.trapAV = 0;
                 c.statStages = { atk: 0, def: 0, spa: 0, spd: 0, speed: 0 };
-                                               c.hasDisguise = (c.ability === 'disguise');
+                c.hasDisguise = (c.ability === 'disguise');
                 c.isInvulnerable = false;
                 
                 c.state = c.isActive ? 'IDLE' : 'BENCH';
                 c.queuedAction = null;
                 startCombatants.push(c);
             });
+            
             gameState.p2Draft.forEach((mon, index) => {
                 let c = JSON.parse(JSON.stringify(mon));
-                c.uid = `P2_${index}`; c.team = 'P2'; c.hp = c.maxHp; c.energy = 0; c.maxEnergy = 5;
+                c.uid = `P2_${index}`; c.team = 'P2'; c.hp = c.maxHp; c.displayHp = c.maxHp; c.energy = 0; c.maxEnergy = 5;
+                
                 c.isActive = (index < maxActive); 
                 c.currentAV = 0.01; 
                 c.lastMoveId = null; c.isDead = false; c.status = null; c.isProtected = false;
                 c.isFollowMe = false; c.isDrowsy = false; c.isFocused = false; c.turnsActive = 0; c.substituteHp = 0;
+                c.hasDoubleTeam = false;
+                c.hasDetect = false;
                 c.trapAV = 0;
                 c.statStages = { atk: 0, def: 0, spa: 0, spd: 0, speed: 0 };
-
                 c.hasDisguise = (c.ability === 'disguise');
                 c.isInvulnerable = false;
+                
                 c.state = c.isActive ? 'IDLE' : 'BENCH';
                 c.queuedAction = null; 
                 startCombatants.push(c);
@@ -3923,18 +4195,13 @@ if (gameState.draftStateIndex < seqArray.length) {
             gameState.tailwind = { P1: 0, P2: 0 };
             gameState.trickRoom = 0;
             gameState.screens = { P1: { reflect: 0, light_screen: 0 }, P2: { reflect: 0, light_screen: 0 } };
+            gameState.safeguard = { P1: 0, P2: 0 };
             gameState.wish = { P1: { timer: 0, amount: 0 }, P2: { timer: 0, amount: 0 } };
             gameState.hazards = { P1: { stealth_rock: false, spikes: 0 }, P2: { stealth_rock: false, spikes: 0 } };
             gameState.passedEnergy = { P1: 0, P2: 0 };
             gameState.battleLog = [];
-            
-            gameState.combatants.forEach(c => { 
-                if(c.isActive && c.ability === 'sand_stream') {
-                    gameState.weather = { type: 'sand', av: 3000 };
-                }
-            });
 
-             // --- BGM START TRIGGER ---
+            // --- BGM START TRIGGER ---
             playRandomBGM();
 
             pushLog("BATTLE START!");
@@ -3944,19 +4211,19 @@ if (gameState.draftStateIndex < seqArray.length) {
 
             let animEvent = { id: Date.now(), attackerUid: null, attackerTeam: null, type: 'start', targets: [], attackerTexts: [] };
 
-// Sort active leads from fastest to slowest so slower setters overwrite faster ones
-const activeLeads = gameState.combatants
-    .filter(c => c.isActive)
-    .sort((a, b) => getSpeed(b) - getSpeed(a));
+            // Sort active leads from fastest to slowest so slower setters overwrite faster ones
+            const activeLeads = gameState.combatants
+                .filter(c => c.isActive)
+                .sort((a, b) => getSpeed(b) - getSpeed(a));
 
-activeLeads.forEach(c => triggerSwitchInAbilities(c, animEvent));
+            activeLeads.forEach(c => triggerSwitchInAbilities(c, animEvent));
 
-gameState.animEvent = animEvent;
+            gameState.animEvent = animEvent;
 
             gameState.activeCombatantUid = getNextTurnStateLogic(true);
             syncStateToClient(); renderState();
 
-   // --- DELAYED TUTORIAL TRIGGER ---
+            // --- DELAYED TUTORIAL TRIGGER ---
             if (gameState.isTutorial) setTimeout(() => { checkTutorialTriggers('START'); }, 1400);
         }
 
@@ -3973,7 +4240,8 @@ gameState.animEvent = animEvent;
             const nextAct = virtualAVs[0];
             
             if (advanceTime && nextAct.currentAV > 0) {
-                                const timePassed = nextAct.currentAV;
+                const timePassed = nextAct.currentAV;
+                
                 gameState.combatants.forEach(c => { 
                     if (c.isActive && !c.isDead) {
                         c.currentAV = Math.max(0, c.currentAV - timePassed); 
@@ -3987,6 +4255,8 @@ gameState.animEvent = animEvent;
                         let oldSpeeds = {};
                         gameState.combatants.forEach(c => { if(c.isActive && !c.isDead) oldSpeeds[c.uid] = getSpeed(c); });
                         gameState.weather = { type: null, av: 0 };
+                        pushLog(`The weather cleared.`, true);
+                        
                         gameState.combatants.forEach(c => {
                             if(c.isActive && !c.isDead) {
                                 let newSpeed = getSpeed(c);
@@ -3995,11 +4265,12 @@ gameState.animEvent = animEvent;
                         });
                     }
                 }
-                                if (gameState.terrain && gameState.terrain.av > 0) {
+                
+                if (gameState.terrain && gameState.terrain.av > 0) {
                     gameState.terrain.av -= timePassed;
                     if (gameState.terrain.av <= 0) {
                         gameState.terrain = { type: null, av: 0 };
-                        pushLog(`The terrain returned to normal.`);
+                        pushLog(`The terrain returned to normal.`, true);
                     }
                 }
                 
@@ -4007,55 +4278,57 @@ gameState.animEvent = animEvent;
                     if (gameState.tailwind.P1 > 0) gameState.tailwind.P1 -= timePassed;
                     if (gameState.tailwind.P2 > 0) gameState.tailwind.P2 -= timePassed;
                 }
+                
                 if (gameState.trickRoom > 0) gameState.trickRoom -= timePassed;
-                if (gameState.screens) {
-                    ['P1', 'P2'].forEach(team => {
+                
+                ['P1', 'P2'].forEach(team => {
+                    // --- SCREENS & SAFEGUARD DECAY ---
+                    if (gameState.screens) {
                         if (gameState.screens[team].reflect > 0) gameState.screens[team].reflect = Math.max(0, gameState.screens[team].reflect - timePassed);
                         if (gameState.screens[team].light_screen > 0) gameState.screens[team].light_screen = Math.max(0, gameState.screens[team].light_screen - timePassed);
-                    });
-                }
-                if (gameState.wish) {
-                    ['P1', 'P2'].forEach(team => {
-                        if (gameState.wish[team].timer > 0) {
-                            gameState.wish[team].timer -= timePassed;
-                            if (gameState.wish[team].timer <= 0) {
-                                gameState.wish[team].timer = 0;
+                    }
+                    if (gameState.safeguard && gameState.safeguard[team] > 0) {
+                        gameState.safeguard[team] = Math.max(0, gameState.safeguard[team] - timePassed);
+                    }
+                    // ---------------------------------
+
+                    if (gameState.wish && gameState.wish[team].timer > 0) {
+                        gameState.wish[team].timer -= timePassed;
+                        if (gameState.wish[team].timer <= 0) {
+                            gameState.wish[team].timer = 0;
+                            
+                            // 1. Smart Targeting: Finds the active ally with the lowest HP %
+                            let activeAllies = gameState.combatants.filter(c => c.team === team && c.isActive && !c.isDead);
+                            if (activeAllies.length > 0) {
+                                activeAllies.sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp));
+                                let targetAlly = activeAllies[0];
                                 
-                                // 1. Smart Targeting: Finds the active ally with the lowest HP %
-                                let activeAllies = gameState.combatants.filter(c => c.team === team && c.isActive && !c.isDead);
-                                if (activeAllies.length > 0) {
-                                    activeAllies.sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp));
-                                    let targetAlly = activeAllies[0];
-                                    
-                                    targetAlly.hp = Math.min(targetAlly.maxHp, targetAlly.hp + gameState.wish[team].amount);
-                                    pushLog(`${targetAlly.name}'s wish came true! It recovered HP!`, true);
-                                    
-                                    // 2. Generate the Visual Animation & SFX
-                                    let healAnim = { 
-                                        id: Date.now() + Math.random(), 
-                                        attackerUid: targetAlly.uid, 
-                                        attackerTeam: team, 
-                                        type: 'heal', 
-                                        targets: [], 
-                                        attackerTexts: [{text: "WISH CAME TRUE!", color: "text-emerald-400"}] 
-                                    };
-                                    
-                                    // Safely inject the animation into the engine
-                                    if (!gameState.animEvent) gameState.animEvent = healAnim;
-                                    else gameState.animEvent.targets.push({ uid: targetAlly.uid, shake: false, texts: [{text: "WISH!", color: "text-emerald-400"}] });
-                                }
+                                targetAlly.hp = Math.min(targetAlly.maxHp, targetAlly.hp + gameState.wish[team].amount);
+                                pushLog(`${targetAlly.name}'s wish came true! It recovered HP!`, true);
+                                
+                                // 2. Generate the Visual Animation & SFX
+                                let healAnim = { 
+                                    id: Date.now() + Math.random(), 
+                                    attackerUid: targetAlly.uid, 
+                                    attackerTeam: team, 
+                                    type: 'heal', 
+                                    targets: [], 
+                                    attackerTexts: [{text: "WISH CAME TRUE!", color: "text-emerald-400"}] 
+                                };
+                                
+                                // Safely inject the animation into the engine
+                                if (!gameState.animEvent) gameState.animEvent = healAnim;
+                                else gameState.animEvent.targets.push({ uid: targetAlly.uid, shake: false, texts: [{text: "WISH!", color: "text-emerald-400"}] });
                             }
                         }
-                    });
-                }
+                    }
+                });
 
                 // Recalculate speeds if tailwind/trick room fell
                 let curSpeeds = {};
                 gameState.combatants.forEach(c => { if(c.isActive && !c.isDead) curSpeeds[c.uid] = getSpeed(c); });
                 gameState.combatants.forEach(c => {
                     if(c.isActive && !c.isDead) {
-                        let baseSpd = c.speed; 
-                        // Simplified fallback for recalculation check
                         let newSpeed = getSpeed(c);
                         if (c.currentAV > 0 && curSpeeds[c.uid] !== newSpeed) {
                             c.currentAV = c.currentAV * (curSpeeds[c.uid] / newSpeed);
@@ -4066,22 +4339,35 @@ gameState.animEvent = animEvent;
             return nextAct.uid;
         }
 
+
         function queueMoveLogic(moveId, move, targetsInfo) {
-        gameState.previewMove = null;
-        
+            gameState.previewMove = null;
+            
             const attacker = gameState.combatants.find(c => c.uid === gameState.activeCombatantUid);
             // SERVER GUARD: Prevent duplicate execution from multi-clicks or latency
             if (!attacker || attacker.state !== 'IDLE') return; 
 
             attacker.energy = Math.max(0, attacker.energy - move.cost);
-            let addedAV = (move.fixedAV !== undefined ? move.fixedAV : (move.delay / getSpeed(attacker)));
+
+            // --- WEATHER / TERRAIN SPEEDUP LOGIC ---
+            let effectiveDelay = move.delay || 0;
+            if (move.weatherSpeedUp && gameState.weather && gameState.weather.type === move.weatherSpeedUp) {
+                effectiveDelay = Math.floor(effectiveDelay * 0.7); // 30% faster!
+            }
+            if (move.terrainSpeedUp && gameState.terrain && gameState.terrain.type === move.terrainSpeedUp) {
+                effectiveDelay = Math.floor(effectiveDelay * 0.7); // 30% faster!
+            }
+            
+            let addedAV = (move.fixedAV !== undefined ? move.fixedAV : (effectiveDelay / Math.max(1, getSpeed(attacker))));
+            // ----------------------------------------
 
             if (move.isPriority || move.isInstantNuke) {
                 // INSTANT EXECUTION FOR PRIORITY MOVES
                 attacker.queuedAction = { moveId, move, targetsInfo, type: 'MOVE' };
                 attacker.currentAV += addedAV;
+                attacker.state = 'CHARGING';
                 performExecutionPhase(attacker);
-                        } else {
+            } else {
                 // STANDARD EXECUTION
                 attacker.queuedAction = { moveId, move, targetsInfo, type: 'MOVE' };
                 attacker.state = 'CHARGING';
@@ -4093,19 +4379,22 @@ gameState.animEvent = animEvent;
                 
                 attacker.currentAV += addedAV;
                 
-if (gameState.isTutorial && attacker.team === 'P1' && !tutorialState.triggersSeen['CHARGING_PHASE']) {
+                if (gameState.isTutorial && attacker.team === 'P1' && !tutorialState.triggersSeen['CHARGING_PHASE']) {
                     tutorialState.isPaused = true;
                     const chargingMonName = attacker.name; 
                     setTimeout(() => { checkTutorialTriggers('CHARGING_PHASE', chargingMonName); }, 100);
                 }
                 
                 gameState.activeCombatantUid = getNextTurnStateLogic(true);
-                syncStateToClient(); renderState();
+                syncStateToClient(); 
+                renderState();
+                
                 if (gameState.isTutorial && attacker.team === 'P1') {
                     setTimeout(() => { checkTutorialTriggers('CHARGING_PHASE'); }, 100);
                 }
             }
         }
+
 
         function queueSwitchLogic(monUid) {
             const attacker = gameState.combatants.find(c => c.uid === gameState.activeCombatantUid);
@@ -4182,24 +4471,38 @@ if (gameState.isTutorial && attacker.team === 'P1' && !tutorialState.triggersSee
             RetroSFX.switchOut();
             setTimeout(() => RetroSFX.switchIn(), 300);
 
+            // --- INCOMING MON SETUP (Wipe all previous states) ---
             benchedMon.isActive = true; 
-            attacker.isActive = false;
-            
             benchedMon.currentAV = 20;
             benchedMon.displayHp = benchedMon.hp; 
             benchedMon.state = 'IDLE';
             benchedMon.queuedAction = null;
+            benchedMon.lastMoveId = null;
             benchedMon.turnsActive = 0;
             benchedMon.substituteHp = 0;
+            benchedMon.hasDoubleTeam = false;
+            benchedMon.hasDetect = false;
+            benchedMon.trapAV = 0;
+            benchedMon.isInvulnerable = false;
+            benchedMon.isProtected = false;
+            benchedMon.isFollowMe = false;
             
+            // --- OUTGOING MON TEARDOWN (Wipe all active states) ---
+            attacker.isActive = false;
             attacker.currentAV = 0;
             attacker.state = 'BENCH';
             attacker.queuedAction = null;
+            attacker.lastMoveId = null;
             attacker.isFollowMe = false;
             attacker.isDrowsy = false;
             attacker.drowsyCountdown = 0; 
             attacker.substituteHp = 0;
             attacker.energy = 0;
+            attacker.hasDoubleTeam = false;
+            attacker.hasDetect = false;
+            attacker.trapAV = 0;
+            attacker.isInvulnerable = false;
+            attacker.isProtected = false;
             attacker.statStages = { atk: 0, def: 0, spa: 0, spd: 0, speed: 0 };
             
             if (attacker.ability === 'natural_cure' && attacker.status) attacker.status = null;
@@ -4224,12 +4527,23 @@ if (gameState.isTutorial && attacker.team === 'P1' && !tutorialState.triggersSee
             syncStateToClient(); renderState();
         }
 
-        function playRetroDOMVFX(targetBox, elem, isPhysical) {
+
+        function playRetroDOMVFX(targetBox, elem, isPhysical, customVfx = null) {
             const wrapper = targetBox.querySelector('.relative.inline-flex');
             if (!wrapper) return;
 
             const vfx = document.createElement('div');
             vfx.className = 'absolute inset-0 z-[60] flex items-center justify-center pointer-events-none overflow-visible';
+
+            // --- EVASION CUSTOM VFX INTERCEPT ---
+            if (customVfx === 'poof') {
+                // A quick expanding white/gray cloud for dodges
+                vfx.innerHTML = `<div class="pixel-spark vfx-poof" style="--elem-color: #cbd5e1; transform: scale(1.5);"></div>`;
+                wrapper.appendChild(vfx);
+                setTimeout(() => { if (wrapper.contains(vfx)) vfx.remove(); }, 600);
+                return; // Exit early so we don't play the attack animation
+            }
+            // ------------------------------------
 
             let elemColor = '#cbd5e1'; // Default Normal
             switch(elem) {
@@ -4271,9 +4585,37 @@ function isGrounded(mon) {
 }
 
         function performExecutionPhase(attacker) {
-            const moveId = attacker.queuedAction.moveId;
-            const move = attacker.queuedAction.move;
-            const intendedTargets = attacker.queuedAction.targetsInfo;
+            let moveId = attacker.queuedAction.moveId;
+            
+            // THE FIX: Clone the move so we don't permanently mutate the master dictionary!
+            let move = { ...attacker.queuedAction.move }; 
+            let intendedTargets = attacker.queuedAction.targetsInfo;
+
+            // --- MIRROR MOVE INTERCEPT ---
+            if (move.type === 'mirror_move') {
+                let targetInfo = intendedTargets ? intendedTargets[0] : null;
+                let target = targetInfo ? gameState.combatants.find(c => c.uid === targetInfo.uid) : null;
+                
+                if (target && target.lastMoveId && MOVES[target.lastMoveId]) {
+                    moveId = target.lastMoveId;
+                    
+                    // THE FIX: Clone the mirrored move too, in case we copy Weather Ball!
+                    move = { ...MOVES[moveId] }; 
+                    
+                    pushLog(`${attacker.name} used Mirror Move to copy ${target.name}'s ${move.name}!`, true);
+                    
+                    // Reroute the targeting in case we copied a self-buff or field move
+                    if (move.target === 'self' || move.target === 'enemy_field') {
+                        intendedTargets = [{ uid: attacker.uid }];
+                    } else if (move.target === 'ally_active') {
+                        let ally = gameState.combatants.find(c => c.team === attacker.team && c.isActive && !c.isDead && c.uid !== attacker.uid);
+                        intendedTargets = ally ? [{ uid: ally.uid }] : [];
+                    }
+                } else {
+                    move.type = 'fail';
+                }
+            }
+            // -----------------------------
 
             if (moveId === 'weather_ball' && gameState.weather && gameState.weather.type) {
                 move.power = 100; // Base power doubles in weather
@@ -4281,9 +4623,8 @@ function isGrounded(mon) {
                 else if (gameState.weather.type === 'rain') move.elem = 'Water';
                 else if (gameState.weather.type === 'sand') move.elem = 'Rock';
                 else if (gameState.weather.type === 'hail') move.elem = 'Ice';
-            }
+            }            
 
-            // 1. Initialize animEvent FIRST so the Confusion block can safely use it!
             let animEvent = { id: Date.now(), attackerUid: attacker.uid, attackerTeam: attacker.team, type: move.type, elem: move.elem, isPhysical: move.isPhysical, hits: move.hits || 1, targets: [], attackerTexts: [] };
 
             // ==========================================
@@ -4292,24 +4633,20 @@ function isGrounded(mon) {
             if (attacker.isConfused) {
                 let roll = Math.random();
                 if (roll < 0.33) {
-                    // 33% chance to snap out
                     attacker.isConfused = false;
                     animEvent.attackerTexts.push({ text: "SNAPPED OUT!", color: 'text-green-300' });
                     pushLog(`${attacker.name} snapped out of its confusion!`, true);
                 } else if (roll < 0.66) {
-                    // 33% chance to hit self in confusion
                     let selfDamage = Math.max(1, Math.floor(((40 * attacker.atk) / attacker.def) * 0.44));
                     attacker.hp = Math.max(0, attacker.hp - selfDamage); 
                     
                     animEvent.attackerTexts.push({ text: `-${selfDamage} HP`, color: 'text-red-400' });
                     pushLog(`${attacker.name} hit itself in its confusion!`, true);
                     
-                    // Cleanup and exit - Energy and AV were already spent during queueMoveLogic!
                     attacker.state = 'IDLE'; 
                     attacker.queuedAction = null; 
                     attacker.turnsActive += 1;
                     
-                    // Check if they died from hitting themselves
                     if (attacker.hp <= 0 && !attacker.isDead) { 
                         attacker.isDead = true; 
                         gameState.pendingDeaths.push(attacker.team); 
@@ -4322,27 +4659,32 @@ function isGrounded(mon) {
                     gameState.animEvent = animEvent;
                     syncStateToClient(); 
                     renderState();
-                    return; // EXIT THE FUNCTION - The actual move does not execute!
+                    return; 
                 } else {
-                    // 34% chance to attack normally
                     pushLog(`${attacker.name} is confused!`, false);
                 }
             }
             // ==========================================
             
-            // --- GLUTTONY MECHANIC ---
             let energyGain = (move.gen || 0);
             if (attacker.ability === 'gluttony' && energyGain > 0) energyGain *= 2; 
             attacker.energy = Math.min(attacker.maxEnergy, attacker.energy + energyGain);
             
-            pushLog(`${attacker.name} used ${move.name}!`);
+            if (move.type !== 'fail') pushLog(`${attacker.name} used ${move.name}!`);
 
             if (attacker.ability === 'gluttony' && (move.gen || 0) > 0) {
                 animEvent.attackerTexts.push({ text: "GLUTTONY!", color: 'text-amber-400' });
             }
 
-            if (move.type === 'protect') {
+            if (move.type === 'fail') {
+                animEvent.attackerTexts.push({ text: "FAILED!", color: 'text-slate-400' });
+                pushLog(`But it failed! There was no move to mirror.`, true);
+            } else if (move.type === 'protect') {
                 attacker.isProtected = true; animEvent.attackerTexts.push({ text: "PROTECT!", color: 'text-blue-300' }); pushLog(`${attacker.name} protected itself!`, true);
+            } else if (move.type === 'detect') {
+                attacker.hasDetect = true; animEvent.attackerTexts.push({ text: "DETECT!", color: 'text-teal-300' }); pushLog(`${attacker.name} is reading the opponent's movements!`, true);
+            } else if (move.type === 'double_team') {
+                attacker.hasDoubleTeam = true; animEvent.attackerTexts.push({ text: "DOUBLE TEAM!", color: 'text-cyan-300' }); pushLog(`${attacker.name} created illusory copies to boost evasion!`, true);
             } else if (move.type === 'follow_me') {
                 attacker.isFollowMe = true; animEvent.attackerTexts.push({ text: "FOLLOW ME!", color: 'text-pink-300' }); pushLog(`${attacker.name} became the center of attention!`, true);
             } else if (move.type === 'weather') {
@@ -4368,7 +4710,6 @@ function isGrounded(mon) {
                 gameState.combatants.forEach(c => { if(c.isActive && !c.isDead) { let newSpeed = getSpeed(c); if(oldSpeeds[c.uid] !== newSpeed) c.currentAV = c.currentAV * (oldSpeeds[c.uid] / newSpeed); } });
             } else if (move.type === 'trick_room') {
                 let oldSpeeds = {}; gameState.combatants.forEach(c => { if(c.isActive && !c.isDead) oldSpeeds[c.uid] = getSpeed(c); });
-                
                 if (gameState.trickRoom > 0) {
                     gameState.trickRoom = 0; 
                     animEvent.attackerTexts.push({ text: "DIMENSIONS NORMAL!", color: 'text-slate-200' }); 
@@ -4396,7 +4737,6 @@ function isGrounded(mon) {
                 let target = gameState.combatants.find(c => c.uid === intendedTargets[0]?.uid);
                 if (target) {
                     let targetAnim = { uid: target.uid, shake: false, texts: [] };
- 
                     if ((target.substituteHp > 0 && !move.isSound) || target.ability === 'suction_cups') { targetAnim.texts.push({ text: "FAILED!", color: 'text-slate-400' }); animEvent.targets.push(targetAnim); }
                     else {
                         let enemyBench = gameState.combatants.filter(c => c.team === target.team && !c.isActive && !c.isDead);
@@ -4429,6 +4769,10 @@ function isGrounded(mon) {
                     animEvent.attackerTexts.push({ text: "AURORA VEIL!", color: 'text-cyan-300' });
                     pushLog(`Aurora Veil heavily protected ${attacker.team}'s team!`, true);
                 }
+            } else if (move.type === 'safeguard') {
+                gameState.safeguard[attacker.team] = 500; 
+                animEvent.attackerTexts.push({ text: "SAFEGUARD!", color: 'text-blue-200' });
+                pushLog(`${attacker.team} is protected by a mystical veil!`, true);
             } else if (move.type === 'haze') {
                 gameState.combatants.forEach(c => { 
                     if (c.isActive && !c.isDead) { 
@@ -4440,7 +4784,8 @@ function isGrounded(mon) {
             } else if (move.type === 'defog') {
                 gameState.hazards.P1 = { stealth_rock: false, spikes: 0 }; gameState.hazards.P2 = { stealth_rock: false, spikes: 0 };
                 gameState.screens.P1 = { reflect: 0, light_screen: 0 }; gameState.screens.P2 = { reflect: 0, light_screen: 0 };
-                animEvent.attackerTexts.push({ text: "DEFOG!", color: 'text-slate-200' }); pushLog(`Hazards and screens were blown away!`, true);
+                gameState.safeguard = { P1: 0, P2: 0 }; 
+                animEvent.attackerTexts.push({ text: "DEFOG!", color: 'text-slate-200' }); pushLog(`Hazards, screens, and veils were blown away!`, true);
             } else if (move.type === 'heal_bell') {
                 gameState.combatants.forEach(c => { if (c.team === attacker.team && !c.isDead && c.status) c.status = null; });
                 animEvent.attackerTexts.push({ text: "HEAL BELL!", color: 'text-emerald-300' });
@@ -4511,7 +4856,6 @@ function isGrounded(mon) {
                 return t && t.team !== attacker.team;
             });
 
-            // Follow Me ONLY redirects attacks aimed at the enemy!
             if (followMeTarget && move.target === 'enemy' && !move.isSpread && targetingEnemy) {
                 actualTargets = [{uid: followMeTarget.uid}]; pushLog(`The attack was drawn to ${followMeTarget.name}!`, true);
             }
@@ -4529,13 +4873,13 @@ function isGrounded(mon) {
             let pivotSuccessful = false; 
 
             if (actualTargets.length === 0 && !['self', 'enemy_field', 'all_adjacent'].includes(move.target)) {
-                if(moveId !== 'sucker_punch') { animEvent.attackerTexts.push({text: "NO TARGET!", color: "text-slate-300"}); pushLog(`But there was no target!`, true); }
+                if(moveId !== 'sucker_punch' && move.type !== 'fail') { animEvent.attackerTexts.push({text: "NO TARGET!", color: "text-slate-300"}); pushLog(`But there was no target!`, true); }
             } else {
                 const spreadMod = (move.isSpread && actualTargets.length > 1) ? 0.75 : 1;
                 let basePower = move.power;
                 if (moveId === 'facade' && attacker.status && !['sleep', 'freeze'].includes(attacker.status)) basePower *= 2;
                 if (attacker.ability === 'technician' && basePower > 0 && basePower <= 60) basePower = Math.floor(basePower * 1.5);
-                if (attacker.ability === 'iron_fist' && move.name.includes('Punch')) basePower = Math.floor(basePower * 1.2);
+                if (attacker.ability === 'iron_fist' && move.punch) basePower = Math.floor(basePower * 1.2);
                 if (attacker.ability === 'blaze' && move.elem === 'Fire' && (attacker.hp / attacker.maxHp) <= 0.33) basePower = Math.floor(basePower * 1.5);
                 if (attacker.ability === 'guts' && attacker.status && attacker.status !== 'sleep') basePower = Math.floor(basePower * 1.5);
                 if (attacker.status === 'burn' && move.isPhysical && attacker.ability !== 'guts') basePower = Math.floor(basePower * 0.5);
@@ -4557,12 +4901,11 @@ function isGrounded(mon) {
                     let targetAnim = { uid: target.uid, shake: false, texts: [] };
 
                     if (target.isProtected && (move.target.includes('enemy') || move.target === 'all_adjacent')) {
-                        if (moveId === 'feint' || move.isVanish) { 
+                        if (['feint', 'phantom_force', 'shadow_force'].includes(moveId)) { 
                             target.isProtected = false; 
                             targetAnim.texts.push({ text: "GUARD BROKEN!", color: 'text-red-400' }); 
                             pushLog(`${attacker.name} broke through ${target.name}'s protection!`, true); 
-                        }
-                        else if (move.type === 'damage_smart' && gameState.battleFormat === 'VGC') {
+                        }else if (move.type === 'damage_smart' && gameState.battleFormat === 'VGC') {
                             let newTarget = gameState.combatants.find(c => c.team === target.team && c.isActive && !c.isDead && c.uid !== target.uid);
                             if (newTarget && !newTarget.isProtected) {
                                 targetAnim.texts.push({ text: "REDIRECTED!", color: 'text-cyan-300' }); 
@@ -4590,7 +4933,51 @@ function isGrounded(mon) {
                         pushLog(`${target.name} avoided the attack!`, true); 
                         return; 
                     }
-                    
+
+                    // --- DETECT 100% EVASION INTERCEPT ---
+                    if (target.hasDetect && !['self', 'ally_active', 'enemy_field'].includes(move.target)) {
+                        target.hasDetect = false; // Consumed instantly upon being targeted
+                        
+                        if (move.ignoresEvasion) {
+                            targetAnim.texts.push({ text: "CAUGHT!", color: 'text-red-400' });
+                            pushLog(`${attacker.name}'s attack tracked ${target.name} perfectly!`, true);
+                        } else if (move.isSpread || (move.hits && move.hits > 1)) {
+                            targetAnim.texts.push({ text: "OVERWHELMED!", color: 'text-slate-400' });
+                            pushLog(`${target.name} couldn't dodge the wide assault!`, true);
+                        } else {
+                            targetAnim.texts.push({ text: "PERFECT DODGE!", color: 'text-teal-300' });
+                            targetAnim.vfx = 'poof'; 
+                            animEvent.targets.push(targetAnim);
+                            pushLog(`${target.name} predicted the attack and dodged effortlessly!`, true);
+                            return; 
+                        }
+                    }
+
+                    // --- DOUBLE TEAM EVASION INTERCEPT ---
+                    if (target.hasDoubleTeam && !['self', 'ally_active', 'enemy_field'].includes(move.target)) {
+                        target.hasDoubleTeam = false; 
+                        
+                        if (move.ignoresEvasion) {
+                            targetAnim.texts.push({ text: "ILLUSION SHATTERED!", color: 'text-red-400' });
+                            pushLog(`${attacker.name}'s attack completely ignored the illusions!`, true);
+                        } else if (move.isSpread || (move.hits && move.hits > 1)) {
+                            targetAnim.texts.push({ text: "ILLUSIONS WIPED!", color: 'text-slate-400' });
+                            pushLog(`${target.name}'s illusions were wiped out by the attack!`, true);
+                        } else {
+                            if (Math.random() <= 0.50) {
+                                targetAnim.texts.push({ text: "EVADED!", color: 'text-cyan-300' });
+                                targetAnim.vfx = 'poof'; 
+                                animEvent.targets.push(targetAnim);
+                                pushLog(`${target.name} dodged the attack using its illusions!`, true);
+                                return; 
+                            } else {
+                                targetAnim.texts.push({ text: "REAL TARGET HIT!", color: 'text-slate-400' });
+                                pushLog(`The attack found the real ${target.name}!`, true);
+                            }
+                        }
+                    }
+                    // -------------------------------------
+                                        
                     if (moveId === 'brick_break') { 
                         gameState.screens[target.team].reflect = 0; 
                         gameState.screens[target.team].light_screen = 0; 
@@ -4631,7 +5018,6 @@ function isGrounded(mon) {
                             let currentAnim = targetAnim;
                             let currentTotalDamage = 0; 
                             
-
                             for (let i = 0; i < hitCount; i++) {
                                 if (currentTarget.hp <= 0 && currentTarget.substituteHp <= 0) {
                                     if (move.type === 'damage_smart' && gameState.battleFormat === 'VGC') {
@@ -4704,6 +5090,27 @@ function isGrounded(mon) {
                                 if (gameState.weather.type === 'sand' && currentTarget.types.includes('Rock') && !move.isPhysical) effectiveDef = Math.floor(effectiveDef * 1.5);
                                 if (gameState.weather.type === 'hail' && currentTarget.types.includes('Ice') && move.isPhysical) effectiveDef = Math.floor(effectiveDef * 1.5);
 
+                                // --- SEMI-INVULNERABLE COUNTERPLAY (DOUBLE DAMAGE) ---
+                                let vulnerabilityMult = 1.0;
+                                if (currentTarget.isInvulnerable) {
+                                    if (currentTarget.queuedAction?.moveId === 'dig' && ['earthquake'].includes(moveId)) {
+                                        vulnerabilityMult = 2.0;
+                                        currentAnim.texts.push({ text: "CRUSHED!", color: 'text-amber-400' });
+                                        pushLog(`${currentTarget.name} was dug up and took double damage!`, true);
+                                    }
+                                    else if (currentTarget.queuedAction?.moveId === 'dive' && ['surf', 'whirlpool'].includes(moveId)) {
+                                        vulnerabilityMult = 2.0;
+                                        currentAnim.texts.push({ text: "FLUSHED!", color: 'text-blue-400' });
+                                        pushLog(`${currentTarget.name} was flushed out and took double damage!`, true);
+                                    }
+                                    else if (['fly', 'bounce'].includes(currentTarget.queuedAction?.moveId) && ['gust', 'twister', 'thunder', 'sky_attack'].includes(moveId)) {
+                                        vulnerabilityMult = 2.0;
+                                        currentAnim.texts.push({ text: "KNOCKED DOWN!", color: 'text-cyan-300' });
+                                        pushLog(`${currentTarget.name} was knocked out of the sky for double damage!`, true);
+                                    }
+                                }
+                                // --------------------------------------------------
+
                                 let screenMod = 1.0;
                                 if (move.isPhysical && gameState.screens[currentTarget.team] && gameState.screens[currentTarget.team].reflect > 0) screenMod = 0.5;
                                 else if (!move.isPhysical && gameState.screens[currentTarget.team] && gameState.screens[currentTarget.team].light_screen > 0) screenMod = 0.5;
@@ -4725,7 +5132,7 @@ function isGrounded(mon) {
                                     finalDamage = Math.max(1, Math.floor(currentTarget.hp / 2));
                                 } else {
                                     const levelScalar = 0.44;
-                                    finalDamage = Math.floor((((basePower * currentAtk) / effectiveDef) * levelScalar) * rng * spreadMod * typeMod * weatherMod * stabMod * critMult * screenMod);
+                                    finalDamage = Math.floor((((basePower * currentAtk) / effectiveDef) * levelScalar) * rng * spreadMod * typeMod * weatherMod * stabMod * critMult * screenMod * vulnerabilityMult);
                                     
                                     if (currentTarget.ability === 'clear_body') finalDamage = Math.floor(finalDamage * 0.9); 
                                     if (moveId === 'hex' && currentTarget.status) finalDamage *= 2;
@@ -4791,6 +5198,33 @@ function isGrounded(mon) {
                                     animEvent.attackerTexts.push({ text: `+${healAmount} HP`, color: 'text-green-400' });
                                     pushLog(`${currentTarget.name} had its energy drained!`, true);
                                 }
+
+                                // --- DRAGON TAIL PHAZING ---
+                                if (move.type === 'damage_force_switch' && currentTarget.hp > 0 && currentTarget.substituteHp <= 0) {
+                                    let enemyBench = gameState.combatants.filter(c => c.team === currentTarget.team && !c.isActive && !c.isDead);
+                                    if (enemyBench.length > 0) {
+                                        let randomMon = enemyBench[Math.floor(Math.random() * enemyBench.length)];
+                                        currentAnim.texts.push({ text: "BLOWN AWAY!", color: 'text-cyan-300' });
+                                        
+                                        currentTarget.isActive = false;
+                                        currentTarget.energy = 0;
+                                        currentTarget.currentAV = 0; 
+                                        currentTarget.state = 'BENCH'; 
+                                        currentTarget.queuedAction = null;
+                                        
+                                        randomMon.isActive = true; 
+                                        randomMon.currentAV = 20; 
+                                        randomMon.state = 'IDLE'; 
+                                        randomMon.turnsActive = 0; 
+                                        randomMon.queuedAction = null;
+                                        
+                                        pushLog(`${currentTarget.name} was dragged out! ${currentTarget.team} sent out ${randomMon.name}!`, true);
+                                        
+                                        applyHazards(randomMon, randomMon.team, animEvent);
+                                        if (randomMon.ability === 'intimidate') triggerSwitchInAbilities(randomMon, animEvent);
+                                    }
+                                }
+                                // --------------------------------
                                 
                                 if (attacker.ability === 'pickpocket' && currentTarget.energy > 0) {
                                     currentTarget.energy--; attacker.energy = Math.min(attacker.maxEnergy, attacker.energy + 1);
@@ -4830,19 +5264,29 @@ function isGrounded(mon) {
                                     }
                                 }
 
-                                let eChance = move.effectChance || 0; if (attacker.ability === 'serene_grace') eChance *= 2;
-                                let effectToApply = move.effectType; if (attacker.ability === 'poison_touch' && move.isPhysical && !effectToApply) { effectToApply = 'poison'; eChance = 0.3; }
+                                let eChance = move.effectChance || 0; 
+                                if (attacker.ability === 'serene_grace') eChance *= 2;
+                                
+                                // --- VOLATILE STATUS: CONFUSION ---
+                                if (move.type === 'damage_confuse' && currentTarget.hp > 0 && !currentTarget.isConfused) {
+                                    if (Math.random() <= eChance) {
+                                        currentTarget.isConfused = true;
+                                        currentAnim.texts.push({ text: "CONFUSED!", color: 'text-yellow-400' });
+                                        pushLog(`${currentTarget.name} became confused!`, true);
+                                    }
+                                }
+
+                                // --- PRIMARY STATUS EFFECTS ---
+                                let effectToApply = move.effectType; 
+                                if (attacker.ability === 'poison_touch' && move.isPhysical && !effectToApply) { effectToApply = 'poison'; eChance = 0.3; }
+                                
+                                if (effectToApply === 'confusion') effectToApply = null; 
 
                                 if (effectToApply && currentTarget.hp > 0 && !currentTarget.status && Math.random() <= eChance) {
                                     let canApply = true;
                                     if (gameState.terrain && isGrounded(currentTarget)) {
                                         if (gameState.terrain.type === 'misty') canApply = false;
                                         if (gameState.terrain.type === 'electric' && effectToApply === 'sleep') canApply = false;
-                                    }
-                                    if (move.type === 'damage_confuse' && !currentTarget.isConfused) {
-                                        currentTarget.isConfused = true;
-                                        currentAnim.texts.push({ text: "CONFUSED!", color: 'text-yellow-400' });
-                                        pushLog(`${currentTarget.name} became confused!`, true);
                                     }
                                                                     
                                     if (effectToApply.includes('poison') && (currentTarget.types.includes('Poison') || currentTarget.types.includes('Steel') || currentTarget.ability === 'immunity' || currentTarget.ability === 'magic_guard')) canApply = false;
@@ -4851,33 +5295,43 @@ function isGrounded(mon) {
                                     if (effectToApply === 'freeze' && (currentTarget.types.includes('Ice') || currentTarget.ability === 'magic_guard')) canApply = false;
 
                                     if (canApply) {
-                                        if (effectToApply === 'freeze') {
-                                            if (currentTarget.state === 'CHARGING') { currentTarget.state = 'IDLE'; currentTarget.queuedAction = null; }
-                                            currentTarget.status = 'freeze'; currentAnim.texts.push({ text: "FROZEN!", color: 'text-cyan-300' }); pushLog(`${currentTarget.name} was frozen solid!`, true);
-                                        } 
-                                        else if (effectToApply === 'sleep') {
-                                            if (currentTarget.state === 'CHARGING') { currentTarget.state = 'IDLE'; currentTarget.queuedAction = null; }
-                                            currentTarget.status = 'sleep'; currentTarget.currentAV += ((BASE_CONSTANT / getSpeed(currentTarget)) * 0.8);
-                                            currentAnim.texts.push({ text: "ASLEEP!", color: 'text-slate-300' }); pushLog(`${currentTarget.name} fell fast asleep!`, true);
-                                        } 
-                                        else {
-                                            let oldSpeed = getSpeed(currentTarget); currentTarget.status = effectToApply;
-                                            let newSpeed = getSpeed(currentTarget); if(oldSpeed !== newSpeed) currentTarget.currentAV = currentTarget.currentAV * (oldSpeed / newSpeed);
-                                            let sColor = effectToApply === 'burn' ? 'text-red-400' : (effectToApply.includes('poison') ? 'text-purple-400' : 'text-yellow-400');
-                                            let displayTxt = effectToApply === 'bad_poison' ? 'BAD POISON' : effectToApply.toUpperCase();
-                                            currentAnim.texts.push({ text: displayTxt, color: sColor }); pushLog(`${currentTarget.name} was afflicted with ${displayTxt}!`, true);
+                                        // --- SAFEGUARD BLOCK ---
+                                        if (gameState.safeguard && gameState.safeguard[currentTarget.team] > 0) {
+                                            currentAnim.texts.push({ text: "SAFEGUARD!", color: 'text-blue-200' });
+                                            pushLog(`${currentTarget.name} is protected by Safeguard!`, true);
+                                            canApply = false;
+                                        }
+                                        // -----------------------
+                                        
+                                        if (canApply) {
+                                            if (effectToApply === 'freeze') {
+                                                if (currentTarget.state === 'CHARGING') { currentTarget.state = 'IDLE'; currentTarget.queuedAction = null; }
+                                                currentTarget.status = 'freeze'; currentAnim.texts.push({ text: "FROZEN!", color: 'text-cyan-300' }); pushLog(`${currentTarget.name} was frozen solid!`, true);
+                                            } 
+                                            else if (effectToApply === 'sleep') {
+                                                if (currentTarget.state === 'CHARGING') { currentTarget.state = 'IDLE'; currentTarget.queuedAction = null; }
+                                                currentTarget.status = 'sleep'; currentTarget.currentAV += ((BASE_CONSTANT / getSpeed(currentTarget)) * 0.8);
+                                                currentAnim.texts.push({ text: "ASLEEP!", color: 'text-slate-300' }); pushLog(`${currentTarget.name} fell fast asleep!`, true);
+                                            } 
+                                            else {
+                                                let oldSpeed = getSpeed(currentTarget); currentTarget.status = effectToApply;
+                                                let newSpeed = getSpeed(currentTarget); if(oldSpeed !== newSpeed) currentTarget.currentAV = currentTarget.currentAV * (oldSpeed / newSpeed);
+                                                let sColor = effectToApply === 'burn' ? 'text-red-400' : (effectToApply.includes('poison') ? 'text-purple-400' : 'text-yellow-400');
+                                                let displayTxt = effectToApply === 'bad_poison' ? 'BAD POISON' : effectToApply.toUpperCase();
+                                                currentAnim.texts.push({ text: displayTxt, color: sColor }); pushLog(`${currentTarget.name} was afflicted with ${displayTxt}!`, true);
 
-                                            if (currentTarget.ability === 'synchronize' && !attacker.status) {
-                                                let syncApply = true;
-                                                if (effectToApply.includes('poison') && (attacker.types.includes('Poison') || attacker.types.includes('Steel') || attacker.ability === 'immunity' || attacker.ability === 'magic_guard')) syncApply = false;
-                                                if (effectToApply === 'burn' && (attacker.types.includes('Fire') || attacker.ability === 'magic_guard')) syncApply = false;
-                                                if (effectToApply === 'paralyze' && (currentTarget.types.includes('Electric') || attacker.ability === 'magic_guard')) syncApply = false;
-                                                if (effectToApply === 'freeze' && (currentTarget.types.includes('Ice') || attacker.ability === 'magic_guard')) syncApply = false;
+                                                if (currentTarget.ability === 'synchronize' && !attacker.status) {
+                                                    let syncApply = true;
+                                                    if (effectToApply.includes('poison') && (attacker.types.includes('Poison') || attacker.types.includes('Steel') || attacker.ability === 'immunity' || attacker.ability === 'magic_guard')) syncApply = false;
+                                                    if (effectToApply === 'burn' && (attacker.types.includes('Fire') || attacker.ability === 'magic_guard')) syncApply = false;
+                                                    if (effectToApply === 'paralyze' && (currentTarget.types.includes('Electric') || attacker.ability === 'magic_guard')) syncApply = false;
+                                                    if (effectToApply === 'freeze' && (currentTarget.types.includes('Ice') || attacker.ability === 'magic_guard')) syncApply = false;
 
-                                                if (syncApply) {
-                                                    let oldAtkSpeed = getSpeed(attacker); attacker.status = effectToApply;
-                                                    let newAtkSpeed = getSpeed(attacker); if(oldAtkSpeed !== newAtkSpeed) attacker.currentAV = attacker.currentAV * (oldAtkSpeed / newAtkSpeed);
-                                                    animEvent.attackerTexts.push({ text: `SYNC: ${displayTxt}`, color: sColor }); pushLog(`${attacker.name}'s Synchronize passed the status!`, true);
+                                                    if (syncApply) {
+                                                        let oldAtkSpeed = getSpeed(attacker); attacker.status = effectToApply;
+                                                        let newAtkSpeed = getSpeed(attacker); if(oldAtkSpeed !== newAtkSpeed) attacker.currentAV = attacker.currentAV * (oldAtkSpeed / newAtkSpeed);
+                                                        animEvent.attackerTexts.push({ text: `SYNC: ${displayTxt}`, color: sColor }); pushLog(`${attacker.name}'s Synchronize passed the status!`, true);
+                                                    }
                                                 }
                                             }
                                         }
@@ -4893,10 +5347,19 @@ function isGrounded(mon) {
                                 }
                             }
                         }
-                    } else if (move.type === 'status' || move.type === 'debuff' || move.type === 'yawn') {
+                    } else if (move.type === 'status' || move.type === 'debuff' || move.type === 'yawn' || move.type === 'confuse') {
                         targetAnim.shake = false;
                         if (target.substituteHp > 0 && !move.isSound) { targetAnim.texts.push({ text: "BLOCKED!", color: 'text-slate-400' }); pushLog(`The substitute blocked the attack!`, true); } 
                         else {
+                            // --- NEW PURE TACTICS SAFEGUARD BLOCK ---
+                            if (['status', 'yawn', 'confuse'].includes(move.type) && gameState.safeguard && gameState.safeguard[target.team] > 0) {
+                                targetAnim.texts.push({ text: "SAFEGUARD!", color: 'text-blue-200' });
+                                pushLog(`${target.name} is protected by Safeguard!`, true);
+                                animEvent.targets.push(targetAnim);
+                                return;
+                            }
+                            // ----------------------------------------
+
                             if (target.substituteHp > 0 && move.isSound) targetAnim.texts.push({ text: "BYPASSED SUB!", color: 'text-cyan-300' });
 
                             let isImmune = false;
@@ -4909,7 +5372,21 @@ function isGrounded(mon) {
                             } else {
                                 let eChance = move.effectChance || 1; if (attacker.ability === 'serene_grace') eChance *= 2;
                                 if (Math.random() <= eChance) {
-                                    if (move.type === 'status') {
+                                    
+                                    // --- CONFUSE RAY LOGIC ---
+                                    if (move.type === 'confuse') {
+                                        if (target.isConfused) { 
+                                            targetAnim.texts.push({ text: "FAIL!", color: 'text-slate-300' }); 
+                                            pushLog(`It failed! ${target.name} is already confused.`, true); 
+                                        } else {
+                                            target.isConfused = true;
+                                            targetAnim.shake = true;
+                                            targetAnim.texts.push({ text: "CONFUSED!", color: 'text-yellow-400' });
+                                            pushLog(`${target.name} became confused!`, true);
+                                        }
+                                    } 
+                                    // --- EXISTING PRIMARY STATUS LOGIC ---
+                                    else if (move.type === 'status') {
                                         if (target.status) { targetAnim.texts.push({ text: "FAIL!", color: 'text-slate-300' }); pushLog(`It failed!`, true); } 
                                         else {
                                             let effectToApply = move.effectType; let canApply = true;
@@ -4964,9 +5441,15 @@ function isGrounded(mon) {
                                 }
                             }
                         }
-                    } else if (move.type === 'heal' || move.type === 'advance') {
+                                        } else if (move.type === 'heal' || move.type === 'advance' || move.type === 'helping_hand') {
                         if (move.type === 'heal') { target.hp = Math.min(target.maxHp, target.hp + Math.abs(move.power)); targetAnim.texts.push({ text: `+${Math.abs(move.power)}`, color: 'text-emerald-400' }); pushLog(`${target.name} recovered HP!`, true); }
                         if (move.type === 'advance') { target.currentAV = Math.max(0, target.currentAV - ((BASE_CONSTANT / getSpeed(target)) * move.effectVal)); targetAnim.texts.push({ text: "ADVANCED", color: 'text-pink-400' }); pushLog(`${target.name}'s timeline was advanced!`, true); }
+                        if (move.type === 'helping_hand') { 
+                            target.energy = Math.min(target.maxEnergy, target.energy + 1); 
+                            target.currentAV = Math.max(0, target.currentAV - ((BASE_CONSTANT / getSpeed(target)) * move.effectVal)); 
+                            targetAnim.texts.push({ text: "+1 EN / ADVANCED", color: 'text-pink-400' }); 
+                            pushLog(`${target.name} received Energy and a timeline boost from Helping Hand!`, true); 
+                        }
                     } else if (move.type === 'delay') {
                         if (target.substituteHp > 0) { targetAnim.texts.push({ text: "BLOCKED!", color: 'text-slate-400' }); } 
                         else if (target.ability === 'inner_focus') { targetAnim.texts.push({ text: "UNFAZED!", color: 'text-slate-200' }); } 
@@ -5084,6 +5567,7 @@ function isGrounded(mon) {
             gameState.animEvent = animEvent;
             syncStateToClient(); renderState();
         }
+
 
         function resolveDeathSwitchLogic(monUid) {
             const expectedTeam = gameState.pendingDeaths[0];
@@ -5550,7 +6034,7 @@ updateDOMHp(target.uid);
                 elP1Act.className = "flex gap-2 md:gap-10 justify-start items-end z-[25] relative pl-4 md:pl-12 w-full";
                 elP2Act.className = "flex gap-2 md:gap-10 justify-end items-end z-20 relative pr-4 md:pr-12 w-full";
                 
-                // RESTORED: Double stack (wrapped rows) for the 5 bench icons
+                // Double stack (wrapped rows) for the 5 bench icons
                 elP1Bench.className = "absolute bottom-2 right-2 md:bottom-6 md:right-6 flex flex-row-reverse flex-wrap w-[100px] sm:w-[140px] gap-1.5 z-30 opacity-85";
                 elP2Bench.className = "absolute top-2 left-2 md:top-6 md:left-6 flex flex-row flex-wrap w-[100px] sm:w-[140px] gap-1.5 z-30 opacity-85";
             } else {
@@ -5570,7 +6054,7 @@ updateDOMHp(target.uid);
                 if (c.isActive) {
                     const card = document.createElement('div');
                     card.id = `char-wrap-${c.uid}`;
-                     let introClass = applyIntro ? (c.team === 'P1' ? 'anim-intro-p1' : 'anim-intro-p2') : '';
+                    let introClass = applyIntro ? (c.team === 'P1' ? 'anim-intro-p1' : 'anim-intro-p2') : '';
 
                     card.className = `relative w-[135px] sm:w-[160px] md:w-[200px] xl:w-[260px] flex flex-col justify-end shrink-0 ${introClass}`;
                     
@@ -5586,17 +6070,21 @@ updateDOMHp(target.uid);
                     if (gameState.hazards[c.team].spikes > 0) hazardIcons += '🎇'.repeat(gameState.hazards[c.team].spikes);
                     if (c.isFollowMe) hazardIcons += '🎯'; 
 
-
                     let simpleHudOffset = c.team === 'P1' ? '-top-10 -right-4 sm:-right-8' : '-top-5 -right-2 sm:-right-6';
 
                     let spriteBoxHeight = c.team === 'P1' 
                         ? 'sprite-box-p1 h-[130px] sm:h-[140px] md:h-[180px] xl:h-[220px]' 
                         : 'sprite-box-p2 h-[100px] sm:h-[110px] md:h-[150px] xl:h-[180px]';
 
-                    // --- NEW VANISH LOGIC ---
-                    let isVanished = c.state === 'CHARGING' && c.queuedAction && c.queuedAction.type === 'MOVE' && c.queuedAction.move.isVanish;
+                    // --- NEW VANISH & ILLUSION LOGIC (USING V1.3 FLAG) ---
+                    let isVanished = c.isInvulnerable;
                     let vanishClass = isVanished ? 'opacity-0 transition-all duration-500' : 'opacity-100 transition-all duration-300';
                     let chargingGlow = (!isVanished && c.state === 'CHARGING') ? 'brightness-125 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]' : '';
+                    
+                    // Creates the visual "clone" effect by projecting cyan drop-shadows left and right!
+                    let spriteStyle = c.hasDoubleTeam 
+                        ? `filter: drop-shadow(-15px 0 0 rgba(34,211,238,0.5)) drop-shadow(15px 0 0 rgba(34,211,238,0.5)); opacity: 0.85;`
+                        : `filter: drop-shadow(0 6px 4px rgba(0,0,0,0.5));`;
 
                     card.innerHTML = `
                         <div class="detailed-hud w-full ${turnClass} transition-all z-[50] relative pb-2">
@@ -5628,7 +6116,7 @@ updateDOMHp(target.uid);
                                     <div class="flex gap-0.5 mt-1 justify-end w-full pr-0.5">
                                         ${energyArray.map((_, i) => `<div class="w-2 h-2 rounded-full border border-black ${i < c.energy ? 'bg-yellow-400' : 'bg-slate-600'} shadow-[1px_1px_0_rgba(0,0,0,0.5)]"></div>`).join('')}
                                     </div>
-                                    ${(c.status || hazardIcons) ? `<div class="flex gap-1 mt-1 justify-end items-center scale-[0.8] origin-top-right">${getStatusBadge(c)}<span class="text-[10px] drop-shadow-md">${hazardIcons}</span></div>` : ''}
+                                    ${(c.status || hazardIcons || c.hasDetect || c.hasDoubleTeam || c.isFollowMe || c.trapAV > 0) ? `<div class="flex gap-1 mt-1 justify-end items-center scale-[0.8] origin-top-right">${getStatusBadge(c)}<span class="text-[10px] drop-shadow-md">${hazardIcons}</span></div>` : ''}
                                 </div>
                                 ${c.isProtected ? '<div class="protect-bubble z-30"></div>' : ''}
                                 ${c.trapAV > 0 ? '<div class="bind-ring"></div>' : ''}                                                        
@@ -5636,14 +6124,14 @@ updateDOMHp(target.uid);
                                      onload="window.alignShadow(this, '${c.uid}')" 
                                      onerror="this.onerror=null; this.className='fallback w-full h-full'; this.src='${emptyImageSvg}';" 
                                      class="relative z-20 pokemon-sprite ${c.team === 'P1' ? 'p1-sprite' : 'p2-sprite'} ${chargingGlow} ${vanishClass}" 
-                                     style="filter: drop-shadow(0 6px 4px rgba(0,0,0,0.5));">
+                                     style="${spriteStyle}">
                                 <div id="shadow-${c.uid}" class="battle-shadow absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-0 opacity-75 ${vanishClass}"></div>
                             </div>
                         </div>
                     `;
 
                     if (c.team === 'P1') elP1Act.appendChild(card); else elP2Act.appendChild(card);
-                                } else if (!c.isActive) {
+                } else if (!c.isActive) {
                     const benchIcon = document.createElement('div');
                     
                     // --- Shrink icons slightly on mobile for 6v6 ---
@@ -5661,11 +6149,12 @@ updateDOMHp(target.uid);
                 }
             });
 
-                        const wOverlay = document.getElementById('weather-overlay');
+            const wOverlay = document.getElementById('weather-overlay');
             if (gameState.weather.type) {
                 if (gameState.weather.type === 'sand') wOverlay.className = 'weather-overlay sandstorm-bg active';
                 else if (gameState.weather.type === 'rain') wOverlay.className = 'weather-overlay rain-bg active';
                 else if (gameState.weather.type === 'sun') wOverlay.className = 'weather-overlay sun-bg active';
+                else if (gameState.weather.type === 'hail') wOverlay.className = 'weather-overlay hail-bg active';
             } else { wOverlay.className = 'weather-overlay'; }
 
             // ======= TERRAIN LOGIC MUST BE INSIDE THE FUNCTION =======
@@ -5683,6 +6172,7 @@ updateDOMHp(target.uid);
             renderFieldHazards(elP1Act, 'P1');
             renderFieldHazards(elP2Act, 'P2');
         }
+
 
         function applyHazards(mon, team, animEvent) {
             if (mon.ability === 'magic_guard') return;
@@ -5729,11 +6219,22 @@ updateDOMHp(target.uid);
                 let actingMonIndex = activeField.findIndex(c => c.uid === gameState.activeCombatantUid);
                 if (actingMonIndex !== -1) {
                     let actingMon = activeField[actingMonIndex];
+                    
+                    // --- V1.3 WEATHER/TERRAIN PREVIEW MATH ---
                     if (gameState.previewMove.fixedAV !== undefined) {
                         actingMon.currentAV += gameState.previewMove.fixedAV;
                     } else {
-                        actingMon.currentAV += (gameState.previewMove.delay / getSpeed(actingMon));
+                        let previewDelay = gameState.previewMove.delay || 0;
+                        if (gameState.previewMove.weatherSpeedUp && gameState.weather && gameState.weather.type === gameState.previewMove.weatherSpeedUp) {
+                            previewDelay = Math.floor(previewDelay * 0.3); // 30% speed boost
+                        }
+                        if (gameState.previewMove.terrainSpeedUp && gameState.terrain && gameState.terrain.type === gameState.previewMove.terrainSpeedUp) {
+                            previewDelay = Math.floor(previewDelay * 0.3); // 30% speed boost
+                        }
+                        actingMon.currentAV += (previewDelay / Math.max(1, getSpeed(actingMon)));
                     }
+                    // -----------------------------------------
+                    
                     actingMon.isPreviewing = true; // Flag for UI styling
                 }
             }
@@ -5870,7 +6371,7 @@ updateDOMHp(target.uid);
             });
         }
 
-                function renderMoveMenu() {
+        function renderMoveMenu() {
             const container = document.getElementById('view-moves'); container.innerHTML = '';
             const activeCombatant = gameState.combatants.find(c => c.uid === gameState.activeCombatantUid);
             
@@ -5886,11 +6387,39 @@ updateDOMHp(target.uid);
                 const canAfford = activeCombatant.energy >= move.cost;
                 const isClickable = canAfford && !isStale;
                 
-                const predictedAV = move.fixedAV !== undefined ? move.fixedAV : Math.round(move.delay / getSpeed(activeCombatant));
-                const typeIconUrl = TYPE_ICONS[move.elem] || TYPE_ICONS['Default'];
+                // --- V1.3 WEATHER/TERRAIN SPEEDUP PREVIEW MATH ---
+                let effectiveDelay = move.delay || 0;
+                let isSpeedBoosted = false;
+                
+                if (move.weatherSpeedUp && gameState.weather && gameState.weather.type === move.weatherSpeedUp) {
+                    effectiveDelay = Math.floor(effectiveDelay * 0.7); // 30% speed boost
+                    isSpeedBoosted = true;
+                }
+                if (move.terrainSpeedUp && gameState.terrain && gameState.terrain.type === move.terrainSpeedUp) {
+                    effectiveDelay = Math.floor(effectiveDelay * 0.7); // 30% speed boost
+                    isSpeedBoosted = true;
+                }
+                
+                const predictedAV = move.fixedAV !== undefined ? move.fixedAV : Math.round(effectiveDelay / Math.max(1, getSpeed(activeCombatant)));
+                // -------------------------------------------------
+                                 // --- V1.3 DYNAMIC WEATHER BALL UI ---
+                let displayElem = move.elem;
+                let displayPower = move.power;
+                
+                if (moveId === 'weather_ball' && gameState.weather && gameState.weather.type) {
+                    displayPower = 100; // Power doubles
+                    if (gameState.weather.type === 'sun') displayElem = 'Fire';
+                    else if (gameState.weather.type === 'rain') displayElem = 'Water';
+                    else if (gameState.weather.type === 'sand') displayElem = 'Rock';
+                    else if (gameState.weather.type === 'hail') displayElem = 'Ice';
+                }
+                
+                // THE FIX: Using displayElem instead of move.elem
+                const typeIconUrl = TYPE_ICONS[displayElem] || TYPE_ICONS['Default'];
 
                 const btn = document.createElement('button');
-                btn.className = `pkmn-btn type-${move.elem} group p-2 flex flex-col justify-between min-h-[70px] relative overflow-hidden`;
+                // THE FIX: Using displayElem instead of move.elem
+                btn.className = `pkmn-btn type-${displayElem} group p-2 flex flex-col justify-between min-h-[70px] relative overflow-hidden`;
                 if (!isClickable) btn.disabled = true;
                 
                 btn.innerHTML = `
@@ -5902,8 +6431,8 @@ updateDOMHp(target.uid);
                     <div class="flex justify-between items-center w-full mb-1 gap-1 min-h-[24px] relative z-10">
                         <span class="flex-1 font-black text-xs sm:text-sm leading-tight uppercase shadow-black drop-shadow-md text-left whitespace-normal break-words line-clamp-2 ${(move.isPriority || move.isInstantNuke) ? 'text-yellow-300' : ''}">${move.name}</span>
                         
-                        <span class="text-[10px] text-white bg-black/60 px-1.5 py-0.5 rounded font-mono font-bold shrink-0 border ${(move.isPriority || move.isInstantNuke) ? 'border-yellow-400' : 'border-white/20'} shadow-sm">
-                            ${(move.isPriority || move.isInstantNuke) ? '⚡' : '+'}${predictedAV}AV
+                        <span class="text-[10px] text-white bg-black/60 px-1.5 py-0.5 rounded font-mono font-bold shrink-0 border ${(move.isPriority || move.isInstantNuke) ? 'border-yellow-400 text-yellow-300' : (isSpeedBoosted ? 'border-green-400 text-green-300' : 'border-white/20')} shadow-sm">
+                            ${(move.isPriority || move.isInstantNuke) ? '⚡' : (isSpeedBoosted ? '⏩' : '+')}${predictedAV}AV
                         </span>
                     </div>
                     
@@ -5911,43 +6440,69 @@ updateDOMHp(target.uid);
                         <span class="font-black text-[10px] tracking-widest ${move.cost > 0 ? 'text-yellow-300' : (move.gen > 0 ? 'text-emerald-300' : 'text-white')}">${move.cost > 0 ? `-${move.cost} EN` : (move.gen > 0 ? `+${move.gen} EN` : '0 EN')}</span>
                         
                         <span class="font-black text-[9px] text-white tracking-widest shadow-black drop-shadow-md text-right">
-                            ${move.power > 0 && move.type !== 'heal' && move.type !== 'heal_self' && move.type !== 'heal_team' && move.type !== 'rest_heal' ? `PWR ${move.power}` : ''}
-                            ${move.type === 'heal' || move.type === 'heal_self' || move.type === 'heal_team' || move.type === 'rest_heal' ? `HEAL` : ''}
-                            ${move.power === 0 && (move.type === 'status' || move.type === 'debuff' || move.type === 'damage_delay') ? `${move.effectType ? move.effectType.replace('_', ' ') : 'DEBUFF'}`.toUpperCase() : ''}
-                            ${move.power === 0 && (move.type === 'buff' || move.type === 'buff_multi') ? `BUFF` : ''}
-                            ${move.power === 0 && (move.type === 'hazard' || move.type === 'weather' || move.type === 'protect' || move.type === 'protect_spread' || move.type === 'belly_drum' || move.type === 'substitute' || move.type === 'reflect' || move.type === 'light_screen' || move.type === 'tailwind' || move.type === 'trick_room' || move.type === 'wish') ? `FIELD/TAC` : ''}
+                            <!-- THE FIX: Using displayPower instead of move.power below! -->
+                            ${displayPower > 0 && !move.type.includes('heal') ? `PWR ${displayPower}` : ''}
+                            ${move.type.includes('heal') ? `HEAL` : ''}
+                            ${displayPower === 0 && (move.type === 'status' || move.type === 'debuff' || move.type === 'damage_delay') ? `${move.effectType ? move.effectType.replace('_', ' ') : 'DEBUFF'}`.toUpperCase() : ''}
+                            ${displayPower === 0 && (move.type === 'buff' || move.type === 'buff_multi') ? `BUFF` : ''}
+                            ${displayPower === 0 && (['hazard', 'weather', 'terrain', 'protect', 'protect_spread', 'belly_drum', 'substitute', 'reflect', 'light_screen', 'tailwind', 'trick_room', 'wish', 'safeguard', 'aurora_veil', 'defog', 'haze'].includes(move.type)) ? `FIELD/TAC` : ''}
                             ${move.type === 'baton_pass' ? `TRANSFER` : ''}
                             ${move.type === 'follow_me' ? `TAUNT` : ''}
-                            ${move.type === 'forced_switch' ? `FORCE OUT` : ''}
+                            ${move.type === 'forced_switch' || move.type === 'damage_force_switch' ? `EJECTER` : ''}
+                            ${move.type === 'mirror_move' ? `COPY` : ''}
+                            ${move.type === 'detect' || move.type === 'double_team' ? `EVASION` : ''}
+                            ${move.type === 'halve_hp' ? `PUNISH` : ''}
                         </span>
                     </div>
                     ${isStale ? `<div class="absolute inset-0 bg-black/50 flex items-center justify-center z-20"><span class="bg-red-600 text-white font-black text-xs px-2 py-1 border border-black transform -rotate-12 tracking-widest shadow-md">COOLDOWN</span></div>` : ''}
                 `;
 
-                
                 if (isClickable) btn.onclick = () => openTargetMenu(moveId, move);
                 container.appendChild(btn);
             });
         }
 
+
         function openTargetMenu(moveId, move) {
             const activeCombatant = gameState.combatants.find(c => c.uid === gameState.activeCombatantUid);
 
-const title = document.getElementById('menu-title');
+            const title = document.getElementById('menu-title');
             title.innerHTML = `
                 <div class="h-6 w-6 bg-[#222] rounded-full border border-slate-500 flex items-center justify-center shrink-0 shadow-inner text-xs">
                     🎯
                 </div>
                 <span class="text-white truncate uppercase">${move.name}</span>
             `;            
-gameState.previewMove = move;
+            
+            gameState.previewMove = move;
             renderQueue();
-                        document.getElementById('view-moves').classList.add('hidden');
+            
+            document.getElementById('view-moves').classList.add('hidden');
             const tgtView = document.getElementById('view-targets');
             tgtView.classList.remove('hidden'); tgtView.innerHTML = '';
             
-            const displayAV = move.fixedAV !== undefined ? move.fixedAV : Math.round(move.delay / getSpeed(activeCombatant));
-            document.getElementById('menu-subtitle').innerHTML = `<span class="text-yellow-400">COST: ${move.cost}</span> | AV: ${displayAV}`;
+            // --- V1.3 WEATHER/TERRAIN SPEEDUP MATH ---
+            let effectiveDelay = move.delay || 0;
+            let isSpeedBoosted = false;
+            
+            if (move.weatherSpeedUp && gameState.weather && gameState.weather.type === move.weatherSpeedUp) {
+                effectiveDelay = Math.floor(effectiveDelay * 0.7); // 30% speed boost
+                isSpeedBoosted = true;
+            }
+            if (move.terrainSpeedUp && gameState.terrain && gameState.terrain.type === move.terrainSpeedUp) {
+                effectiveDelay = Math.floor(effectiveDelay * 0.7); // 30% speed boost
+                isSpeedBoosted = true;
+            }
+            
+            const displayAV = move.fixedAV !== undefined ? move.fixedAV : Math.round(effectiveDelay / Math.max(1, getSpeed(activeCombatant)));
+            
+            // Build the dynamic AV Badge
+            let avBadge = `+${displayAV}`;
+            if (move.isPriority || move.isInstantNuke) avBadge = `<span class="text-yellow-400">⚡ ${displayAV}</span>`;
+            else if (isSpeedBoosted) avBadge = `<span class="text-green-400">⏩ ${displayAV}</span>`;
+            // -----------------------------------------
+
+            document.getElementById('menu-subtitle').innerHTML = `<span class="text-yellow-400 font-mono font-bold">COST: ${move.cost}</span> <span class="text-slate-400 mx-1">|</span> <span class="font-mono font-bold text-white">AV: ${avBadge}</span>`;
 
             let validTargets = [];
             
@@ -6015,7 +6570,7 @@ gameState.previewMove = move;
                 });
             }
 
-                        const backBtn = document.createElement('button');
+            const backBtn = document.createElement('button');
             const isFullWidth = (validTargets.length === 0 || move.isSpread || move.target === 'enemy_field');
             const spanClass = isFullWidth ? 'col-span-2 md:col-span-full mt-2 py-3' : 'col-span-1 min-h-[58px]';
             
@@ -6027,6 +6582,7 @@ gameState.previewMove = move;
             };
             tgtView.appendChild(backBtn);
         }
+
 
         function promptDeathSwitch(team, headerText, actionStr) {
             document.getElementById('opponent-turn-overlay').classList.add('hidden');
@@ -6336,6 +6892,10 @@ function triggerCampaignVictory(stageData) {
     const winScreen = document.getElementById('win-screen');
     winScreen.classList.remove('hidden');
     
+    // Sync the Battle Log before rendering so the button works perfectly
+    const modalLogContent = document.getElementById('log-content');
+    if(modalLogContent) modalLogContent.innerHTML = gameState.battleLog.map(l => `<div>${l}</div>`).join('');
+
     // Use an empty pixel or generic ball as fallback if a sprite link breaks
     const fallbackImg = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
 
@@ -6374,15 +6934,24 @@ function triggerCampaignVictory(stageData) {
 
             </div>
             
-            <!-- Boss Quote -->
+            <!-- Immersion Fix: Dynamic Boss Name Tag -->
             <div class="bg-[#111] text-white p-4 border-2 border-slate-600 rounded mb-6 w-full relative shadow-[inset_0_4px_10px_rgba(0,0,0,0.8)] z-10">
-                <div class="absolute -top-3 left-4 bg-red-600 text-white px-2 py-0.5 text-[10px] font-black uppercase tracking-widest rounded border-2 border-black shadow-sm transform -rotate-2">Boss Quote</div>
+                <div class="absolute -top-3 left-4 bg-red-600 text-white px-2 py-0.5 text-[10px] font-black uppercase tracking-widest rounded border-2 border-black shadow-sm transform -rotate-2">${stageData.bossName.toUpperCase()}</div>
                 <p class="font-mono text-sm leading-relaxed italic opacity-90 pt-1">"${stageData.quote}"</p>
             </div>
             
-            <button class="pkmn-btn bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-black py-3 px-8 text-lg uppercase tracking-wider w-full z-10 shadow-[0_4px_0_#1e3a8a] active:shadow-none active:translate-y-1 transition-all border-2 border-[#111]" onclick="continueCampaign()">
-                ${currentCampaignStage >= STADIUM_GAUNTLET.length ? 'Claim Championship' : 'Next Battle'}
-            </button>
+            <!-- Action Buttons Grid (Added Log) -->
+            <div class="grid grid-cols-2 gap-3 w-full z-10">
+                <button class="pkmn-btn bg-slate-200 hover:bg-slate-300 text-[#111] border-[3px] border-[#111] font-black py-3 px-1 text-xs sm:text-sm uppercase tracking-wider shadow-[0_4px_0_#111] active:translate-y-1 active:shadow-none transition-all rounded flex items-center justify-center gap-1.5" 
+                        onclick="const lm = document.getElementById('log-modal'); lm.classList.remove('hidden'); lm.style.zIndex = '100';">
+                    <span>📜</span> BATTLE LOG
+                </button>
+
+                <button class="pkmn-btn bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-black py-3 px-1 text-xs sm:text-sm uppercase tracking-wider shadow-[0_4px_0_#1e3a8a] active:shadow-none active:translate-y-1 transition-all border-[3px] border-[#111] rounded flex items-center justify-center" 
+                        onclick="continueCampaign()">
+                    ${currentCampaignStage >= STADIUM_GAUNTLET.length ? 'CHAMPION' : 'NEXT BATTLE'}
+                </button>
+            </div>
         </div>
     `;
 }
