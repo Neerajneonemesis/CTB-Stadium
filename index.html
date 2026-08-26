@@ -456,6 +456,17 @@
 .bg-rating-green { background-color: #14532d; }
 .bg-rating-red { background-color: #7f1d1d; }
         
+        /* --- LIVE BATTLE LOG VFX --- */
+        .live-log-toast {
+            animation: liveLogPop 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes liveLogPop {
+            0% { transform: translateY(100%); opacity: 0; filter: blur(0px); }
+            10% { transform: translateY(-8px); opacity: 1; filter: blur(0px); }
+            80% { transform: translateY(-8px); opacity: 1; filter: blur(0px); }
+            100% { transform: translateY(-30px); opacity: 0; filter: blur(3px); }
+        }
+        
     </style>
 </head>
 <body class="w-full min-h-screen flex items-center justify-center bg-[#111] overflow-x-hidden overflow-y-auto select-none text-white">
@@ -657,7 +668,7 @@
             <button id="btn-tutorial-play" class="text-slate-600 hover:text-black font-bold uppercase tracking-wider flex items-center gap-1">
                 <span>📖</span> Tutorial Guide
             </button>
-            <span class="text-[10px] text-slate-400 font-mono">v1.3 Patched</span>
+            <span class="text-[10px] text-slate-400 font-mono">v1.4 Patched</span>
         </div>
 </div>    
     <!-- Disclaimer -->
@@ -752,31 +763,45 @@
     <!-- BATTLE SCREEN -->
     <div id="battle-screen" class="hidden absolute inset-0 z-30 flex flex-col md:flex-row bg-[#111] overflow-hidden">
         
-        <!-- TIMELINE -->
-        <div class="w-full h-24 md:h-full md:w-64 bg-[#2a3b4c] border-b-4 md:border-b-0 md:border-l-4 border-[#111] flex flex-col shrink-0 order-1 md:order-2 z-30 relative shadow-[-4px_0_10px_rgba(0,0,0,0.5)]">
-            <div class="text-center text-xs font-black text-white uppercase py-2 bg-[#111] shrink-0 tracking-widest relative border-b-2 border-[#222]">
-                Turn Order
-                
-                <!-- Utility Buttons Container (Pinned Right) -->
-                <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 z-50">
+        <!-- TIMELINE & LOG COLUMN (SPLIT 50/50 ON DESKTOP) -->
+        <div class="w-full h-24 md:h-full md:w-64 bg-[#2a3b4c] border-b-4 md:border-b-0 md:border-l-4 border-[#111] flex flex-col shrink-0 order-1 md:order-2 z-30 relative shadow-[-4px_0_10px_rgba(0,0,0,0.5)] overflow-hidden">
+            
+            <!-- TOP HALF: TURN ORDER -->
+            <div class="flex flex-col flex-1 min-h-0 md:border-b-4 border-[#111]">
+                <div class="text-center text-xs font-black text-white uppercase py-2 bg-[#111] shrink-0 tracking-widest relative border-b-2 border-[#222]">
+                    Turn Order
                     
-                    <!-- White Flag Surrender Button -->
-                                        <!-- Red Flag Surrender Button -->
-                    <button id="btn-battle-back" class="pkmn-panel px-2 py-0.5 text-white text-[12px] flex items-center justify-center active:translate-y-px border-2 border-black !bg-red-600 hover:!bg-red-500 transition-colors shadow-inner" onclick="confirmExitBattle()" title="Surrender">
-                        🏳️
-                    </button>
+                    <!-- Utility Buttons Container (Pinned Right) -->
+                    <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 z-50">
+                        <button id="btn-battle-back" class="pkmn-panel px-2 py-0.5 text-white text-[12px] flex items-center justify-center active:translate-y-px border-2 border-black !bg-red-600 hover:!bg-red-500 transition-colors shadow-inner" onclick="confirmExitBattle()" title="Surrender">
+                            🏳️
+                        </button>
+                        
+                        <!-- NEW: Subtitle Toggle -->
+                        <button id="btn-toggle-subs" class="pkmn-panel px-2 py-0.5 text-black font-bold text-[10px] flex items-center gap-1 active:translate-y-px border-2 border-black !bg-white hover:bg-slate-200 transition-colors" onclick="toggleLiveLog()">
+                            <span>💬</span>
+                        </button>
 
-                    
-                    <!-- Existing Log Button -->
-                    <button id="btn-toggle-log" class="pkmn-panel px-2 py-0.5 text-black font-bold text-[10px] flex items-center gap-1 active:translate-y-px border-2 border-black !bg-[#f8f8f8]">
-                        <span>📜</span> Log
-                    </button>
-                    
+                        <!-- Mobile Log Button -->
+                        <button id="btn-toggle-log" class="md:hidden pkmn-panel px-2 py-0.5 text-black font-bold text-[10px] flex items-center gap-1 active:translate-y-px border-2 border-black !bg-[#f8f8f8]">
+                            <span>📜</span>
+                        </button>
+                    </div>
                 </div>
+                <!-- Action Queue Container -->
+                <div id="action-queue-container" class="flex-1 w-full flex flex-row md:flex-col gap-2 p-2 overflow-x-auto overflow-y-hidden md:overflow-x-hidden md:overflow-y-auto custom-scrollbar items-center md:items-start min-h-0 bg-[#3b536b] shadow-inner"></div>
             </div>
 
-            <div id="action-queue-container" class="flex-1 w-full flex flex-row md:flex-col gap-2 p-2 overflow-x-auto overflow-y-hidden md:overflow-x-hidden md:overflow-y-auto custom-scrollbar items-center md:items-start min-h-0 bg-[#3b536b] shadow-inner"></div>
+            <!-- BOTTOM HALF: BATTLE LOG (Hidden on mobile, flex-1 on desktop) -->
+            <div class="hidden md:flex flex-col flex-1 min-h-0 bg-[#1e293b]">
+                <div class="text-center text-[10px] font-black text-white uppercase py-1.5 bg-[#111] shrink-0 tracking-widest relative border-b-2 border-[#222]">
+                    Battle Log
+                </div>
+                <div id="desktop-log-content" class="flex-1 w-full overflow-y-auto custom-scrollbar p-3 text-[10px] font-mono text-slate-300 space-y-1.5 shadow-inner"></div>
+            </div>
+
         </div>
+
 
                <!-- BATTLEFIELD -->
         <div class="flex-1 flex flex-col relative order-2 md:order-1 min-h-[400px] h-full overflow-hidden">
@@ -788,7 +813,7 @@
                 <!-- ISOMETRIC ARENA WRAPPER -->
                 <div id="arena-wrapper" class="w-full h-full relative z-20 flex flex-col justify-center gap-8 sm:gap-12 p-2 md:p-6 pb-6 max-w-5xl mx-auto transition-all duration-500">
                     
-                                        <!-- VGC HUD OVERLAY -->
+                    <!-- VGC HUD OVERLAY -->
                     <div id="field-status-bar" class="absolute bottom-4 left-4 md:bottom-6 md:left-6 flex flex-col items-start gap-1.5 z-50 pointer-events-none hidden"></div>
 
                     <div class="absolute top-2 left-2 md:top-6 md:left-6 flex flex-col gap-2 z-10 opacity-85" id="team-p2-bench"></div>
@@ -804,11 +829,13 @@
                     <div class="flex justify-start w-full items-end z-[25] relative">
                         <div class="flex gap-2 md:gap-10 justify-start items-end z-20 relative pl-4 md:pl-12" id="team-p1-active"></div>
                     </div>
-                </div> 
-            </div>
+                </div>
+ <!-- NEW: LIVE LOG CONTAINER (Placed right above the Action Menu line) -->
+                <div id="live-log-container" class="absolute bottom-0 left-0 right-0 z-[35] pointer-events-none flex flex-col-reverse items-center gap-1.5 pb-2 overflow-visible"></div>           
+</div>
 
             <!-- ACTION MENU (BOTTOM) -->
-            <div id="action-menu-container" class="relative z-40 shrink-0 flex flex-col w-full border-t-4 border-[#111] pkmn-panel-dark rounded-none !box-shadow-none overflow-hidden">                
+            <div id="action-menu-container" class="relative z-40 shrink-0 flex flex-col w-full border-t-4 border-[#111] pkmn-panel-dark rounded-none !box-shadow-none overflow-hidden">                             
                 <div id="opponent-turn-overlay" class="hidden absolute inset-0 z-50 bg-black/70 flex flex-col items-center justify-center">
                     <div class="pkmn-panel px-6 py-4 text-center">
                         <div class="text-lg font-black text-black tracking-widest uppercase">Waiting for Opponent...</div>
@@ -839,7 +866,9 @@
                 </div>
             </div>
         </div>
-    </div>
+
+    </div> <!-- /END BATTLE SCREEN -->
+
 
     <!-- WIN SCREEN -->
     <div id="win-screen" class="hidden absolute inset-0 z-[60] bg-black/95 flex flex-col items-center justify-center p-6 overflow-hidden">
@@ -1022,7 +1051,7 @@ let monName = passedName || "Your Pokémon";
                 showTutorial(
                     "To spend on powerful <b>Advanced</b> attacks and tactical buffs, you first need to build a bank of Energy. " +
                     "Right now, your Energy pips (the black dots beneath your HP) are completely empty. " +
-                    "<br><br>Now check the <b>Turn Order</b> panel on the left. Tapu Koko's high Speed gives it the lowest Action Value (AV), allowing it to strike first! " +
+                    "<br><br>Now check the <b>Turn Order</b> panel. As Action Value is linked to final speed, Tapu Koko's high Speed gives it the lowest Action Value (AV), allowing it to strike first! " +
                     "Every move you pick will add AV, pacing when you act next." +
                     "<br><br>Select a <b>Basic</b> attack now to generate your first Energy!"
                 );
@@ -2497,13 +2526,66 @@ let currentCampaignStage = 0;
 
         // ==========================
 
-                     
+        // --- LIVE LOG QUEUE STATE ---
+        let liveLogQueue = [];
+        let isDisplayingLog = false;
+
         function pushLog(msg, isSubEvent = false) {
             if (gameMode === 'online' && !isHost) return; 
             const prefix = isSubEvent ? `<span class="text-slate-500 pl-4">- </span>` : `<span class="text-blue-600 font-bold">> </span>`;
+            
+            // 1. Push to the hidden modal log
             gameState.battleLog.push(`${prefix}${msg}`);
+            
+            // 2. Queue the onscreen toast
+            const toastMsg = isSubEvent ? msg : `▶ ${msg}`;
+            liveLogQueue.push(toastMsg);
+            processLiveLogQueue();
         }
-        
+
+        window.subsEnabled = true; // Global state
+
+        window.toggleLiveLog = function() {
+            window.subsEnabled = !window.subsEnabled;
+            const btn = document.getElementById('btn-toggle-subs');
+            if (window.subsEnabled) {
+                btn.classList.remove('opacity-50', 'grayscale');
+                showLiveLogToast("▶ SUBTITLES ON");
+            } else {
+                btn.classList.add('opacity-50', 'grayscale');
+                liveLogQueue = []; 
+                const container = document.getElementById('live-log-container');
+                if (container) container.innerHTML = '';
+            }
+        };
+
+        function processLiveLogQueue() {
+            if (isDisplayingLog || liveLogQueue.length === 0 || !window.subsEnabled) return;
+            
+            isDisplayingLog = true;
+            const msg = liveLogQueue.shift(); 
+            
+            const container = document.getElementById('live-log-container');
+            if (!container) { isDisplayingLog = false; return; }
+            container.innerHTML = ''; 
+
+            const toast = document.createElement('div');
+            toast.className = 'live-log-toast pkmn-panel-dark !bg-[#111]/95 px-4 py-1.5 border-2 !border-slate-500 text-[10px] sm:text-xs font-black shadow-[0_4px_10px_rgba(0,0,0,0.8)] pointer-events-none w-max max-w-[90%] text-center tracking-wide uppercase rounded shrink-0';
+            toast.innerHTML = msg;
+            
+            // Comfortable 1.2s reading speed that perfectly aligns with the slowed engine
+            const displayTime = 1200; 
+            toast.style.animationDuration = `${displayTime}ms`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                if (container.contains(toast)) toast.remove();
+                isDisplayingLog = false;
+                processLiveLogQueue(); 
+            }, displayTime); 
+        }
+
 function getSpriteUrl(pokemonId, team) {
 
     const cleanId = pokemonId.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -2513,13 +2595,23 @@ function getSpriteUrl(pokemonId, team) {
     } else {
         return `https://play.pokemonshowdown.com/sprites/ani/${cleanId}.gif`;
     }
-}
+}        
 
         function updateLogUI() {
+            const htmlString = gameState.battleLog.map(l => `<div>${l}</div>`).join('');
+            
+            // 1. Update the Mobile Modal
             const logContent = document.getElementById('log-content');
             if (logContent) {
-                logContent.innerHTML = gameState.battleLog.map(l => `<div>${l}</div>`).join('');
+                logContent.innerHTML = htmlString;
                 logContent.scrollTop = logContent.scrollHeight;
+            }
+            
+            // 2. Update the Docked Desktop Panel
+            const deskLogContent = document.getElementById('desktop-log-content');
+            if (deskLogContent) {
+                deskLogContent.innerHTML = htmlString;
+                deskLogContent.scrollTop = deskLogContent.scrollHeight;
             }
         }
                 document.getElementById('btn-toggle-log').addEventListener('click', () => {
@@ -3027,6 +3119,17 @@ const step = seqArray[gameState.draftStateIndex];
                 const move = MOVES[mId];
                 if (!move || cpuMon.energy < move.cost || cpuMon.lastMoveId === mId) return;
 
+                // --- DYNAMIC WEATHER BALL FORESIGHT ---
+                let evalMove = { ...move }; 
+                if (mId === 'weather_ball' && gameState.weather && gameState.weather.type) {
+                    evalMove.power = 100;
+                    if (gameState.weather.type === 'sun') evalMove.elem = 'Fire';
+                    else if (gameState.weather.type === 'rain') evalMove.elem = 'Water';
+                    else if (gameState.weather.type === 'sand') evalMove.elem = 'Rock';
+                    else if (gameState.weather.type === 'hail') evalMove.elem = 'Ice';
+                }
+                // --------------------------------------
+
                 // --- V1.3 WEATHER/TERRAIN SPEEDUP MATH ---
                 let effectiveDelay = move.delay || 0;
                 if (move.weatherSpeedUp && gameState.weather && gameState.weather.type === move.weatherSpeedUp) {
@@ -3086,8 +3189,8 @@ const step = seqArray[gameState.draftStateIndex];
                         }
 
                         let typeMod = 1.0;
-                        if (TYPE_CHART[move.elem]) {
-                            target.types.forEach(t => { if (TYPE_CHART[move.elem][t] !== undefined) typeMod *= TYPE_CHART[move.elem][t]; });
+                        if (TYPE_CHART[evalMove.elem]) {
+                            target.types.forEach(t => { if (TYPE_CHART[evalMove.elem][t] !== undefined) typeMod *= TYPE_CHART[evalMove.elem][t]; });
                         }
                         
                         // Specific Move Exceptions
@@ -3095,12 +3198,27 @@ const step = seqArray[gameState.draftStateIndex];
                         if (mId === 'magnet_bomb' && target.types.includes('Steel')) typeMod *= 4;
                         
                         // Ability Immunities
-                        if (target.ability === 'levitate' && move.elem === 'Ground') typeMod = 0;
-                        if (target.ability === 'water_absorb' && move.elem === 'Water') typeMod = 0;
-                        if (target.ability === 'volt_absorb' && move.elem === 'Electric') typeMod = 0;
+                        if (target.ability === 'levitate' && evalMove.elem === 'Ground') typeMod = 0;
+                        if (target.ability === 'water_absorb' && evalMove.elem === 'Water') typeMod = 0;
+                        if (target.ability === 'volt_absorb' && evalMove.elem === 'Electric') typeMod = 0;
                         if (typeMod === 0) return;
 
-                        let bp = move.type === 'fixed_damage' ? 50 : (move.power || 0);
+                        // Use evalMove.power here!
+                        let bp = move.type === 'fixed_damage' ? 50 : (evalMove.power || 0);
+
+                        // --- DYNAMIC MULTI-HIT MATH ---
+                        if (move.hits || move.maxHits) {
+                            // Calculate average hits (Skill Link forces 5)
+                            let expectedHits = (cpuMon.ability === 'skill_link') ? 5 : 3;
+                            if (move.hits) expectedHits = move.hits; // For fixed hits like Double Kick (2)
+
+                            bp = bp * expectedHits;
+
+                            // Tactical Bonus: Breaking Shields & Disguises!
+                            if (target.substitute > 0 || target.item === 'focus_sash' || target.ability === 'sturdy' || target.ability === 'disguise') {
+                                score += 150 * aggression; // AI will actively hunt Mimikyu and Sashes with multi-hits!
+                            }
+                        }
 
                         if (mId === 'expanding_force' && gameState.terrain && gameState.terrain.type === 'psychic' && isGrounded(cpuMon)) {
                             bp = Math.floor(bp * 1.5);
@@ -3108,7 +3226,9 @@ const step = seqArray[gameState.draftStateIndex];
                         }
 
                         let expectedDamage = bp * typeMod;
-                        if (cpuMon.types.includes(move.elem)) expectedDamage *= 1.45;
+                        
+                        // Check STAB using evalMove.elem here!
+                        if (cpuMon.types.includes(evalMove.elem)) expectedDamage *= 1.45;
 
                         // Contact Ability Risk
                         if (move.isPhysical && predHP > 0 && cpuMon.ability !== 'magic_guard') {
@@ -3161,6 +3281,164 @@ const step = seqArray[gameState.draftStateIndex];
                         if (isUnderLethalThreat && move.isPriority) {
                             score += 160 * aggression; 
                         }
+                        // --- DYNAMIC STATUS AWARENESS & IMMUNITIES ---
+                        if (move.status && move.type === 'status') {
+                            // 1. Don't target a Pokémon that already has a status!
+                            if (target.status !== null) {
+                                score -= 1000; 
+                            } else {
+                                let isImmune = false;
+                                let targetIsGrounded = isGrounded(target);
+
+                                // 2. Terrain Immunities
+                                if (targetIsGrounded && gameState.terrain) {
+                                    if (gameState.terrain.type === 'misty') isImmune = true;
+                                    if (gameState.terrain.type === 'electric' && move.status === 'sleep') isImmune = true;
+                                }
+
+                                // 3. Type & Ability Immunities
+                                if (move.status === 'burn') {
+                                    if (target.types.includes('Fire') || target.ability === 'water_veil') isImmune = true;
+                                } else if (move.status === 'paralyze') {
+                                    if (target.types.includes('Electric') || target.ability === 'limber') isImmune = true;
+                                    // Thunder Wave fails on Ground types
+                                    if (evalMove.elem === 'Electric' && target.types.includes('Ground')) isImmune = true; 
+                                } else if (move.status === 'poison' || move.status === 'bad_poison') {
+                                    if (target.types.includes('Poison') || target.types.includes('Steel') || target.ability === 'immunity') isImmune = true;
+                                } else if (move.status === 'sleep') {
+                                    if (target.ability === 'insomnia' || target.ability === 'vital_spirit') isImmune = true;
+                                }
+
+                                // 4. Gen 6+ Powder Move Immunities
+                                let isPowder = ['sleep_powder', 'poison_powder', 'stun_spore', 'spore'].includes(mId);
+                                if (isPowder && target.types.includes('Grass')) isImmune = true;
+
+                                // Apply the final tactical score
+                                if (isImmune) {
+                                    score -= 1000; // Never cast if immune
+                                } else {
+                                    score += 120 * aggression; // Base desire to inflict status
+                                    
+                                    // Tactical Bonuses: Play smart!
+                                    if (move.status === 'paralyze' && getSpeed(target) > getSpeed(cpuMon)) {
+                                        score += 80; // High value: Paralyze things faster than us
+                                    }
+                                    if (move.status === 'burn' && (target.attack > target.spAttack || target.types.includes('Fighting'))) {
+                                        score += 90; // High value: Burn physical attackers to halve their damage
+                                    }
+                                    if ((move.status === 'poison' || move.status === 'bad_poison') && target.hp > 150) {
+                                        score += 80; // High value: Toxic bulky walls to melt them
+                                    }
+                                }
+                            }
+                        }
+                    // ====================================================
+                    // DYNAMIC STAT BOOSTING (SWORDS DANCE, NASTY PLOT, ETC.)
+                    // ====================================================
+                    if (move.type === 'buff' || move.type === 'buff_self') {
+                        // 1. Identify Immediate Lethal Threats
+                        let isLethalThreat = enemies.some(e => {
+                            // If an enemy is faster and we are injured, we are in danger
+                            return getSpeed(e) > getSpeed(cpuMon) && (cpuMon.hp / cpuMon.maxHp) < 0.45;
+                        });
+
+                        // 2. Survival Check: Never setup if death is imminent
+                        if ((cpuMon.hp / cpuMon.maxHp) < 0.25 || isLethalThreat) {
+                            score -= 1000; 
+                        } else {
+                            score += 80 * aggression; // Base desire to build stats
+                            
+                            // 3. Safety & Momentum Multipliers
+                            if (gameState.screens && (gameState.screens['P2'].reflect > 0 || gameState.screens['P2'].light_screen > 0)) {
+                                score += 50; // Much safer to setup behind screens
+                            }
+                            if (cpuMon.substitute > 0) {
+                                score += 100; // Extremely safe to setup behind a sub
+                            }
+
+                            // 4. Prevent Over-buffing (Assuming stat tracking exists)
+                            let statTarget = move.stat; // e.g., 'attack', 'spAttack'
+                            if (statTarget && cpuMon.boosts) {
+                                let currentBoost = cpuMon.boosts[statTarget] || 0;
+                                
+                                if (currentBoost >= 4) {
+                                    score -= 1000; // Stop buffing, start sweeping!
+                                } else if (currentBoost >= 2) {
+                                    score -= 150; // Diminishing returns on +4
+                                } else {
+                                    score += 70; // The first +2 is immensely valuable
+                                }
+                            }
+                        }
+                    }
+                    // ====================================================
+                    // DYNAMIC PIVOTING (U-TURN, VOLT SWITCH, PARTING SHOT)
+                    // ====================================================
+                    if (move.type === 'damage_switch' || mId === 'u_turn' || mId === 'volt_switch' || mId === 'parting_shot') {
+                        
+                        let hasBench = cpuMon.team === 'P1' 
+                            ? gameState.combatants.some(c => c.team === 'P1' && !c.isActive && !c.isDead)
+                            : gameState.combatants.some(c => c.team === 'P2' && !c.isActive && !c.isDead);
+
+                        if (!hasBench) {
+                            // If we have no one to switch to, these moves are terrible.
+                            if (mId === 'parting_shot') score -= 1000; // Fails entirely
+                            else score -= 150; // U-Turn/Volt Switch are just weak attacks now
+                        } else {
+                            // Are we heavily buffed? Don't throw away a sweep!
+                            let totalBoosts = 0;
+                            if (cpuMon.boosts) {
+                                Object.values(cpuMon.boosts).forEach(b => { if (b > 0) totalBoosts += b; });
+                            }
+                            
+                            if (totalBoosts >= 2) {
+                                score -= 300; // DO NOT PIVOT IF BUFFED
+                            } else {
+                                // Tactical Pivoting
+                                let isSlower = getSpeed(cpuMon) < getSpeed(target);
+                                
+                                // 1. The "Slow Pivot" (Take the hit, safely bring in a fragile teammate)
+                                if (isSlower) score += 80;
+                                
+                                // 2. The "Escape Hatch" (Fleeing from a bad matchup)
+                                let isLethalThreat = enemies.some(e => getSpeed(e) > getSpeed(cpuMon) && (cpuMon.hp / cpuMon.maxHp) < 0.45);
+                                if (isLethalThreat) score += 120 * aggression;
+                            }
+                        }
+                    }
+                    // ====================================================
+                    // DYNAMIC RECOVERY (ROOST, RECOVER, SYNTHESIS, ETC.)
+                    // ====================================================
+                    if (move.type === 'heal' || move.type === 'heal_self') {
+                        let hpPercent = cpuMon.hp / cpuMon.maxHp;
+                        
+                        // 1. Prevent Over-Healing (The Wasted Turn)
+                        if (hpPercent > 0.85) {
+                            score -= 1000; 
+                        } else if (hpPercent > 0.60) {
+                            score -= 200; // Not urgent enough, keep attacking
+                        } else {
+                            score += 100 * aggression; // Base desire to heal
+                            
+                            // 2. Speed Tier & Lethality Awareness
+                            let fastestEnemy = enemies.reduce((max, e) => getSpeed(e) > getSpeed(max) ? e : max, enemies[0]);
+                            let isOutsped = getSpeed(fastestEnemy) > getSpeed(cpuMon);
+                            
+                            if (isOutsped && hpPercent < 0.25) {
+                                // We are slower and in immediate KO range. 
+                                // Healing is suicide; better to go for a priority attack or damage.
+                                score -= 300; 
+                            } else {
+                                // 3. The Tactical Sweet Spot (Below 50%, safe to execute)
+                                if (hpPercent <= 0.50) score += 150; 
+                                
+                                // 4. The "Wall" Multiplier (Reward bulky tanks for stalling)
+                                if (cpuMon.maxHp >= 160 || cpuMon.def > 100 || cpuMon.spDef > 100) {
+                                    score += 120; 
+                                }
+                            }
+                        }
+                    }
 
                         if (isDoubles && move.isSpread) score += 55; 
                         else if (!isDoubles && move.isSpread) score -= 15;
@@ -3180,7 +3458,9 @@ const step = seqArray[gameState.draftStateIndex];
 
                     // --- AV TAXING & CLEAR BODY AWARENESS ---
                     if (move.targetStatDrop && move.targetStatDrop.stat === 'speed') {
-                        if (target.ability === 'clear_body') {
+                        if (gameState.trickRoom > 0) {
+                            score -= 500; // NEVER drop enemy speed in Trick Room, it buffs them!
+                        } else if (target.ability === 'clear_body') {
                             score -= 300; // Do not attempt to stat-drop a Clear Body user!
                         } else {
                             let fastestEnemy = enemies.reduce((max, e) => getSpeed(e) > getSpeed(max) ? e : max, enemies[0]);
@@ -3244,15 +3524,53 @@ const step = seqArray[gameState.draftStateIndex];
                         else if (enemies.some(e => e.moves.some(m => MOVES[m] && MOVES[m].isSpread))) score += 80 * aggression;
                     }
 
-                    if (move.type === 'weather') {
+                                        if (move.type === 'weather') {
                         if (gameState.weather.type === move.weatherType) score -= 500;
-                        else if (gameState.weather.type) score += 140 * aggression; 
-                        else score += 60;
+                        else {
+                            score += 80 * aggression; // Base desire to set weather
+                            // If it hurts us or nerfs our STAB, don't use it!
+                            if (move.weatherType === 'sand' && !cpuMon.types.some(t => ['Rock', 'Ground', 'Steel'].includes(t))) score -= 200;
+                            if (move.weatherType === 'rain' && cpuMon.types.includes('Fire')) score -= 200;
+                        }
                     }
+
+                    // --- DYNAMIC TERRAIN AWARENESS ---
                     if (move.type === 'terrain') {
-                        if (gameState.terrain && gameState.terrain.type === move.terrainType) score -= 500; 
-                        else if (gameState.terrain && gameState.terrain.type) score += 120 * aggression; 
-                        else score += 60;
+                        // 1. Don't overwrite if it's already up
+                        if (gameState.terrain && gameState.terrain.type === move.terrainType) {
+                            score -= 500; 
+                        } else {
+                            // Base desire to overwrite enemy terrain and establish control
+                            score += 80 * aggression; 
+                            
+                            let cpuIsGrounded = isGrounded(cpuMon);
+                            // Check if the CPU relies on priority attacks (e.g., Bullet Punch, Aqua Jet, Sucker Punch)
+                            let reliesOnPriority = cpuMon.moves.some(mId => MOVES[mId] && MOVES[mId].priority > 0);
+                            
+                            if (move.terrainType === 'psychic') {
+                                // TERRIBLE for priority users like Scizor
+                                if (reliesOnPriority) score -= 300; 
+                                // GREAT for Psychic types or Expanding Force users
+                                if (cpuMon.types.includes('Psychic')) score += 100;
+                            }
+                            
+                            else if (move.terrainType === 'grassy') {
+                                let enemyHasGrass = enemies.some(e => e.types.includes('Grass') && isGrounded(e));
+                                // TERRIBLE if it hands the enemy a massive Grass-type damage buff
+                                if (enemyHasGrass) score -= 250;
+                                // GREAT for grounded Pokémon (passive healing) and Grass types
+                                else if (cpuIsGrounded) score += 100 * aggression; 
+                                if (cpuMon.types.includes('Grass')) score += 100;
+                            }
+                            
+                            else if (move.terrainType === 'electric') {
+                                if (cpuMon.types.includes('Electric')) score += 100;
+                            }
+                            
+                            else if (move.terrainType === 'misty') {
+                                if (cpuMon.types.includes('Fairy')) score += 100;
+                            }
+                        }
                     }
 
                     if (move.type === 'hazard') {
@@ -3264,10 +3582,25 @@ const step = seqArray[gameState.draftStateIndex];
                     
                     if (move.type === 'reflect' && gameState.screens['P2'].reflect > 0) score -= 500;
                     if (move.type === 'light_screen' && gameState.screens['P2'].light_screen > 0) score -= 500;
-                    if (move.type === 'tailwind') {
-                        if (gameState.tailwind['P2'] > 0) score -= 500;
+                    if (move.type === 'aurora_veil') {
+                        if (gameState.weather.type !== 'hail') score -= 1000; // Do not cast without Hail!
+                        else if (gameState.screens['P2'].reflect > 0 && gameState.screens['P2'].light_screen > 0) score -= 500;
+                        else score += 180 * aggression; // Highly valued if Hail is up
+                    }
+                    
+                                        if (move.type === 'tailwind') {
+                        // Never cast Tailwind if Trick Room is active
+                        if (gameState.tailwind['P2'] > 0 || gameState.trickRoom > 0) score -= 500;
                         else score += 90 * aggression;
                     }
+
+                    // --- NEW: PREVENT SELF-SPEED BUFFS IN TRICK ROOM ---
+                    if (gameState.trickRoom > 0) {
+                        let boostsSpeed = (move.type === 'buff' && move.stat === 'speed') || 
+                                          (move.type === 'buff_multi' && move.stats.some(s => s.stat === 'speed'));
+                        if (boostsSpeed) score -= 400; // Do not use Dragon Dance, Quiver Dance, etc.
+                    }
+
 
                     // --- V1.3 SAFEGUARD LOGIC ---
                     if (move.type === 'safeguard') {
@@ -3635,7 +3968,9 @@ const step = seqArray[gameState.draftStateIndex];
 
         function getStatusBadge(c) {
             let badges = [];
-            // --- V1.3 TACTICAL STATUSES ---
+            
+            // --- V1.3 TACTICAL & VOLATILE STATUSES ---
+            if (c.isConfused) badges.push(`<span class="text-[8px] font-black uppercase px-1 border border-black rounded bg-fuchsia-500 text-white shadow-[1px_1px_0_#000] leading-none">CNF</span>`);
             if (c.hasDetect) badges.push(`<span class="text-[8px] font-black uppercase px-1 border border-black rounded bg-teal-500 text-white shadow-[1px_1px_0_#000] leading-none">DETECT</span>`);
             if (c.hasDoubleTeam) badges.push(`<span class="text-[8px] font-black uppercase px-1 border border-black rounded bg-cyan-500 text-white shadow-[1px_1px_0_#000] leading-none animate-pulse">EVASION</span>`);
             if (c.trapAV > 0) badges.push(`<span class="text-[8px] font-black uppercase px-1 border border-black rounded bg-orange-600 text-white shadow-[1px_1px_0_#000] leading-none">TRAPPED</span>`);
@@ -4374,7 +4709,28 @@ if (gameState.draftStateIndex < seqArray.length) {
                 
                 if (move.isVanish) {
                     attacker.isInvulnerable = true;
-                    pushLog(`${attacker.name} vanished instantly!`, true);
+                    let vanishMsg = `${attacker.name} vanished!`; // Fallback
+                    
+                    switch (moveId) {
+                        case 'dig':
+                            vanishMsg = `${attacker.name} burrowed its way under the ground!`;
+                            break;
+                        case 'dive':
+                            vanishMsg = `${attacker.name} hid underwater!`;
+                            break;
+                        case 'fly':
+                            vanishMsg = `${attacker.name} flew up high into the sky!`;
+                            break;
+                        case 'bounce':
+                            vanishMsg = `${attacker.name} sprang up high!`;
+                            break;
+                        case 'phantom_force':
+                        case 'shadow_force':
+                            vanishMsg = `${attacker.name} vanished instantly into the shadows!`;
+                            break;
+                    }
+                    
+                    pushLog(vanishMsg, true);
                 }
                 
                 attacker.currentAV += addedAV;
@@ -4747,6 +5103,16 @@ function isGrounded(mon) {
                             target.isActive = false;
                             target.energy = 0;
                             target.currentAV = 0; target.state = 'BENCH'; target.substituteHp = 0; target.queuedAction = null;
+  // --- NEW: WIPE STATS AND VOLATILE FLAGS ---
+                            target.statStages = { atk: 0, def: 0, spa: 0, spd: 0, speed: 0 };
+                            target.hasDoubleTeam = false;
+                            target.hasDetect = false;
+                            target.trapAV = 0;
+                            target.isInvulnerable = false;
+                            target.isProtected = false;
+                            target.isFollowMe = false;
+                            target.isDrowsy = false;
+                            // ------------------------------------------
                             randomMon.isActive = true; randomMon.currentAV = 20; randomMon.state = 'IDLE'; randomMon.turnsActive = 0; randomMon.queuedAction = null;
                             pushLog(`${target.name} was dragged out! ${target.team} sent out ${randomMon.name}!`, true);
                             applyHazards(randomMon, randomMon.team, animEvent);
@@ -5212,6 +5578,17 @@ function isGrounded(mon) {
                                         currentTarget.state = 'BENCH'; 
                                         currentTarget.queuedAction = null;
                                         
+   // --- NEW: WIPE STATS AND VOLATILE FLAGS ---
+                                        currentTarget.statStages = { atk: 0, def: 0, spa: 0, spd: 0, speed: 0 };
+                                        currentTarget.hasDoubleTeam = false;
+                                        currentTarget.hasDetect = false;
+                                        currentTarget.trapAV = 0;
+                                        currentTarget.isInvulnerable = false;
+                                        currentTarget.isProtected = false;
+                                        currentTarget.isFollowMe = false;
+                                        currentTarget.isDrowsy = false;
+                                        currentTarget.substituteHp = 0;
+                                        // ------------------------------------------                                        
                                         randomMon.isActive = true; 
                                         randomMon.currentAV = 20; 
                                         randomMon.state = 'IDLE'; 
@@ -5715,6 +6092,16 @@ function isGrounded(mon) {
             if(activeMon) {
                 activeMon.isActive = false; activeMon.currentAV = 0;
                 activeMon.energy = 0; activeMon.state = 'BENCH'; activeMon.queuedAction = null; activeMon.isFollowMe = false; activeMon.isDrowsy = false; activeMon.substituteHp = 0;
+                
+                // --- NEW: WIPE STATS AND VOLATILE FLAGS ---
+                activeMon.statStages = { atk: 0, def: 0, spa: 0, spd: 0, speed: 0 };
+                activeMon.hasDoubleTeam = false;
+                activeMon.hasDetect = false;
+                activeMon.trapAV = 0;
+                activeMon.isInvulnerable = false;
+                activeMon.isProtected = false;
+                // ------------------------------------------
+
                 if (activeMon.ability === 'natural_cure' && activeMon.status) { activeMon.status = null; pushLog(`${activeMon.name} was cured upon switching out!`); }
             }
 
@@ -5858,6 +6245,9 @@ if (gameState.isTutorial && tutorialState.isPaused) return;
             isAnimating = true;
             
             lockMenuUI(""); 
+
+            // --- PACE MULTIPLIER ---
+            const pace = window.subsEnabled !== false ? 1.5 : 1.0; 
             
             if (animEvent.attackerUid) {
                 const attackerBox = document.getElementById(`sprite-box-${animEvent.attackerUid}`);
@@ -5875,7 +6265,7 @@ if (gameState.isTutorial && tutorialState.isPaused) return;
                         setTimeout(() => {
                             showFloatingText({uid: animEvent.attackerUid}, txt.text, txt.color);
                             updateDOMHp(animEvent.attackerUid);
-                        }, idx * 200);
+                        }, idx * (200 * pace));
                     });
                 }
 
@@ -5887,8 +6277,8 @@ if (gameState.isTutorial && tutorialState.isPaused) return;
                         setTimeout(() => { 
                             if (attackerBox) attackerBox.classList.remove(animClass); 
                             if (attackerImg) attackerImg.classList.remove(`aura-${moveElem}`);
-                        }, 400);
-                    }, 250); 
+                        }, 400 * pace);
+                    }, 250 * pace); 
                 }
             }
 
@@ -5902,7 +6292,7 @@ if (gameState.isTutorial && tutorialState.isPaused) return;
                         
                         if (targetBox && targetImg) {
                             const hitCount = animEvent.hits || 1;
-                            const timeBetweenHits = 250; 
+                            const timeBetweenHits = 250 * pace; 
 
                             setTimeout(() => {
                                 if (target.texts && target.texts.length > 0) {
@@ -5910,17 +6300,17 @@ if (gameState.isTutorial && tutorialState.isPaused) return;
                                         setTimeout(() => {
                                             showFloatingText(target, txt.text, txt.color);
                                             updateDOMHp(target.uid);
-                                        }, tIdx * 200);
+                                        }, tIdx * (200 * pace));
                                     });
                                 }
-                            }, index * 100);
+                            }, index * (100 * pace));
 
                             for (let h = 0; h < hitCount; h++) {
-                                let hitDelay = (index * 100) + (h * timeBetweenHits);
+                                let hitDelay = (index * (100 * pace)) + (h * timeBetweenHits);
                                 if (hitDelay > maxHitDelay) maxHitDelay = hitDelay;
 
                                 setTimeout(() => {
-if (target.vfx) {
+                                    if (target.vfx) {
                                         playRetroDOMVFX(targetBox, target.vfx === 'rock_hit' ? 'Rock' : 'Steel', true); 
                                         if (window.RetroSFX) RetroSFX.hitMelee();
                                     }
@@ -5931,7 +6321,7 @@ if (target.vfx) {
                                         if (animEvent.isPhysical) RetroSFX.hitMelee();
                                         else if (animEvent.elem === 'Electric') RetroSFX.shootElectric();
                                         else RetroSFX.shootMagic();
-updateDOMHp(target.uid);
+                                        updateDOMHp(target.uid);
                                         
                                     } else if (animEvent.type === 'status' || animEvent.type === 'debuff' || animEvent.type === 'delay') {
                                         if (h === 0) RetroSFX.debuff(); 
@@ -5942,7 +6332,7 @@ updateDOMHp(target.uid);
                     });
                 }
                 
-                                setTimeout(() => {
+                setTimeout(() => {
                     gameState.combatants.forEach(c => { c.displayHp = c.hp; }); 
                     
                     renderBattlefield(); renderQueue(); updateLogUI();
@@ -5960,20 +6350,33 @@ updateDOMHp(target.uid);
                         }
                     });
                     
-                    let renderDelay = faintOccurred ? 800 : 100;
+                    let renderDelay = faintOccurred ? (800 * pace) : (100 * pace);
                     
                     setTimeout(() => { 
-                        // NEW: Now that the animation is done, officially remove them from the active board
                         gameState.combatants.forEach(c => { if(c.isDead) c.isActive = false; });
-                        
                         renderBattlefield(); 
-                        isAnimating = false; 
-                        evaluateTurnState(); 
+                        
+                        // --- DYNAMIC SUBTITLE WAIT STATE ---
+                        // The engine will pause here and check every 100ms
+                        const waitForSubs = setInterval(() => {
+                            // If Subs are OFF, or if the subtitle queue has completely finished playing:
+                            if (!window.subsEnabled || (liveLogQueue.length === 0 && !isDisplayingLog)) {
+                                clearInterval(waitForSubs); // Kill the checker
+                                isAnimating = false;        // Unlock the engine
+                                evaluateTurnState();        // Proceed to the next action
+                            }
+                        }, 100);
+                        // -----------------------------------
+                        
                     }, renderDelay); 
-                }, maxHitDelay + 700); 
+ 
+                    
+                }, maxHitDelay + (700 * pace)); 
                 
-            }, 500); 
+            }, 500 * pace); 
         }
+
+
         window.alignShadow = function(imgEl, uid) {
             const shadow = document.getElementById(`shadow-${uid}`);
             if (!shadow) return;
