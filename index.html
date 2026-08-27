@@ -39,6 +39,7 @@
     <meta name="twitter:image" content="https://ctbstadium.gamer.free/ctbs.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         /* Classic RPG Typography and Layout */
         body { 
@@ -943,8 +944,8 @@
         
         <!-- Utility Buttons -->
         <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 md:mt-8 w-full max-w-3xl z-10">
-            <button class="flex-1 pkmn-btn bg-blue-500 hover:bg-blue-400 text-white border-[3px] border-black font-black py-3 md:py-4 uppercase tracking-widest text-xs md:text-sm shadow-[0_4px_0_#111] active:translate-y-1 active:shadow-none" onclick="shareCertificate()">
-                📷 Share Glory
+                        <button class="flex-1 pkmn-btn bg-blue-500 hover:bg-blue-400 text-white border-[3px] border-black font-black py-3 md:py-4 uppercase tracking-widest text-xs md:text-sm shadow-[0_4px_0_#111] active:translate-y-1 active:shadow-none" onclick="shareCertificate(this)">
+                📷 Share My Glory
             </button>
             <button class="flex-1 pkmn-btn bg-slate-300 hover:bg-slate-200 text-black border-[3px] border-black font-black py-3 md:py-4 uppercase tracking-widest text-xs md:text-sm shadow-[0_4px_0_#111] active:translate-y-1 active:shadow-none" onclick="finishCertificate()">
                 Return to Menu
@@ -7399,18 +7400,60 @@ window.generateCertificate = function() {
     }, 50);
 };
 
-window.shareCertificate = function() {
+window.shareCertificate = async function(btnElement) {
+    const originalText = btnElement.innerHTML;
     
-    
-    // Use the native PWA share API if available, otherwise prompt a screenshot
-    if (navigator.share) {
-        navigator.share({
-            title: 'I am the Champion!',
-            text: `I just conquered the Stadium Gauntlet and earned my Certificate of Triumph! 🏆`,
-            url: window.location.href
-        }).catch(err => console.log("Share cancelled or failed.", err));
-    } else {
-        alert("Take a screenshot of your Certificate to share your glory!");
+    // 1. Show loading state
+    btnElement.innerHTML = `⏳ GENERATING...`;
+    btnElement.disabled = true;
+
+    try {
+        const card = document.getElementById('certificate-card');
+        
+        // 2. Generate the Image using html2canvas
+        const canvas = await html2canvas(card, {
+            scale: 2, // High resolution for crisp text
+            useCORS: true, // Allows external images (like the crown emoji/fonts)
+            backgroundColor: '#111' 
+        });
+
+        // 3. Convert Canvas to a JPG Blob
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], "CTB_Champion.jpg", { type: "image/jpeg" });
+            
+            const shareData = {
+                title: 'I am the Champion!',
+                text: 'I just conquered CTB Stadium and earned my Certificate of Triumph! 🏆',
+                files: [file] // Inject the actual image file!
+            };
+
+            // 4. Try to open the native Share Tray with the image attached
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share(shareData);
+                } catch (err) {
+                    console.log("User cancelled share or share failed.", err);
+                }
+            } else {
+                // 5. FALLBACK: If browser doesn't support file sharing, force a download
+                const link = document.createElement('a');
+                link.download = 'CTB_Champion.jpg';
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                link.click();
+                alert("Certificate downloaded to your device! You can now attach it to a message.");
+            }
+            
+            // Restore button
+            btnElement.innerHTML = originalText;
+            btnElement.disabled = false;
+            
+        }, 'image/jpeg', 0.9); // 0.9 quality JPG
+
+    } catch (err) {
+        console.error("Failed to generate image:", err);
+        alert("Failed to generate the image. Please take a manual screenshot instead!");
+        btnElement.innerHTML = originalText;
+        btnElement.disabled = false;
     }
 };
 
